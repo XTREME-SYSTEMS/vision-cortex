@@ -1,0 +1,38 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "author": {
+      "type": "string"
+    },
+    "author_type": {
+      "type": "string",
+      "enum": [
+        "user",
+        "agent"
+      ],
+      "default": "agent"
+    },
+    "content": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "message",
+        "insight",
+        "warning",
+        "opportunity",
+        "foresight"
+      ],
+      "default": "message"
+    },
+    "accent": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "author",
+    "content"
+  ]
+}

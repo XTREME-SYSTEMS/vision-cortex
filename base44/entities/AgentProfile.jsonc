@@ -1,0 +1,67 @@
+{
+  "name": "AgentProfile",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "codename": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "mission": {
+      "type": "string"
+    },
+    "personality": {
+      "type": "string"
+    },
+    "intelligence_profile": {
+      "type": "string"
+    },
+    "cadence": {
+      "type": "string"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "idle",
+        "paused",
+        "error"
+      ],
+      "default": "active"
+    },
+    "health": {
+      "type": "number"
+    },
+    "tasks_completed": {
+      "type": "number"
+    },
+    "last_run": {
+      "type": "string"
+    },
+    "accent": {
+      "type": "string"
+    },
+    "order": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

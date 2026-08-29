@@ -1,0 +1,187 @@
+{
+  "name": "Idea",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "one_liner": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "sub_industry": {
+      "type": "string"
+    },
+    "problem": {
+      "type": "string"
+    },
+    "solution": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "number"
+    },
+    "score": {
+      "type": "number"
+    },
+    "probability_of_success": {
+      "type": "number"
+    },
+    "launch_cost_usd": {
+      "type": "number"
+    },
+    "est_monthly_profit_usd": {
+      "type": "number"
+    },
+    "est_annual_revenue_usd": {
+      "type": "number"
+    },
+    "time_to_launch_days": {
+      "type": "number"
+    },
+    "target_users": {
+      "type": "string"
+    },
+    "trend_signal": {
+      "type": "string"
+    },
+    "automation_plan": {
+      "type": "string"
+    },
+    "investor_notes": {
+      "type": "string"
+    },
+    "moat": {
+      "type": "string"
+    },
+    "hidden_opportunity": {
+      "type": "string"
+    },
+    "branding": {
+      "type": "object",
+      "properties": {
+        "brand_name": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "voice": {
+          "type": "string"
+        },
+        "palette": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "viral_hooks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "competitors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "valuation": {
+            "type": "string"
+          },
+          "strengths": {
+            "type": "string"
+          },
+          "weaknesses": {
+            "type": "string"
+          },
+          "gap_to_exploit": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tech_stack": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "monetization": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "approved",
+            "conditional",
+            "rejected",
+            "pending"
+          ]
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "opinion": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blind_spots": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "discovered",
+        "validated",
+        "strategized",
+        "branded",
+        "building",
+        "launched",
+        "rejected"
+      ],
+      "default": "discovered"
+    },
+    "discovered_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

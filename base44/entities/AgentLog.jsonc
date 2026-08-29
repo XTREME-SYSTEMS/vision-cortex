@@ -1,0 +1,39 @@
+{
+  "name": "AgentLog",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string",
+      "enum": [
+        "info",
+        "success",
+        "warn",
+        "error"
+      ],
+      "default": "info"
+    },
+    "category": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    },
+    "auto_action": {
+      "type": "string"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "agent_name",
+    "message"
+  ]
+}
