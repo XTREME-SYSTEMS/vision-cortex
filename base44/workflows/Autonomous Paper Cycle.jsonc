@@ -16,7 +16,7 @@
       "ends_after_count": null
     }
   },
-  "description": "Runs a Council paper-trading cycle every 2 hours, 24/7 \u2014 resolves the open trade against the live price, then opens the next highest-conviction position. Persistent autonomous operation toward the 10-win / 90%-confidence proof gate.",
+  "description": "Runs a Council paper-trading cycle every 2 hours, 24/7, then compounds the brain. Resolves the open trade against the live price, opens the next highest-conviction position, and extracts a durable doctrine from the outcome.",
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -32,10 +32,24 @@
             "function_name": "councilPredict",
             "args": {}
           },
-          "then": "end",
+          "then": "compound",
           "x-base44": {
             "title": "Run paper cycle",
             "description": "Resolve the open trade against live price and open the next position"
+          }
+        }
+      },
+      {
+        "compound": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "councilCompound",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Compound the brain",
+            "description": "Extract a durable doctrine from the cycle outcome"
           }
         }
       }

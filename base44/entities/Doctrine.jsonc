@@ -1,0 +1,46 @@
+{
+  "name": "Doctrine",
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string"
+    },
+    "insight": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "market",
+        "tactic",
+        "ethics",
+        "opsec",
+        "leadership",
+        "compounding"
+      ],
+      "default": "tactic"
+    },
+    "source": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "weight": {
+      "type": "number",
+      "default": 1
+    },
+    "validated": {
+      "type": "boolean",
+      "default": false
+    },
+    "validation_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "topic",
+    "insight"
+  ]
+}

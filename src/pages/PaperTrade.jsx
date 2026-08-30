@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import PortfolioCard from '@/components/papertrade/PortfolioCard';
 import TradeRow from '@/components/papertrade/TradeRow';
 import CharterCard from '@/components/papertrade/CharterCard';
+import BrainCard from '@/components/papertrade/BrainCard';
 import { Play, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function PaperTrade() {
@@ -87,6 +88,8 @@ export default function PaperTrade() {
         blueprint={blueprint}
         blueprintError={blueprintError}
       />
+
+      <BrainCard />
 
       {lastResult?.error && (
         <Card className="p-4 border-rose-500/40 bg-rose-500/5">

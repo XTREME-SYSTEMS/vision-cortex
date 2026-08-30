@@ -1,0 +1,32 @@
+{
+  "name": "Governance",
+  "type": "object",
+  "properties": {
+    "article": {
+      "type": "string"
+    },
+    "principle": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "loyalty",
+        "ethics",
+        "opsec",
+        "charter"
+      ],
+      "default": "charter"
+    },
+    "enforcement": {
+      "type": "string"
+    },
+    "rank": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "article",
+    "principle"
+  ]
+}
