@@ -1,24 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
-
-const cbUrl = () => (secrets.get('CLOUD_BROWSER_URL') || '').replace(/\/$/, '');
-const cbKey = () => secrets.get('CLOUD_BROWSER_API_KEY') || '';
-
-async function engine(path, method, payload) {
-  const res = await fetch(`${cbUrl()}${path}`, {
-    method,
-    headers: { 'Content-Type': 'application/json', 'x-api-key': cbKey() },
-    body: payload ? JSON.stringify(payload) : undefined
-  });
-  const text = await res.text();
-  let json;
-  try { json = JSON.parse(text); } catch { json = { raw: text }; }
-  if (!res.ok) throw new Error(`engine ${method} ${path} ${res.status}: ${json?.error || text}`);
-  return json;
-}
-
-const str = (v, max) => String(v ?? '').slice(0, max);
-const arr = (v, max, itemMax) => (Array.isArray(v) ? v.slice(0, max).map((s) => str(s, itemMax)) : []);
+import { browseSession, str, arr } from '../../shared/cloudBrowser.ts';
 
 export default async function(req) {
   try {
@@ -33,8 +14,6 @@ export default async function(req) {
     }
     if (!allowed) return Response.json({ error: 'Admin only' }, { status: 403 });
 
-    if (!cbUrl() || !cbKey()) return Response.json({ error: 'CLOUD_BROWSER_URL / CLOUD_BROWSER_API_KEY secrets not set' }, { status: 500 });
-
     const body = await req.json().catch(() => ({}));
     const url = str(body?.url, 500).trim();
     const prompt = str(body?.prompt, 2000) ||
@@ -42,28 +21,11 @@ export default async function(req) {
     const category = str(body?.category, 80) || 'Cloud Browser Scrape';
     if (!url) return Response.json({ error: 'url is required' }, { status: 400 });
 
-    // 1. spin up a real browser session on the cloud-browser engine
-    const sess = await engine('/sessions', 'POST', { usePool: false });
-    const sid = sess?.sessionId;
-    if (!sid) throw new Error('engine returned no sessionId');
-
-    let pageText = '';
-    try {
-      // 2. navigate to the target
-      await engine(`/sessions/${sid}/execute`, 'POST', { action_type: 'goto', value: url });
-      // 3. extract raw page content (engine returns up to 50k chars of body text)
-      const ex = await engine(`/sessions/${sid}/execute`, 'POST', { action_type: 'ai_extract' });
-      pageText = str(ex?.data, 40000);
-    } finally {
-      // 4. always release the session
-      await engine(`/sessions/${sid}`, 'DELETE').catch(() => {});
-    }
-
+    const pageText = await browseSession(url, 40000);
     if (!pageText || pageText.length < 50) {
       return Response.json({ url, category, ingested: 0, error: 'no usable page text extracted', textChars: pageText.length });
     }
 
-    // 5. layer Vision Cortex's LLM to structure the raw scrape into signals
     const llm = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: `${prompt}\n\nPage URL: ${url}\nPage category: ${category}\n\nPage content:\n"""\n${pageText}\n"""`,
       model: 'gemini_3_flash',
