@@ -1,0 +1,80 @@
+{
+  "name": "Trade",
+  "type": "object",
+  "properties": {
+    "day": {
+      "type": "number"
+    },
+    "asset": {
+      "type": "string"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "long",
+        "short",
+        "cash"
+      ],
+      "default": "long"
+    },
+    "thesis": {
+      "type": "string"
+    },
+    "confidence": {
+      "type": "number"
+    },
+    "accuracy_drivers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "shadow_intel_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "council_directive": {
+      "type": "string"
+    },
+    "position_size_usd": {
+      "type": "number"
+    },
+    "entry_price": {
+      "type": "number"
+    },
+    "exit_price": {
+      "type": "number"
+    },
+    "target_return_pct": {
+      "type": "number"
+    },
+    "pnl_usd": {
+      "type": "number"
+    },
+    "pnl_pct": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "resolved_won",
+        "resolved_lost",
+        "resolved_breakeven"
+      ],
+      "default": "open"
+    },
+    "portfolio_value_before": {
+      "type": "number"
+    },
+    "portfolio_value_after": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "asset",
+    "direction"
+  ]
+}

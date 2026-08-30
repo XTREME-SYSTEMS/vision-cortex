@@ -1,0 +1,39 @@
+{
+  "name": "Portfolio",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "cash_balance": {
+      "type": "number"
+    },
+    "positions_value": {
+      "type": "number"
+    },
+    "total_value": {
+      "type": "number"
+    },
+    "starting_value": {
+      "type": "number"
+    },
+    "day": {
+      "type": "number"
+    },
+    "consecutive_wins": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "goal_hit",
+        "reward_earned"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

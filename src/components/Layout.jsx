@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { base44 } from '@/api/base44Client';
 
@@ -11,6 +11,7 @@ const nav = [
   { to: '/intel', label: 'Intel', icon: Telescope },
   { to: '/ops', label: 'Ops & Healing', icon: Activity },
   { to: '/council', label: 'Council', icon: Users },
+  { to: '/paper', label: 'Paper Desk', icon: LineChart },
 ];
 
 const adminNav = [

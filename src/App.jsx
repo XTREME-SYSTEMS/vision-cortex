@@ -21,6 +21,7 @@ import Ops from '@/pages/Ops';
 import Intel from '@/pages/Intel';
 import Council from '@/pages/Council';
 import Shadow from '@/pages/Shadow';
+import PaperTrade from '@/pages/PaperTrade';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
           <Route path="/intel" element={<Intel />} />
           <Route path="/council" element={<Council />} />
           <Route path="/shadow" element={<Shadow />} />
+          <Route path="/paper" element={<PaperTrade />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
