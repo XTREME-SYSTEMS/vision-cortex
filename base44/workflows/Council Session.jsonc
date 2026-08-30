@@ -1,0 +1,45 @@
+{
+  "description": "Convenes the Xtreme Vision Council for a scheduled deliberation every 2 hours, 24/7. All transmissions are logged to ChatMessage and AgentLog.",
+  "name": "Council Session",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "council_session",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "convene": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "councilSession",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Convene the council",
+            "description": "Scheduled 24/7 deliberation"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */2 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}

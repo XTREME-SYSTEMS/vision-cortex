@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const nav = [
@@ -9,6 +9,7 @@ const nav = [
   { to: '/chat', label: 'War Room', icon: MessagesSquare },
   { to: '/intel', label: 'Intel', icon: Telescope },
   { to: '/ops', label: 'Ops & Healing', icon: Activity },
+  { to: '/council', label: 'Council', icon: Users },
 ];
 
 export default function Layout() {
@@ -21,7 +22,7 @@ export default function Layout() {
             <span className="h-8 w-8 rounded-xl bg-foreground text-background grid place-items-center">
               <Radar className="w-4 h-4" />
             </span>
-            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Vision Cortex</span>
+            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Xtreme Vision</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-auto">
             {nav.map(({ to, label, icon: Icon }) => {
@@ -49,7 +50,7 @@ export default function Layout() {
       </main>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-xl">
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-6">
           {nav.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (
