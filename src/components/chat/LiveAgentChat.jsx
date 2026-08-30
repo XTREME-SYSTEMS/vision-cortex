@@ -91,8 +91,8 @@ export default function LiveAgentChat({ agentName, label, description, Icon, adm
   const awaiting = messages.length > 0 && messages[messages.length - 1].role === 'user';
 
   return (
-    <div className="rounded-2xl border border-border/60 bg-background/40">
-      <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">
+    <div className="rounded-2xl border border-border/60 bg-background/40 flex flex-col h-full">
+      <div className="no-scrollbar p-5 space-y-5 flex-1 overflow-y-auto">
         {messages.length === 0 && <p className="text-sm text-muted-foreground">{label} is listening.</p>}
         {messages.map((m, i) => {
           const isUser = m.role === 'user';
