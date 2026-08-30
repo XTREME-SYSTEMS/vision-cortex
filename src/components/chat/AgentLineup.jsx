@@ -42,7 +42,7 @@ export default function AgentLineup({ agents, selected, onSelectionChange }) {
 
   return (
     <div className="flex items-center gap-2">
-      <div onPointerMove={move} className="flex gap-2.5 overflow-x-auto pb-1 flex-1 -mx-1 px-1 cursor-pointer select-none">
+      <div onPointerMove={move} className="no-scrollbar flex gap-2.5 overflow-x-auto flex-1 -mx-1 px-1 cursor-pointer select-none">
         {agents.map((a) => {
           const on = selected.has(a.id);
           return (
@@ -50,7 +50,7 @@ export default function AgentLineup({ agents, selected, onSelectionChange }) {
               key={a.id}
               data-agent-id={a.id}
               onPointerDown={(e) => down(a, e)}
-              className="flex flex-col items-center gap-1.5 shrink-0 touch-none"
+              className="flex flex-col items-center gap-1.5 shrink-0"
             >
               <span
                 className={`h-12 w-12 rounded-2xl grid place-items-center text-[11px] font-display text-white transition-all ${
