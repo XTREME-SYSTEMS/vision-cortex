@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import PortfolioCard from '@/components/papertrade/PortfolioCard';
 import TradeRow from '@/components/papertrade/TradeRow';
+import CharterCard from '@/components/papertrade/CharterCard';
 import { Play, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function PaperTrade() {
@@ -12,6 +13,9 @@ export default function PaperTrade() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [lastResult, setLastResult] = useState(null);
+  const [blueprint, setBlueprint] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [blueprintError, setBlueprintError] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -42,6 +46,18 @@ export default function PaperTrade() {
     setRunning(false);
   };
 
+  const generateBlueprint = async () => {
+    setGenerating(true);
+    setBlueprintError(null);
+    try {
+      const res = await base44.functions.invoke('councilBlueprint', {});
+      setBlueprint(res?.idea || null);
+    } catch (e) {
+      setBlueprintError(e.message);
+    }
+    setGenerating(false);
+  };
+
   if (loading) return <div className="py-20 text-center text-muted-foreground">Loading paper fund…</div>;
 
   const openCount = trades.filter((t) => t.status === 'open').length;
@@ -62,6 +78,15 @@ export default function PaperTrade() {
       </div>
 
       <PortfolioCard portfolio={portfolio} />
+
+      <CharterCard
+        portfolio={portfolio}
+        trades={trades}
+        onGenerate={generateBlueprint}
+        generating={generating}
+        blueprint={blueprint}
+        blueprintError={blueprintError}
+      />
 
       {lastResult?.error && (
         <Card className="p-4 border-rose-500/40 bg-rose-500/5">
