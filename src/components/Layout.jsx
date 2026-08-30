@@ -20,7 +20,7 @@ export default function Layout() {
             <span className="h-8 w-8 rounded-xl bg-foreground text-background grid place-items-center">
               <Radar className="w-4 h-4" />
             </span>
-            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Foresight</span>
+            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Vision Cortex</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-auto">
             {nav.map(({ to, label, icon: Icon }) => {
