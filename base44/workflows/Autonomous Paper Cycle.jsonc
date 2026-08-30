@@ -5,7 +5,7 @@
       "trigger_type": "scheduled",
       "events": [],
       "schedule_mode": "recurring",
-      "cron_expression": "0 9 * * *",
+      "cron_expression": "0 */2 * * *",
       "one_time_date": null,
       "timezone": "America/New_York",
       "interval_value": null,
@@ -16,7 +16,7 @@
       "ends_after_count": null
     }
   },
-  "description": "Runs a Council paper-trading cycle every day at 9am ET \u2014 resolves the open trade against the live price, then opens the next highest-conviction position. This is the autonomous 24/7 operation of the paper fund.",
+  "description": "Runs a Council paper-trading cycle every 2 hours, 24/7 \u2014 resolves the open trade against the live price, then opens the next highest-conviction position. Persistent autonomous operation toward the 10-win / 90%-confidence proof gate.",
   "definition": {
     "document": {
       "dsl": "1.0.0",
