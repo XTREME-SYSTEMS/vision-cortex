@@ -63,7 +63,7 @@
     },
     {
       "function_name": "shadowClone",
-      "description": "Clone/duplicate any entity's records in bulk (up to 100 source records x 10 copies), optionally into a different entity \u2014 full backend+frontend replication"
+      "description": "Clone/duplicate any entity's records in bulk, optionally into a different entity"
     },
     {
       "function_name": "cloudBrowserIntel",
@@ -78,5 +78,24 @@
       "description": "Ingest daily intelligence into the IntelFeed"
     }
   ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "whatsapp_greeting": null,
+  "telegram_greeting": null,
+  "line_greeting": null,
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "voice_config": {
+    "voice_id": null
+  },
+  "emails_settings": null,
+  "allow_anonymous_access": false,
   "name": "shadow"
 }
