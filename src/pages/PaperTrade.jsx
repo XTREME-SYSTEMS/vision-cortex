@@ -6,6 +6,7 @@ import PortfolioCard from '@/components/papertrade/PortfolioCard';
 import TradeRow from '@/components/papertrade/TradeRow';
 import CharterCard from '@/components/papertrade/CharterCard';
 import BrainCard from '@/components/papertrade/BrainCard';
+import PerformanceChart from '@/components/papertrade/PerformanceChart';
 import { Play, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 export default function PaperTrade() {
@@ -79,6 +80,8 @@ export default function PaperTrade() {
       </div>
 
       <PortfolioCard portfolio={portfolio} />
+
+      <PerformanceChart />
 
       <CharterCard
         portfolio={portfolio}
