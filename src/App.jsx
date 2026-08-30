@@ -22,6 +22,7 @@ import Intel from '@/pages/Intel';
 import Council from '@/pages/Council';
 import Shadow from '@/pages/Shadow';
 import PaperTrade from '@/pages/PaperTrade';
+import Queue from '@/pages/Queue';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
           <Route path="/council" element={<Council />} />
           <Route path="/shadow" element={<Shadow />} />
           <Route path="/paper" element={<PaperTrade />} />
+          <Route path="/queue" element={<Queue />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

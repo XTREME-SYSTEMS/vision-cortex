@@ -1,0 +1,40 @@
+{
+  "name": "BuildQueue",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "idea_id": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "strategized",
+        "building",
+        "launched",
+        "failed"
+      ],
+      "default": "queued"
+    },
+    "priority": {
+      "type": "number",
+      "default": 3
+    },
+    "assigned_agent": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "default": "manual"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

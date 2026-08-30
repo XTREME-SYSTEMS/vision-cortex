@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { base44 } from '@/api/base44Client';
 
@@ -12,6 +12,7 @@ const nav = [
   { to: '/ops', label: 'Ops & Healing', icon: Activity },
   { to: '/council', label: 'Council', icon: Users },
   { to: '/paper', label: 'Paper Desk', icon: LineChart },
+  { to: '/queue', label: 'Queue', icon: ListTodo },
 ];
 
 const adminNav = [
@@ -36,7 +37,7 @@ export default function Layout() {
             <span className="h-8 w-8 rounded-xl bg-foreground text-background grid place-items-center">
               <Radar className="w-4 h-4" />
             </span>
-            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Xtreme Vision</span>
+            <span className="font-display text-[15px] tracking-[0.18em] uppercase">Vision Cortex</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-auto">
             {allNav.map(({ to, label, icon: Icon }) => {
