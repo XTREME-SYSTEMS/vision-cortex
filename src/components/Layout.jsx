@@ -1,12 +1,13 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const nav = [
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
   { to: '/agents', label: 'Agents', icon: Bot },
   { to: '/chat', label: 'War Room', icon: MessagesSquare },
+  { to: '/intel', label: 'Intel', icon: Telescope },
   { to: '/ops', label: 'Ops & Healing', icon: Activity },
 ];
 
@@ -48,7 +49,7 @@ export default function Layout() {
       </main>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-xl">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           {nav.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (

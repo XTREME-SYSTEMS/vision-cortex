@@ -1,0 +1,43 @@
+{
+  "name": "IntelFeed",
+  "type": "object",
+  "properties": {
+    "category": {
+      "type": "string"
+    },
+    "headline": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "correlations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "region": {
+      "type": "string"
+    },
+    "impact_score": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "category",
+    "headline"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 6 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Runs the Vision Cortex intelligence ingestor across all categories every day at 6am ET",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_intel_ingestion",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "ingest": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "ingestIntel",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Ingest intelligence",
+            "description": "Pull top developments across all categories"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Daily Intelligence Ingestion"
+}
