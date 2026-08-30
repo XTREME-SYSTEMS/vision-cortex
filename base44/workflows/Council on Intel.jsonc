@@ -1,0 +1,40 @@
+{
+  "name": "Council on Intel",
+  "description": "When a high-impact intelligence signal is ingested, the Xtreme Vision Council proactively convenes to deliberate on it without any human prompt. All transmissions are logged.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "IntelFeed",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ (.trigger.data.impact_score // 0) >= 80 }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "council_on_intel",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "respond": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "councilSession",
+            "args": {
+              "topic": "Proactive review of a new intelligence signal \u2014 ${.trigger.data.headline}: ${.trigger.data.summary}"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Council responds to intel",
+            "description": "Proactive, unprompted deliberation"
+          }
+        }
+      }
+    ]
+  }
+}
