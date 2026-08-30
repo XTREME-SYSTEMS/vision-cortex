@@ -23,6 +23,7 @@ import Council from '@/pages/Council';
 import Shadow from '@/pages/Shadow';
 import PaperTrade from '@/pages/PaperTrade';
 import Queue from '@/pages/Queue';
+import LiveChat from '@/pages/LiveChat';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
           <Route path="/shadow" element={<Shadow />} />
           <Route path="/paper" element={<PaperTrade />} />
           <Route path="/queue" element={<Queue />} />
+          <Route path="/live" element={<LiveChat />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
