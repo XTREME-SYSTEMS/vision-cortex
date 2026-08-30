@@ -97,12 +97,31 @@
     },
     {
       "function_name": "councilPredict",
-      "description": "Run a Council paper-trading cycle \u2014 resolve the open trade against live price and open the next highest-conviction position"
+      "description": "Run a Council paper-trading cycle"
     },
     {
       "function_name": "councilBlueprint",
-      "description": "Have the Council design a fully digital, AI-operated 24/7 business blueprint and save it as a strategized Idea"
+      "description": "Design a digital business blueprint"
     }
   ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "whatsapp_greeting": null,
+  "telegram_greeting": null,
+  "line_greeting": null,
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "voice_config": {
+    "voice_id": null
+  },
+  "emails_settings": null,
+  "allow_anonymous_access": false,
   "name": "shadow"
 }
