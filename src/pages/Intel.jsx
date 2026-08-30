@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import IntelRow from '@/components/intel/IntelRow';
 import IntelCharts from '@/components/intel/IntelCharts';
 
@@ -9,6 +10,9 @@ export default function Intel() {
   const [items, setItems] = useState(null);
   const [filter, setFilter] = useState('All');
   const [busy, setBusy] = useState(false);
+  const [scrapeUrl, setScrapeUrl] = useState('');
+  const [scrapeCategory, setScrapeCategory] = useState('');
+  const [scraping, setScraping] = useState(false);
 
   const load = () => base44.entities.IntelFeed.list('-created_date', 200).then(setItems);
   useEffect(() => { load(); }, []);
@@ -47,6 +51,24 @@ export default function Intel() {
     }
   };
 
+  const scrapeDeep = async () => {
+    if (!scrapeUrl.trim()) return;
+    setScraping(true);
+    try {
+      await base44.functions.invoke('cloudBrowserIntel', {
+        url: scrapeUrl.trim(),
+        category: scrapeCategory.trim() || 'Cloud Browser Scrape'
+      });
+      await load();
+      setScrapeUrl('');
+      setScrapeCategory('');
+    } catch {
+      // ignore
+    } finally {
+      setScraping(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="max-w-2xl">
@@ -65,6 +87,29 @@ export default function Intel() {
         <span className="text-[11px] uppercase tracking-widest text-muted-foreground">
           {items?.length || 0} signals · avg impact {avgImpact}
         </span>
+      </div>
+
+      <div className="rounded-2xl border border-border/60 bg-card p-4 sm:p-5 space-y-3">
+        <p className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">Cloud browser · deep scrape</p>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Input
+            value={scrapeUrl}
+            onChange={(e) => setScrapeUrl(e.target.value)}
+            placeholder="https://source-url.com"
+            className="flex-1"
+          />
+          <Input
+            value={scrapeCategory}
+            onChange={(e) => setScrapeCategory(e.target.value)}
+            placeholder="Category (optional)"
+            className="sm:w-48"
+          />
+          <Button onClick={scrapeDeep} disabled={scraping || !scrapeUrl.trim()} className="rounded-full sm:w-auto">
+            {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            {scraping ? 'Scraping…' : 'Scrape'}
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">Spins up a real browser session on your cloud browser, extracts the page, and structures it into signals here.</p>
       </div>
 
       <IntelCharts data={byCategory} />
