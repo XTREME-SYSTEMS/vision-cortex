@@ -78,7 +78,7 @@ export default function WarRoom() {
       <AgentLineup agents={agents} selected={selected} onSelectionChange={setSelected} />
 
       <div className="rounded-2xl border border-border/60 bg-background/40">
-        <div className="p-5 space-y-5 max-h-[55vh] overflow-y-auto">
+        <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">
           {messages === null && <p className="text-sm text-muted-foreground">Connecting to the network…</p>}
           {messages?.length === 0 && <p className="text-sm text-muted-foreground">No transmissions yet.</p>}
           {messages?.map((m) => <MessageBubble key={m.id} msg={m} />)}
