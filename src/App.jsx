@@ -20,6 +20,7 @@ import WarRoom from '@/pages/WarRoom';
 import Ops from '@/pages/Ops';
 import Intel from '@/pages/Intel';
 import Council from '@/pages/Council';
+import Shadow from '@/pages/Shadow';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -60,6 +61,7 @@ const AuthenticatedApp = () => {
           <Route path="/ops" element={<Ops />} />
           <Route path="/intel" element={<Intel />} />
           <Route path="/council" element={<Council />} />
+          <Route path="/shadow" element={<Shadow />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { base44 } from '@/api/base44Client';
 
 const nav = [
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
@@ -12,8 +13,20 @@ const nav = [
   { to: '/council', label: 'Council', icon: Users },
 ];
 
+const adminNav = [
+  { to: '/shadow', label: 'Shadow', icon: EyeOff },
+];
+
 export default function Layout() {
   const { pathname } = useLocation();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then((u) => setIsAdmin(u?.role === 'admin')).catch(() => {});
+  }, []);
+
+  const allNav = isAdmin ? [...nav, ...adminNav] : nav;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border/60">
@@ -25,7 +38,7 @@ export default function Layout() {
             <span className="font-display text-[15px] tracking-[0.18em] uppercase">Xtreme Vision</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1 ml-auto">
-            {nav.map(({ to, label, icon: Icon }) => {
+            {allNav.map(({ to, label, icon: Icon }) => {
               const active = pathname === to;
               return (
                 <Link
@@ -50,8 +63,8 @@ export default function Layout() {
       </main>
 
       <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-xl">
-        <div className="grid grid-cols-6">
-          {nav.map(({ to, label, icon: Icon }) => {
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${allNav.length}, minmax(0, 1fr))` }}>
+          {allNav.map(({ to, label, icon: Icon }) => {
             const active = pathname === to;
             return (
               <Link key={to} to={to} className={`py-3 flex flex-col items-center gap-1 text-[10px] tracking-wide ${active ? 'text-foreground' : 'text-muted-foreground'}`}>
