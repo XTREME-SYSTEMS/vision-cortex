@@ -36,13 +36,13 @@ const TOOLS = [
   { to: '/agents', label: 'Agents', Icon: Bot },
 ];
 
-function Sidebar({ active, onSelect, projects }) {
+function Sidebar({ active, onSelect, projects, agents = AGENTS }) {
   return (
     <div className="flex flex-col h-full text-sm">
       <div className="px-3 py-3">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 mb-1.5">Agents</p>
         <div className="space-y-0.5">
-          {AGENTS.map((a) => {
+          {agents.map((a) => {
             const on = a.name === active.name;
             return (
               <button
@@ -101,21 +101,29 @@ function Sidebar({ active, onSelect, projects }) {
 }
 
 export default function LiveChat() {
+  const [user, setUser] = useState(null);
   const [active, setActive] = useState(AGENTS[0]);
   const [projects, setProjects] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const Agent = AGENTS.find((a) => a.name === active.name) || AGENTS[0];
+  const isAdmin = user?.role === 'admin';
+  const agents = isAdmin ? AGENTS : AGENTS.filter((a) => a.name !== 'shadow');
+  const Agent = agents.find((a) => a.name === active.name) || agents[0] || AGENTS[0];
 
   useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
     base44.entities.BuildQueue.list('-priority', 20).then(setProjects).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (active && !agents.find((a) => a.name === active.name)) setActive(agents[0] || AGENTS[0]);
+  }, [agents, active]);
 
   const select = (a) => { setActive(a); setMobileOpen(false); };
 
   return (
     <div className="h-[calc(100vh-9rem)] flex flex-col md:flex-row md:gap-6">
       <aside className="hidden md:flex md:w-64 lg:w-72 shrink-0 flex-col border border-border/60 bg-card/30 rounded-2xl overflow-y-auto">
-        <Sidebar active={active} onSelect={setActive} projects={projects} />
+        <Sidebar active={active} onSelect={setActive} projects={projects} agents={agents} />
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -149,7 +157,7 @@ export default function LiveChat() {
             <SheetTitle className="font-display tracking-[0.18em] uppercase text-sm">Vision Cortex</SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto h-[calc(100%-4rem)]">
-            <Sidebar active={active} onSelect={select} projects={projects} />
+            <Sidebar active={active} onSelect={select} projects={projects} agents={agents} />
           </div>
         </SheetContent>
       </Sheet>

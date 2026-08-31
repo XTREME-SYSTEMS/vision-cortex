@@ -47,6 +47,13 @@
     "exit_price": {
       "type": "number"
     },
+    "price_source": {
+      "type": "string"
+    },
+    "price_estimated": {
+      "type": "boolean",
+      "default": false
+    },
     "target_return_pct": {
       "type": "number"
     },
@@ -76,5 +83,27 @@
   "required": [
     "asset",
     "direction"
-  ]
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

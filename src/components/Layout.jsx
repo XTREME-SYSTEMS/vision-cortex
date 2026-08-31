@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
+import OwnerBell from '@/components/OwnerBell';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -63,6 +64,7 @@ export default function Layout() {
             })}
           </nav>
           <div className="ml-auto md:ml-0 flex items-center gap-2">
+            <OwnerBell />
             <InstallButton className="hidden sm:inline-flex" />
             <ThemeToggle />
             <Sheet open={open} onOpenChange={setOpen}>

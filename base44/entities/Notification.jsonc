@@ -1,43 +1,49 @@
 {
-  "name": "AgentLog",
+  "name": "Notification",
   "type": "object",
   "properties": {
-    "agent_name": {
-      "type": "string"
-    },
-    "level": {
+    "kind": {
       "type": "string",
       "enum": [
-        "info",
-        "success",
-        "warn",
-        "error"
+        "streak",
+        "loss",
+        "drawdown",
+        "error",
+        "gate",
+        "info"
       ],
       "default": "info"
     },
-    "category": {
+    "title": {
       "type": "string"
     },
-    "message": {
+    "body": {
       "type": "string"
     },
-    "detail": {
-      "type": "string"
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warn",
+        "critical"
+      ],
+      "default": "info"
     },
-    "auto_action": {
-      "type": "string"
-    },
-    "resolved": {
+    "read": {
       "type": "boolean",
       "default": false
     }
   },
   "required": [
-    "agent_name",
-    "message"
+    "kind",
+    "title"
   ],
   "rls": {
-    "read": {},
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
     "create": {
       "user_condition": {
         "role": "admin"
