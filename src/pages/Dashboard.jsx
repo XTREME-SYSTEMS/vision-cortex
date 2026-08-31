@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import VisionStatement from '@/components/dashboard/VisionStatement';
 import MorningBrief from '@/components/dashboard/MorningBrief';
+import MorningFeed from '@/components/dashboard/MorningFeed';
 import RecommendationsPanel from '@/components/dashboard/RecommendationsPanel';
 
 export default function Dashboard() {
@@ -49,6 +50,7 @@ export default function Dashboard() {
       <div className="space-y-4">
         <VisionStatement />
         <MorningBrief />
+        <MorningFeed />
       </div>
 
       <RecommendationsPanel />
