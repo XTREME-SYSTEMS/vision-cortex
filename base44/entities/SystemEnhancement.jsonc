@@ -1,0 +1,107 @@
+{
+  "name": "SystemEnhancement",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "feature",
+        "hardening",
+        "optimization",
+        "healing",
+        "doctrine",
+        "integration"
+      ],
+      "default": "feature"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "implemented",
+        "auditing",
+        "audited",
+        "failed",
+        "blocked",
+        "optimized"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "number",
+      "default": 3
+    },
+    "source": {
+      "type": "string",
+      "default": "autonomous"
+    },
+    "implementation_plan": {
+      "type": "string"
+    },
+    "implementation_notes": {
+      "type": "string"
+    },
+    "audit_result": {
+      "type": "object",
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": "number"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "fix_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "max_fix_attempts": {
+      "type": "number",
+      "default": 3
+    },
+    "blocked_reason": {
+      "type": "string"
+    },
+    "last_action_at": {
+      "type": "string"
+    },
+    "build_order_step": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

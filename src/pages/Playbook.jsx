@@ -19,6 +19,16 @@ const CHAPTERS = [
   { file: '13-roadmap-90-days.md', title: '13 — 90-Day Execution Roadmap' },
   { file: '14-cloning-for-chris.md', title: '14 — Cloning the Trio for Chris' },
   { file: '15-autonomous-income-pipeline.md', title: '15 — Autonomous Income Pipeline' },
+  { file: '16-destiny-engine-overview.md', title: '16 — The Destiny Engine (Overview)' },
+  { file: '17-onboarding-quest.md', title: '17 — The Onboarding Quest' },
+  { file: '18-morning-feed.md', title: '18 — The Morning Feed' },
+  { file: '19-simulation-engine.md', title: '19 — The Simulation Engine' },
+  { file: '20-build-approvals.md', title: '20 — The Build Approvals Flow' },
+  { file: '21-autonomous-loop.md', title: '21 — The 24/7 Autonomous Loop' },
+  { file: '22-integration-map.md', title: '22 — The Integration Map' },
+  { file: '23-data-model.md', title: '23 — The Data Model' },
+  { file: '24-build-order.md', title: '24 — The Build Order' },
+  { file: '25-self-healing-protocol.md', title: '25 — The Self-Healing Protocol' },
 ];
 
 export default function Playbook() {

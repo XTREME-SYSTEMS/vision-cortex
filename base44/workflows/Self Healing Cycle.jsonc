@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 4,
+      "interval_unit": "hours",
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "self_healing_cycle",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_cycle": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "runEnhancementCycle",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run enhancement cycle",
+            "description": "Plan, audit, fix the ledger"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Fortress Engineer \u2014 runs the SystemEnhancement ledger every 4h: plan, implement, audit, auto-fix. Self-seeds the Build Order on first run.",
+  "name": "Self Healing Cycle"
+}
