@@ -15,7 +15,7 @@ export default async function (req) {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
     const core = base44.asServiceRole.integrations.Core;
     const body = await req.json().catch(() => ({}));
-    const brandLimit = Math.min(body.brand_limit || 10, 25);
+    const brandLimit = Math.min(body.brand_limit || 25, 40);
 
     const [ideas, builds, doctrines] = await Promise.all([
       base44.entities.Idea.list('rank', 60).catch(() => []),
@@ -67,8 +67,9 @@ Names must be unique, pronounceable, and domain-likely.`,
       }
     }
 
-    // 2. Link orphaned builds to ideas by title containment
+    // 2. Link orphaned builds to ideas — exact containment first, then LLM semantic match
     const orphans = (builds || []).filter((b) => !b.idea_id);
+    const stillOrphans = [];
     for (const b of orphans) {
       const match = (ideas || []).find(
         (i) => i.id && (b.title?.toLowerCase().includes(i.title?.toLowerCase()) || i.title?.toLowerCase().includes(b.title?.toLowerCase()))
@@ -77,8 +78,28 @@ Names must be unique, pronounceable, and domain-likely.`,
         await base44.entities.BuildQueue.update(b.id, { idea_id: match.id });
         remediation.linked_builds++;
       } else {
-        remediation.skipped.push(`No idea match for build "${b.title}"`);
+        stillOrphans.push(b);
       }
+    }
+    if (stillOrphans.length && (ideas || []).length) {
+      const linkRes = await core.InvokeLLM({
+        prompt: `Match each build to its best-fitting idea by semantic similarity of title/industry/topic. Return a JSON array of { "build_id", "idea_id" } pairs — only confident matches, omit any you cannot match.
+BUILDS: ${JSON.stringify(stillOrphans.map((b) => ({ id: b.id, title: b.title, industry: b.industry })))}
+IDEAS: ${JSON.stringify((ideas || []).map((i) => ({ id: i.id, title: i.title, industry: i.industry, one_liner: i.one_liner })))}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            links: { type: "array", items: { type: "object", properties: { build_id: { type: "string" }, idea_id: { type: "string" } }, required: ["build_id", "idea_id"] } },
+          },
+          required: ["links"],
+        },
+      });
+      const links = (linkRes?.links || []).filter((l) => l.build_id && l.idea_id);
+      if (links.length) {
+        await base44.entities.BuildQueue.bulkUpdate(links.map((l) => ({ id: l.build_id, idea_id: l.idea_id })));
+        remediation.linked_builds += links.length;
+      }
+      stillOrphans.filter((b) => !links.some((l) => l.build_id === b.id)).forEach((b) => remediation.skipped.push(`No idea match for build "${b.title}"`));
     }
 
     // 3. Validate high-confidence doctrines (confidence >= 0.7)
