@@ -11,6 +11,7 @@ import { base44 } from '@/api/base44Client';
 const nav = [
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
   { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },
+  { to: '/lifelab', label: 'Life Lab', icon: FlaskConical },
   { to: '/build', label: 'Build Studio', icon: Workflow },
   { to: '/simulation', label: 'Simulate', icon: FlaskConical },
   { to: '/approvals', label: 'Approvals', icon: Rocket },
