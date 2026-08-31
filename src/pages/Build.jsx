@@ -21,6 +21,7 @@ const STEPS = [
 ];
 
 const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'vision-build';
+const inputCls = 'bg-zinc-900 border-white/10 text-white placeholder:text-white/30';
 
 export default function Build() {
   const [step, setStep] = useState(0);
@@ -110,24 +111,24 @@ export default function Build() {
   const err = r?.error;
 
   return (
-    <div className="space-y-6">
+    <div className="-mx-5 -my-10 px-5 py-10 min-h-[calc(100vh-4rem)] bg-zinc-950 text-white space-y-6">
       <div>
-        <h1 className="font-display text-3xl tracking-tight">Build Studio</h1>
-        <p className="text-sm text-muted-foreground">Operate the full autonomous pipeline step by step — each step runs the real backend scrapers, Council, and generators.</p>
+        <h1 className="font-display text-3xl tracking-tight text-white">Build Studio</h1>
+        <p className="text-sm text-white/50">Operate the full autonomous pipeline step by step — each step runs the real backend scrapers, Council, and generators.</p>
       </div>
 
-      <div className="rounded-2xl border border-border/60 bg-card/30 p-4">
+      <div className="rounded-2xl overflow-hidden border border-white/10">
         <Timeline steps={STEPS} current={step} completed={completed} onJump={jump} />
       </div>
 
       <StepPanel step={cur} running={running} canRun={canRun} canNext={completed.has(step)} isLast={step === STEPS.length - 1} onRun={run} onNext={next}>
         {cur.id === 'discover' && (
           <>
-            <Textarea value={vision} onChange={(e) => setVision(e.target.value)} placeholder="Your vision / ideas — what do you want the system to build?" rows={4} className="resize-none" />
+            <Textarea value={vision} onChange={(e) => setVision(e.target.value)} placeholder="Your vision / ideas — what do you want the system to build?" rows={4} className={`resize-none ${inputCls}`} />
             {r && !err && (
               <div className="space-y-1">
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">Highest: {r.simulation?.highest_return?.title || '—'} · Fastest: {r.simulation?.fastest_return?.title || '—'} · Best: {r.simulation?.best_balance || '—'}</p>
-                {(r.pipelines || []).map((p, i) => (<div key={p.id} className="text-sm py-1 border-b border-border/40 last:border-0"><span className="text-muted-foreground">{i + 1}.</span> {p.title}</div>))}
+                <p className="text-xs text-lime-400">Highest: {r.simulation?.highest_return?.title || '—'} · Fastest: {r.simulation?.fastest_return?.title || '—'} · Best: {r.simulation?.best_balance || '—'}</p>
+                {(r.pipelines || []).map((p, i) => (<div key={p.id} className="text-sm py-1 border-b border-white/10 last:border-0"><span className="text-white/40">{i + 1}.</span> {p.title}</div>))}
               </div>
             )}
           </>
@@ -135,11 +136,11 @@ export default function Build() {
 
         {cur.id === 'analyze' && (
           <>
-            <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Debate prompt" />
-            {agentIds.length === 0 && <p className="text-xs text-muted-foreground">No active agents — add agents on the Agents page first.</p>}
+            <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Debate prompt" className={inputCls} />
+            {agentIds.length === 0 && <p className="text-xs text-white/40">No active agents — add agents on the Agents page first.</p>}
             {r && !err && (
               <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                {(r.transcript || []).map((t, i) => (<div key={i} className="text-sm leading-snug"><span className="font-medium">{t.author}: </span><span className="text-muted-foreground">{t.content}</span></div>))}
+                {(r.transcript || []).map((t, i) => (<div key={i} className="text-sm leading-snug"><span className="font-medium text-white">{t.author}: </span><span className="text-white/60">{t.content}</span></div>))}
               </div>
             )}
           </>
@@ -147,12 +148,12 @@ export default function Build() {
 
         {cur.id === 'decide' && (
           <>
-            <Input value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="Focus for the blueprint" />
+            <Input value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="Focus for the blueprint" className={inputCls} />
             {r?.idea && (
-              <div className="rounded-xl bg-muted/40 p-4 space-y-1">
-                <p className="font-medium">{r.idea.title}</p>
-                <p className="text-sm text-muted-foreground">{r.idea.one_liner}</p>
-                <div className="flex gap-4 text-xs text-muted-foreground pt-1">
+              <div className="rounded-xl bg-white/5 p-4 space-y-1">
+                <p className="font-medium text-white">{r.idea.title}</p>
+                <p className="text-sm text-white/50">{r.idea.one_liner}</p>
+                <div className="flex gap-4 text-xs text-white/50 pt-1">
                   <span>Cost: {money(r.idea.launch_cost_usd)}</span>
                   <span>Profit: {money(r.idea.est_monthly_profit_usd)}/mo</span>
                   <span>Launch: {r.idea.time_to_launch_days}d</span>
@@ -164,48 +165,48 @@ export default function Build() {
 
         {cur.id === 'queue' && (
           <>
-            <Input value={qTitle} onChange={(e) => setQTitle(e.target.value)} placeholder="Build title" />
-            {r?.id && <p className="text-sm text-emerald-600 dark:text-emerald-400">Queued — stage: {r.stage}</p>}
+            <Input value={qTitle} onChange={(e) => setQTitle(e.target.value)} placeholder="Build title" className={inputCls} />
+            {r?.id && <p className="text-sm text-lime-400">Queued — stage: {r.stage}</p>}
           </>
         )}
 
         {cur.id === 'build' && r && !err && (
           <div className="space-y-1 text-sm">
-            <p><span className="text-muted-foreground">Resolution: </span>{r.resolution}</p>
-            <p><span className="text-muted-foreground">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
-            {r.queued && <p className="text-muted-foreground">Queued new opportunity: {r.queued}</p>}
+            <p><span className="text-white/50">Resolution: </span>{r.resolution}</p>
+            <p><span className="text-white/50">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
+            {r.queued && <p className="text-white/50">Queued new opportunity: {r.queued}</p>}
           </div>
         )}
 
         {cur.id === 'provision' && (
           <>
-            <Input value={projName} onChange={(e) => setProjName(e.target.value)} placeholder="Vercel project name" />
-            {r?.project && <p className="text-sm text-emerald-600 dark:text-emerald-400">Provisioned: {r.project.name} ({r.project.id})</p>}
+            <Input value={projName} onChange={(e) => setProjName(e.target.value)} placeholder="Vercel project name" className={inputCls} />
+            {r?.project && <p className="text-sm text-lime-400">Provisioned: {r.project.name} ({r.project.id})</p>}
           </>
         )}
 
         {cur.id === 'launch' && r && !err && (
           r.launched
-            ? <p className="text-sm text-emerald-600 dark:text-emerald-400">Launched → {r.vercel_project?.name} ({r.vercel_project?.id})</p>
-            : <p className="text-sm text-muted-foreground">{r.reason || 'Nothing launch-ready — run Build + Validate first.'}</p>
+            ? <p className="text-sm text-lime-400">Launched → {r.vercel_project?.name} ({r.vercel_project?.id})</p>
+            : <p className="text-sm text-white/50">{r.reason || 'Nothing launch-ready — run Build + Validate first.'}</p>
         )}
 
         {cur.id === 'validate' && r && !err && (
           <div className="text-sm space-y-1">
-            <p><span className="text-muted-foreground">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
-            <p className="text-muted-foreground">{r.resolution}</p>
+            <p><span className="text-white/50">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
+            <p className="text-white/50">{r.resolution}</p>
           </div>
         )}
 
         {cur.id === 'compound' && r && !err && (
-          <p className="text-sm text-emerald-600 dark:text-emerald-400">Brain compounded. {r.resolution || ''}</p>
+          <p className="text-sm text-lime-400">Brain compounded. {r.resolution || ''}</p>
         )}
 
         {cur.id === 'repeat' && (
-          <p className="text-sm text-muted-foreground">Press “Reset & loop” to clear the timeline and run the next opportunity from Discover.</p>
+          <p className="text-sm text-white/50">Press “Reset & loop” to clear the timeline and run the next opportunity from Discover.</p>
         )}
 
-        {err && <div className="flex items-center gap-2 text-sm text-destructive"><AlertTriangle className="w-4 h-4" /> {err}</div>}
+        {err && <div className="flex items-center gap-2 text-sm text-rose-400"><AlertTriangle className="w-4 h-4" /> {err}</div>}
       </StepPanel>
     </div>
   );

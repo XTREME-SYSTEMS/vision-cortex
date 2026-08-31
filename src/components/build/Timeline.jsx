@@ -1,33 +1,54 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Exact replica of the AutoBuilder OS ClientTimeline — horizontal step-by-step
+// strip pinned to the top. Circles with icons, amber = current, lime = done,
+// connector lines, "Step X of N" on mobile, auto-centers the current step.
 export default function Timeline({ steps, current, completed, onJump }) {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const el = scrollRef.current?.querySelector(`[data-step-idx="${current}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [current]);
+
   return (
-    <div className="flex items-start w-full overflow-x-auto no-scrollbar">
-      {steps.map((s, i) => {
-        const done = completed.has(i);
-        const on = i === current;
-        const Icon = s.icon;
-        return (
-          <React.Fragment key={s.id}>
-            <button onClick={() => onJump(i)} className="flex flex-col items-center gap-1.5 shrink-0 group">
-              <span className={cn(
-                'h-10 w-10 rounded-full grid place-items-center border-2 transition-all',
-                on ? 'bg-foreground text-background border-foreground scale-110' :
-                done ? 'bg-emerald-500 text-white border-emerald-500' :
-                'bg-card text-muted-foreground border-border group-hover:border-foreground/40'
-              )}>
-                {done ? <Check className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-              </span>
-              <span className={cn('text-[10px] uppercase tracking-wider whitespace-nowrap', on ? 'text-foreground font-medium' : 'text-muted-foreground')}>{s.label}</span>
-            </button>
-            {i < steps.length - 1 && (
-              <div className={cn('h-0.5 mt-5 w-5 sm:w-9 shrink-0', done ? 'bg-emerald-500' : 'bg-border')} />
-            )}
-          </React.Fragment>
-        );
-      })}
+    <div className="border-b border-white/10 bg-zinc-950">
+      <div className="flex items-center justify-between px-4 pt-2 sm:hidden">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-400">
+          Step {Math.max(current + 1, 1)} of {steps.length}
+        </span>
+        <span className="truncate pl-2 text-[11px] font-medium text-white/60">{steps[current]?.label || ''}</span>
+      </div>
+      <div ref={scrollRef} className="flex items-center gap-1 overflow-x-auto px-4 py-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-1.5 sm:py-3">
+        {steps.map((step, i) => {
+          const Icon = step.icon;
+          const isCurrent = i === current;
+          const isDone = completed.has(i);
+          return (
+            <div key={step.id} className="flex items-center" data-step-idx={i}>
+              <button type="button" onClick={() => onJump(i)} className="group flex cursor-pointer flex-col items-center gap-1 shrink-0">
+                <span className={cn(
+                  'flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all sm:h-9 sm:w-9',
+                  isCurrent ? 'border-amber-400 bg-amber-400 text-black' :
+                  isDone ? 'border-lime-400 bg-lime-400 text-black' :
+                  'border-white/15 bg-zinc-900 text-white/40 hover:border-amber-400/40 hover:text-amber-300'
+                )}>
+                  {isDone ? <Check className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                </span>
+                <span className={cn(
+                  'hidden whitespace-nowrap text-[11px] font-medium sm:block',
+                  isCurrent ? 'text-amber-400' : isDone ? 'text-lime-400' : 'text-white/30'
+                )}>{step.label}</span>
+              </button>
+              {i < steps.length - 1 && (
+                <div className={cn('mx-0.5 h-0.5 w-3 shrink-0 rounded-full sm:mx-1 sm:w-5', i < current ? 'bg-amber-400' : 'bg-white/10')} />
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
