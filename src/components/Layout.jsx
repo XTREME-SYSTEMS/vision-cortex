@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
@@ -14,6 +14,7 @@ const nav = [
   { to: '/simulation', label: 'Simulate', icon: FlaskConical },
   { to: '/approvals', label: 'Approvals', icon: Rocket },
   { to: '/marketer', label: 'Marketer', icon: Megaphone },
+  { to: '/audit', label: 'Audit', icon: ShieldCheck },
   { to: '/agents', label: 'Agents', icon: Bot },
   { to: '/chat', label: 'War Room', icon: MessagesSquare },
   { to: '/intel', label: 'Intel', icon: Telescope },
