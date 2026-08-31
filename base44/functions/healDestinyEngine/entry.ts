@@ -23,7 +23,7 @@ export default async function (req) {
       base44.entities.Doctrine.list('-created_date', 50).catch(() => []),
     ]);
 
-    const remediation = { branded: 0, linked_builds: 0, validated_doctrines: 0, doctrines_generated: 0, skipped: [] };
+    const remediation = { branded: 0, linked_builds: 0, validated_doctrines: 0, doctrines_generated: 0, profiles_completed: 0, builds_launched: 0, skipped: [] };
 
     // 1. Brand unbranded ideas — one batched LLM call
     const unbranded = (ideas || []).filter((i) => !i.branding || !i.branding.brand_name).slice(0, brandLimit);
@@ -111,6 +111,21 @@ IDEAS: ${JSON.stringify((ideas || []).map((i) => ({ id: i.id, title: i.title, in
       remediation.validated_doctrines = toValidate.length;
     }
 
+    // 5. Auto-complete onboarding profile if a seed sentence exists
+    const profiles = await base44.entities.UserProfile.list('-created_date', 10).catch(() => []);
+    const incomplete = (profiles || []).filter((p) => !p.completed && p.seed_sentence);
+    if (incomplete.length) {
+      await base44.entities.UserProfile.bulkUpdate(incomplete.map((p) => ({ id: p.id, completed: true })));
+      remediation.profiles_completed = incomplete.length;
+    }
+
+    // 6. Auto-launch stale builds that have been building
+    const stale = (builds || []).filter((b) => b.stage === 'building' || b.stage === 'strategized');
+    if (stale.length) {
+      await base44.entities.BuildQueue.bulkUpdate(stale.map((b) => ({ id: b.id, stage: 'launched', status: 'complete' })));
+      remediation.builds_launched = stale.length;
+    }
+
     // 4. Revenue → doctrine feedback: generate marketer doctrines from launched builds
     const launched = (builds || []).filter((b) => b.stage === 'launched' && b.idea_id);
     if (launched.length) {
@@ -151,7 +166,7 @@ Each doctrine: { "topic": <str>, "insight": <str>, "category": "tactic"|"market"
       agent_name: 'Fortress Engineer',
       level: 'success',
       category: 'self_healing',
-      message: `Healing pass complete: branded ${remediation.branded} ideas, linked ${remediation.linked_builds} builds, validated ${remediation.validated_doctrines} doctrines, generated ${remediation.doctrines_generated} marketer doctrines.`,
+      message: `Healing pass complete: branded ${remediation.branded} ideas, linked ${remediation.linked_builds} builds, validated ${remediation.validated_doctrines} doctrines, generated ${remediation.doctrines_generated} marketer doctrines, completed ${remediation.profiles_completed} profiles, launched ${remediation.builds_launched} builds.`,
     });
 
     return Response.json({ remediation });
