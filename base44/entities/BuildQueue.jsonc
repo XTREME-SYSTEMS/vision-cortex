@@ -32,6 +32,47 @@
     },
     "notes": {
       "type": "string"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "product_type": {
+      "type": "string",
+      "default": "marketing_site"
+    },
+    "current_step": {
+      "type": "string",
+      "default": "profile"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "complete",
+        "failed"
+      ],
+      "default": "queued"
+    },
+    "auto_advance": {
+      "type": "boolean",
+      "default": false
+    },
+    "visited_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [

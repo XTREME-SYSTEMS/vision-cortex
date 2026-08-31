@@ -1,213 +1,244 @@
-import React, { useEffect, useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { Telescope, Microscope, Gavel, ListTodo, Hammer, Server, Rocket, ShieldCheck, Brain, RefreshCw, AlertTriangle } from 'lucide-react';
-import Timeline from '@/components/build/Timeline';
-import StepPanel from '@/components/build/StepPanel';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { money } from '@/components/ideas/format';
+import { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { base44 } from "@/api/base44Client";
+import {
+  Plus, Loader2, Trash2, Zap, Pause, Play, CheckCircle, AlertCircle,
+  Clock, ArrowRight, Hammer,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { PRODUCT_TYPE_OPTIONS, DEFAULT_PRODUCT_TYPE } from "@/lib/buildProductTypes";
 
-const STEPS = [
-  { id: 'discover', label: 'Discover', icon: Telescope, desc: 'Input your vision. The system scrapes the web and uses the LLM to surface 10 opportunities.' },
-  { id: 'analyze', label: 'Analyze', icon: Microscope, desc: 'The Council debates the top opportunity — risks, moat, and viability.' },
-  { id: 'decide', label: 'Decide', icon: Gavel, desc: 'Generate the full investor-grade blueprint with cost, revenue, and timeline.' },
-  { id: 'queue', label: 'Queue', icon: ListTodo, desc: 'Add the chosen build to the pipeline queue.' },
-  { id: 'build', label: 'Build', icon: Hammer, desc: 'The Council enhances the build and checks launch-readiness.' },
-  { id: 'provision', label: 'Provision', icon: Server, desc: 'Provision a Vercel project for the build.' },
-  { id: 'launch', label: 'Launch', icon: Rocket, desc: 'Launch the build to production.' },
-  { id: 'validate', label: 'Validate', icon: ShieldCheck, desc: 'Council validation gate — is it ready to run unattended?' },
-  { id: 'compound', label: 'Compound', icon: Brain, desc: 'Extract a doctrine and optimize the brain.' },
-  { id: 'repeat', label: 'Repeat', icon: RefreshCw, desc: 'Loop back to discover the next opportunity.' },
-];
-
-const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'vision-build';
-const inputCls = 'bg-zinc-900 border-white/10 text-white placeholder:text-white/30';
-
+// Auto Builder — admin-side queue. Exact replica of the lead-growth-forge
+// AutoBuilder page. Create a build, then click it to enter the same client
+// portal pipeline (timeline + guided steps + generators) against it.
 export default function Build() {
-  const [step, setStep] = useState(0);
-  const [running, setRunning] = useState(false);
-  const [completed, setCompleted] = useState(new Set());
-  const [agentIds, setAgentIds] = useState([]);
-  const [vision, setVision] = useState('');
-  const [prompt, setPrompt] = useState('');
-  const [focus, setFocus] = useState('');
-  const [qTitle, setQTitle] = useState('');
-  const [projName, setProjName] = useState('');
-  const [ctx, setCtx] = useState({});
-  const [res, setRes] = useState({});
+  const [builds, setBuilds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [businessName, setBusinessName] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [error, setError] = useState("");
+  const [productType, setProductType] = useState(DEFAULT_PRODUCT_TYPE);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    base44.entities.AgentProfile.list('order', 50)
-      .then((a) => setAgentIds(a.filter((x) => x.status !== 'paused' && x.status !== 'error').map((x) => x.id)))
-      .catch(() => {});
-    base44.entities.Doctrine.filter({ category: 'leadership' }, '-created_date', 20).then((rows) => {
-      const v = rows.find((r) => /vision statement/i.test(r.topic || ''));
-      if (v) setVision(v.insight || '');
-    }).catch(() => {});
+  const load = useCallback(async () => {
+    try {
+      const list = await base44.entities.BuildQueue.list("-created_date", 100);
+      setBuilds(list || []);
+    } catch {
+      setBuilds([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const cur = STEPS[step];
+  useEffect(() => { load(); }, [load]);
 
-  const run = async () => {
-    if (cur.id === 'repeat') {
-      setStep(0); setCompleted(new Set()); setCtx({}); setRes({}); return;
-    }
-    setRunning(true);
+  // Poll for updates when a build is running
+  useEffect(() => {
+    const anyRunning = builds.some((b) => b.status === "running");
+    if (!anyRunning) return;
+    const interval = setInterval(load, 3000);
+    return () => clearInterval(interval);
+  }, [builds, load]);
+
+  const createBuild = async () => {
+    if (!businessName.trim()) { setError("Business name is required."); return; }
+    setCreating(true);
+    setError("");
     try {
-      let out;
-      if (cur.id === 'discover') {
-        out = await base44.functions.invoke('nightlyPipelinePrep', { vision });
-        const top = out.pipelines?.[0];
-        setCtx((c) => ({ ...c, topIdea: top || null, pipelines: out.pipelines, simulation: out.simulation }));
-        setPrompt((p) => p || (top ? `Analyze ${top.title} for viability, risks, and moat.` : 'Analyze the top opportunity.'));
-        setFocus((f) => f || (top ? top.title : ''));
-      } else if (cur.id === 'analyze') {
-        out = await base44.functions.invoke('agentDebate', { prompt, agentIds, webSearch: true });
-        setCtx((c) => ({ ...c, debate: out }));
-      } else if (cur.id === 'decide') {
-        out = await base44.functions.invoke('councilBlueprint', { focus });
-        setCtx((c) => ({ ...c, blueprint: out.idea }));
-        setQTitle(out.idea?.title || '');
-        setProjName(slug(out.idea?.title));
-      } else if (cur.id === 'queue') {
-        out = await base44.entities.BuildQueue.create({ title: qTitle || ctx.blueprint?.title || 'Untitled build', idea_id: ctx.blueprint?.id || '', stage: 'queued', source: 'timeline', priority: 3 });
-        setCtx((c) => ({ ...c, queueItem: out }));
-      } else if (cur.id === 'build') {
-        out = await base44.functions.invoke('pipelineOrchestrator', {});
-        setCtx((c) => ({ ...c, build: out }));
-      } else if (cur.id === 'provision') {
-        out = await base44.functions.invoke('provisionVercel', { mode: 'create', name: projName || slug(ctx.blueprint?.title) });
-        setCtx((c) => ({ ...c, vercel: out.project }));
-      } else if (cur.id === 'launch') {
-        out = await base44.functions.invoke('launchPipelineBuild', { id: ctx.queueItem?.id });
-        setCtx((c) => ({ ...c, launch: out }));
-      } else if (cur.id === 'validate') {
-        out = await base44.functions.invoke('pipelineOrchestrator', {});
-        setCtx((c) => ({ ...c, validation: out }));
-      } else if (cur.id === 'compound') {
-        out = await base44.functions.invoke('councilCompound', {});
-        setCtx((c) => ({ ...c, doctrine: out }));
-      }
-      setRes((r) => ({ ...r, [cur.id]: out }));
-      setCompleted((s) => new Set(s).add(step));
-    } catch (e) {
-      setRes((r) => ({ ...r, [cur.id]: { error: e.message || String(e) } }));
+      const created = await base44.entities.BuildQueue.create({
+        title: businessName.trim(),
+        business_name: businessName.trim(),
+        industry: industry.trim(),
+        product_type: productType,
+        current_step: "discover",
+        status: "queued",
+        source: "auto_builder",
+        visited_steps: [],
+        logs: [`[${new Date().toISOString()}] Build created`],
+      });
+      setBusinessName("");
+      setIndustry("");
+      load();
+      navigate(`/build/${created.id}`);
+    } catch {
+      setError("Couldn't create build. Try again.");
+    } finally {
+      setCreating(false);
     }
-    setRunning(false);
   };
 
-  const next = () => { if (step < STEPS.length - 1) setStep(step + 1); };
-  const jump = (i) => setStep(i);
+  const enterBuild = (build) => {
+    navigate(`/build/${build.id}`);
+  };
 
-  const canRun = (() => {
-    if (cur.id === 'analyze') return !!(prompt && agentIds.length);
-    if (cur.id === 'decide') return !!focus;
-    if (cur.id === 'queue') return !!ctx.blueprint;
-    if (cur.id === 'launch') return !!ctx.queueItem;
-    return true;
-  })();
+  const deleteBuild = async (id, e) => {
+    e.stopPropagation();
+    try {
+      await base44.entities.BuildQueue.delete(id);
+      load();
+    } catch {}
+  };
 
-  const r = res[cur.id];
-  const err = r?.error;
+  const toggleAutoAdvance = async (build, e) => {
+    e.stopPropagation();
+    try {
+      await base44.entities.BuildQueue.update(build.id, { auto_advance: !build.auto_advance });
+      load();
+    } catch {}
+  };
+
+  const statusIcon = (status) => {
+    switch (status) {
+      case "running": return <Loader2 className="h-3.5 w-3.5 animate-spin text-lime-400" />;
+      case "complete": return <CheckCircle className="h-3.5 w-3.5 text-lime-400" />;
+      case "failed": return <AlertCircle className="h-3.5 w-3.5 text-red-400" />;
+      case "paused": return <Pause className="h-3.5 w-3.5 text-amber-400" />;
+      default: return <Clock className="h-3.5 w-3.5 text-white/40" />;
+    }
+  };
+
+  const statusLabel = (status) => {
+    const map = { queued: "Queued", running: "Running", paused: "Paused", complete: "Complete", failed: "Failed" };
+    return map[status] || status;
+  };
 
   return (
-    <div className="-mx-5 -my-10 px-5 py-10 min-h-[calc(100vh-4rem)] bg-zinc-950 text-white space-y-6">
-      <div>
-        <h1 className="font-display text-3xl tracking-tight text-white">Build Studio</h1>
-        <p className="text-sm text-white/50">Operate the full autonomous pipeline step by step — each step runs the real backend scrapers, Council, and generators.</p>
+    <div className="-mx-5 -my-10 px-5 py-10 min-h-[calc(100vh-4rem)] bg-black text-white space-y-4">
+      {/* Header */}
+      <div className="rounded-xl border border-lime-400/30 bg-gradient-to-br from-lime-400/5 to-transparent p-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-lime-400/15">
+            <Hammer className="h-5 w-5 text-lime-400" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-white">Auto Builder</h1>
+            <p className="text-sm text-white/50">
+              Create a build, then walk through the exact same client portal pipeline — timeline, guided steps, and all generators — against it.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="rounded-2xl overflow-hidden border border-white/10">
-        <Timeline steps={STEPS} current={step} completed={completed} onJump={jump} />
+      {/* Create new build */}
+      <div className="rounded-xl border border-white/10 bg-zinc-950 p-4">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-lime-400">New Build</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            placeholder="Business name…"
+            className="w-full rounded-lg border border-white/15 bg-black px-3 py-2 text-sm text-white placeholder-white/30 focus:border-lime-400 focus:outline-none"
+          />
+          <input
+            value={industry}
+            onChange={(e) => setIndustry(e.target.value)}
+            placeholder="Industry (e.g. epoxy, hvac, roofing)…"
+            className="w-full rounded-lg border border-white/15 bg-black px-3 py-2 text-sm text-white placeholder-white/30 focus:border-lime-400 focus:outline-none"
+          />
+        </div>
+        {/* Product type selector */}
+        <div className="mt-3">
+          <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-white/50">Product Type</h3>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {PRODUCT_TYPE_OPTIONS.map((pt) => {
+              const Icon = pt.icon;
+              const active = productType === pt.value;
+              return (
+                <button
+                  key={pt.value}
+                  type="button"
+                  onClick={() => setProductType(pt.value)}
+                  className={cn(
+                    "flex flex-col gap-1 rounded-lg border p-3 text-left transition-colors",
+                    active ? "border-lime-400 bg-lime-400/10" : "border-white/15 hover:border-white/30"
+                  )}
+                >
+                  <Icon className={cn("h-4 w-4", active ? "text-lime-400" : "text-white/50")} />
+                  <span className={cn("text-xs font-semibold", active ? "text-white" : "text-white/70")}>{pt.label}</span>
+                  <span className="text-[10px] leading-tight text-white/40">{pt.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
+        <button
+          type="button"
+          onClick={createBuild}
+          disabled={creating}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-lime-400 px-4 py-2 text-sm font-semibold text-black hover:bg-lime-300 disabled:opacity-50"
+        >
+          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          {creating ? "Creating…" : "Create & Enter Build"}
+        </button>
       </div>
 
-      <StepPanel step={cur} running={running} canRun={canRun} canNext={completed.has(step)} isLast={step === STEPS.length - 1} onRun={run} onNext={next}>
-        {cur.id === 'discover' && (
-          <>
-            <Textarea value={vision} onChange={(e) => setVision(e.target.value)} placeholder="Your vision / ideas — what do you want the system to build?" rows={4} className={`resize-none ${inputCls}`} />
-            {r && !err && (
-              <div className="space-y-1">
-                <p className="text-xs text-lime-400">Highest: {r.simulation?.highest_return?.title || '—'} · Fastest: {r.simulation?.fastest_return?.title || '—'} · Best: {r.simulation?.best_balance || '—'}</p>
-                {(r.pipelines || []).map((p, i) => (<div key={p.id} className="text-sm py-1 border-b border-white/10 last:border-0"><span className="text-white/40">{i + 1}.</span> {p.title}</div>))}
-              </div>
-            )}
-          </>
-        )}
+      {/* Queue */}
+      <div className="rounded-xl border border-white/10 bg-zinc-950">
+        <div className="flex items-center gap-2 border-b border-white/10 p-3">
+          <Zap className="h-4 w-4 text-lime-400" />
+          <h2 className="text-sm font-semibold text-white">Build Queue</h2>
+          <span className="ml-auto rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold text-white/60">
+            {builds.length}
+          </span>
+        </div>
 
-        {cur.id === 'analyze' && (
-          <>
-            <Input value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Debate prompt" className={inputCls} />
-            {agentIds.length === 0 && <p className="text-xs text-white/40">No active agents — add agents on the Agents page first.</p>}
-            {r && !err && (
-              <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                {(r.transcript || []).map((t, i) => (<div key={i} className="text-sm leading-snug"><span className="font-medium text-white">{t.author}: </span><span className="text-white/60">{t.content}</span></div>))}
-              </div>
-            )}
-          </>
-        )}
-
-        {cur.id === 'decide' && (
-          <>
-            <Input value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="Focus for the blueprint" className={inputCls} />
-            {r?.idea && (
-              <div className="rounded-xl bg-white/5 p-4 space-y-1">
-                <p className="font-medium text-white">{r.idea.title}</p>
-                <p className="text-sm text-white/50">{r.idea.one_liner}</p>
-                <div className="flex gap-4 text-xs text-white/50 pt-1">
-                  <span>Cost: {money(r.idea.launch_cost_usd)}</span>
-                  <span>Profit: {money(r.idea.est_monthly_profit_usd)}/mo</span>
-                  <span>Launch: {r.idea.time_to_launch_days}d</span>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-5 w-5 animate-spin text-white/30" />
+          </div>
+        ) : builds.length === 0 ? (
+          <div className="px-4 py-12 text-center text-sm text-white/40">
+            No builds yet. Create one above to start the pipeline.
+          </div>
+        ) : (
+          <div className="divide-y divide-white/5">
+            {builds.map((b) => (
+              <div
+                key={b.id}
+                onClick={() => enterBuild(b)}
+                className="group flex w-full cursor-pointer items-center gap-3 p-3 text-left transition-colors hover:bg-white/5"
+              >
+                {statusIcon(b.status)}
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-medium text-white">{b.business_name || b.title}</div>
+                  <div className="mt-0.5 flex items-center gap-2 text-[10px] text-white/40">
+                    <span className="rounded bg-lime-400/10 px-1 py-0.5 font-medium text-lime-300">
+                      {(b.product_type || "marketing_site").replace("_", " ")}
+                    </span>
+                    <span>·</span>
+                    <span>{statusLabel(b.status)}</span>
+                    <span>·</span>
+                    <span className="capitalize">{(b.current_step || "").replace("_", " ")}</span>
+                    {b.industry && <><span>·</span><span className="truncate">{b.industry}</span></>}
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={(e) => toggleAutoAdvance(b, e)}
+                  title={b.auto_advance ? "Auto-advance ON" : "Auto-advance OFF"}
+                  className={cn(
+                    "shrink-0 rounded p-1.5 transition-colors",
+                    b.auto_advance ? "text-lime-400" : "text-white/30 hover:text-white/60"
+                  )}
+                >
+                  {b.auto_advance ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => deleteBuild(b.id, e)}
+                  className="shrink-0 rounded p-1.5 text-white/20 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+                <ArrowRight className="h-4 w-4 shrink-0 text-white/30 group-hover:text-lime-400" />
               </div>
-            )}
-          </>
-        )}
-
-        {cur.id === 'queue' && (
-          <>
-            <Input value={qTitle} onChange={(e) => setQTitle(e.target.value)} placeholder="Build title" className={inputCls} />
-            {r?.id && <p className="text-sm text-lime-400">Queued — stage: {r.stage}</p>}
-          </>
-        )}
-
-        {cur.id === 'build' && r && !err && (
-          <div className="space-y-1 text-sm">
-            <p><span className="text-white/50">Resolution: </span>{r.resolution}</p>
-            <p><span className="text-white/50">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
-            {r.queued && <p className="text-white/50">Queued new opportunity: {r.queued}</p>}
+            ))}
           </div>
         )}
-
-        {cur.id === 'provision' && (
-          <>
-            <Input value={projName} onChange={(e) => setProjName(e.target.value)} placeholder="Vercel project name" className={inputCls} />
-            {r?.project && <p className="text-sm text-lime-400">Provisioned: {r.project.name} ({r.project.id})</p>}
-          </>
-        )}
-
-        {cur.id === 'launch' && r && !err && (
-          r.launched
-            ? <p className="text-sm text-lime-400">Launched → {r.vercel_project?.name} ({r.vercel_project?.id})</p>
-            : <p className="text-sm text-white/50">{r.reason || 'Nothing launch-ready — run Build + Validate first.'}</p>
-        )}
-
-        {cur.id === 'validate' && r && !err && (
-          <div className="text-sm space-y-1">
-            <p><span className="text-white/50">Ready to launch: </span>{r.ready_to_launch ? 'Yes' : 'Not yet'}</p>
-            <p className="text-white/50">{r.resolution}</p>
-          </div>
-        )}
-
-        {cur.id === 'compound' && r && !err && (
-          <p className="text-sm text-lime-400">Brain compounded. {r.resolution || ''}</p>
-        )}
-
-        {cur.id === 'repeat' && (
-          <p className="text-sm text-white/50">Press “Reset & loop” to clear the timeline and run the next opportunity from Discover.</p>
-        )}
-
-        {err && <div className="flex items-center gap-2 text-sm text-rose-400"><AlertTriangle className="w-4 h-4" /> {err}</div>}
-      </StepPanel>
+      </div>
     </div>
   );
 }

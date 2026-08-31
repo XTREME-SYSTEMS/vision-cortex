@@ -27,6 +27,7 @@ import LiveChat from '@/pages/LiveChat';
 import Playbook from '@/pages/Playbook';
 import Codebase from '@/pages/Codebase';
 import Build from '@/pages/Build';
+import BuildPortal from '@/pages/BuildPortal';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -74,6 +75,9 @@ const AuthenticatedApp = () => {
           <Route path="/playbook" element={<Playbook />} />
           <Route path="/codebase" element={<Codebase />} />
           <Route path="/build" element={<Build />} />
+        </Route>
+        <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+          <Route path="/build/:id" element={<BuildPortal />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
