@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, Sparkles } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
@@ -10,6 +10,7 @@ import { base44 } from '@/api/base44Client';
 
 const nav = [
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
+  { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },
   { to: '/build', label: 'Build Studio', icon: Workflow },
   { to: '/simulation', label: 'Simulate', icon: FlaskConical },
   { to: '/approvals', label: 'Approvals', icon: Rocket },
