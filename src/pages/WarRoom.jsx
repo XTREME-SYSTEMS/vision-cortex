@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import MessageBubble from '@/components/chat/MessageBubble';
 import AgentLineup from '@/components/chat/AgentLineup';
+import ActivityStream from '@/components/warroom/ActivityStream';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send, Globe, Loader2 } from 'lucide-react';
@@ -76,6 +77,8 @@ export default function WarRoom() {
       </div>
 
       <AgentLineup agents={agents} selected={selected} onSelectionChange={setSelected} />
+
+      <ActivityStream />
 
       <div className="rounded-2xl border border-border/60 bg-background/40">
         <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">

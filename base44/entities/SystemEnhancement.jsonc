@@ -2,10 +2,53 @@
   "name": "SystemEnhancement",
   "type": "object",
   "properties": {
+    "number": {
+      "type": "number"
+    },
     "title": {
       "type": "string"
     },
     "description": {
+      "type": "string"
+    },
+    "existing_system": {
+      "type": "string",
+      "description": "What exists now \u2014 the current state of the system component being analyzed"
+    },
+    "downfall": {
+      "type": "string",
+      "description": "What is wrong, missing, or suboptimal about the existing system"
+    },
+    "recommended_enhancement": {
+      "type": "string",
+      "description": "The recommended fix or enhancement"
+    },
+    "technical_protocols": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Best technical protocols found via web search"
+    },
+    "surround_enhancements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Related supporting enhancements"
+    },
+    "web_search_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs found during web search for protocols"
+    },
+    "approved": {
+      "type": "boolean",
+      "default": false
+    },
+    "implementation_code": {
       "type": "string"
     },
     "category": {
@@ -24,8 +67,10 @@
       "type": "string",
       "enum": [
         "pending",
+        "approved",
         "in_progress",
         "implemented",
+        "validating",
         "auditing",
         "audited",
         "failed",

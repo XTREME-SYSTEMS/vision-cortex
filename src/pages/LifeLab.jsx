@@ -3,6 +3,7 @@ import { FlaskConical, Loader2, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import ConfigPanel from '@/components/lifelab/ConfigPanel';
+import PinCompare from '@/components/lifelab/PinCompare';
 import StatsCards from '@/components/lifelab/StatsCards';
 import TrajectoryChart from '@/components/lifelab/TrajectoryChart';
 import EventFrequency from '@/components/lifelab/EventFrequency';
@@ -192,6 +193,7 @@ export default function LifeLab() {
               <StatsCards stats={result.stats} count={result.simulations} />
               <TrajectoryChart lives={result.lives} />
               <PathComparison lives={result.lives} />
+              <PinCompare lives={result.lives} />
               <div className="grid md:grid-cols-2 gap-4">
                 <EventFrequency stats={result.stats} />
                 <LifeGrid lives={result.lives} />

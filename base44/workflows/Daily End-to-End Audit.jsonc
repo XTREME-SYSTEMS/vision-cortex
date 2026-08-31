@@ -1,0 +1,59 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": 24,
+      "interval_unit": "hours",
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_e2e_audit",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "wealth_sweep": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "wealthSweep",
+            "args": {}
+          },
+          "then": "scan_system",
+          "x-base44": {
+            "title": "Wealth sweep",
+            "description": "Search the web for wealth-enhancing digital programs, algorithms, and glitches"
+          }
+        }
+      },
+      {
+        "scan_system": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "systemAnalyst",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "System analyst scan",
+            "description": "Scan the system for gaps, web-search for best protocols, create numbered enhancements"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Daily End-to-End Audit \u2014 runs every 24h. Wealth Sweep searches the web for wealth-enhancing digital opportunities, then the System Analyst scans the system for gaps, runs recommendations through web search for best technical protocols, and creates numbered enhancement records on the dedicated page.",
+  "name": "Daily End-to-End Audit"
+}
