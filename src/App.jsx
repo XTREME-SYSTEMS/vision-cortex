@@ -29,6 +29,7 @@ import Codebase from '@/pages/Codebase';
 import Build from '@/pages/Build';
 import BuildPortal from '@/pages/BuildPortal';
 import Onboarding from '@/pages/Onboarding';
+import Simulation from '@/pages/Simulation';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -77,6 +78,7 @@ const AuthenticatedApp = () => {
           <Route path="/codebase" element={<Codebase />} />
           <Route path="/build" element={<Build />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/simulation" element={<Simulation />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

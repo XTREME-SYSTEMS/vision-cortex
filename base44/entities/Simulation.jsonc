@@ -1,0 +1,122 @@
+{
+  "name": "Simulation",
+  "type": "object",
+  "properties": {
+    "idea_id": {
+      "type": "string"
+    },
+    "strategy_name": {
+      "type": "string"
+    },
+    "horizon_days": {
+      "type": "number",
+      "default": 365
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "forecast": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "revenue": {
+            "type": "number"
+          },
+          "cost": {
+            "type": "number"
+          },
+          "profit": {
+            "type": "number"
+          },
+          "cumulative": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "total_revenue": {
+          "type": "number"
+        },
+        "total_cost": {
+          "type": "number"
+        },
+        "total_profit": {
+          "type": "number"
+        },
+        "break_even_day": {
+          "type": "number"
+        },
+        "roi_pct": {
+          "type": "number"
+        }
+      }
+    },
+    "reverse_target": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "reverse_required_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "reverse_feasible": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "forecasted",
+        "reversed",
+        "archived"
+      ],
+      "default": "draft"
+    }
+  },
+  "required": [
+    "strategy_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {},
+    "update": {},
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
