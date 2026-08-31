@@ -29,6 +29,16 @@ const CHAPTERS = [
   { file: '23-data-model.md', title: '23 — The Data Model' },
   { file: '24-build-order.md', title: '24 — The Build Order' },
   { file: '25-self-healing-protocol.md', title: '25 — The Self-Healing Protocol' },
+  { file: '26-prompt-library-index.md', title: '26 — Prompt Library (Master Index)' },
+  { file: '27-discovery-scrape-prompts.md', title: '27 — Discovery & Scrape Prompts' },
+  { file: '28-validation-audit-prompts.md', title: '28 — Validation & Audit Prompts' },
+  { file: '29-strategy-simulation-prompts.md', title: '29 — Strategy & Simulation Prompts' },
+  { file: '30-build-generation-prompts.md', title: '30 — Build & Generation Prompts' },
+  { file: '31-provisioning-launch-prompts.md', title: '31 — Provisioning & Launch Prompts' },
+  { file: '32-monetization-marketing-prompts.md', title: '32 — Monetization & Marketing Prompts' },
+  { file: '33-self-healing-hardening-prompts.md', title: '33 — Self-Healing & Hardening Prompts' },
+  { file: '34-governance-doctrine-prompts.md', title: '34 — Governance & Doctrine Prompts' },
+  { file: '35-prompt-engineering-meta.md', title: '35 — Prompt Engineering (Meta)' },
 ];
 
 export default function Playbook() {
