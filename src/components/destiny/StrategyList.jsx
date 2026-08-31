@@ -6,12 +6,14 @@ import { money } from '@/components/ideas/format';
 
 // Scrollable, searchable list of generated strategies with a recommended
 // highlight. User picks one to carry into simulation.
-export default function StrategyList({ strategies, recommendation, selectedId, onSelect }) {
+export default function StrategyList({ strategies, recommendation, selectedId, onSelect, topN }) {
   const [q, setQ] = useState('');
-  const filtered = strategies.filter((s) => {
+  const [showAll, setShowAll] = useState(!topN);
+  const base = strategies.filter((s) => {
     const t = `${s.title} ${s.one_liner} ${s.archetype}`.toLowerCase();
     return !q || t.includes(q.toLowerCase());
   });
+  const filtered = showAll ? base : base.slice(0, topN || 10);
 
   return (
     <div className="space-y-4">
@@ -71,6 +73,11 @@ export default function StrategyList({ strategies, recommendation, selectedId, o
             </button>
           );
         })}
+        {topN && !q && base.length > (topN || 10) && (
+          <button onClick={() => setShowAll((v) => !v)} className="text-sm text-primary hover:underline pt-2">
+            {showAll ? 'Show top 10 only' : `Show all ${base.length} strategies`}
+          </button>
+        )}
       </div>
     </div>
   );

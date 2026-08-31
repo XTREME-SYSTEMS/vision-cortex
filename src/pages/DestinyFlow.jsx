@@ -2,20 +2,23 @@ import { useEffect, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, ArrowRight, ArrowLeft, Sparkles, HelpCircle, Target, Layers, FlaskConical, Hammer, Rocket, Brain, AlertTriangle, Lightbulb, SkipForward } from 'lucide-react';
+import { Loader2, ArrowRight, ArrowLeft, Sparkles, HelpCircle, Target, Layers, FlaskConical, Hammer, Rocket, Brain, AlertTriangle, Lightbulb, SkipForward, User, Orbit } from 'lucide-react';
 import DestinyTimeline from '@/components/destiny/DestinyTimeline';
 import IntroCard from '@/components/destiny/IntroCard';
 import AIAssistButton from '@/components/destiny/AIAssistButton';
 import StrategyList from '@/components/destiny/StrategyList';
 import OutcomeView from '@/components/destiny/OutcomeView';
+import PersonalQuest from '@/components/destiny/PersonalQuest';
+import LifeSimulator from '@/components/destiny/LifeSimulator';
 import { money } from '@/components/ideas/format';
 
 const STEPS = [
   { id: 'vision', label: 'Vision', icon: Sparkles, purpose: 'Tell the system, in one honest sentence, the life you want.', summary: 'Your seed sentence is the root everything grows from. Type a few words and tap the sparkle to let AI expand it — or write your own.' },
   { id: 'quest', label: 'Quest', icon: HelpCircle, purpose: 'A few questions to sharpen your goal. Each answer compounds into the next.', summary: 'Optional. Answer yourself, accept an AI suggestion, or skip entirely — the strategy generator works from your vision alone.' },
   { id: 'goal', label: 'Goal Lock', icon: Target, purpose: 'Confirm your locked goal. This becomes the engine\u2019s target.', summary: 'Once locked, the engine scores every strategy and simulation against this goal and reverse-engineers the path to hit it.' },
-  { id: 'strategies', label: 'Strategies', icon: Layers, purpose: 'The system generates 210 distinct strategies from your vision — and recommends the best.', summary: '210 strategies across 7 archetypes, ranked by fit to your goal. Pick one to simulate, or take the recommended best.' },
-  { id: 'simulate', label: 'Simulate', icon: FlaskConical, purpose: 'See multiple simulated futures for your chosen strategy.', summary: 'Three scenarios — conservative, base, aggressive — each with a 12-month profit timeline and probability.' },
+  { id: 'strategies', label: 'Strategies', icon: Layers, purpose: 'The system generates 210 distinct strategies from your vision — and recommends the best.', summary: '210 strategies across 7 archetypes, ranked by fit to your goal. The top 10 are shown first — pick one to carry into your life simulation.' },
+  { id: 'personal', label: 'You', icon: User, purpose: 'A few questions about who you are — how you decide, your risk, your story.', summary: 'The simulator models your actual life, not a generic one. Your answers shape the decision points, life events, and financial outcomes.' },
+  { id: 'simulate', label: 'Life Sim', icon: Orbit, purpose: 'Simulate your life across any horizon — with variables you can change.', summary: 'Pick a horizon from 1 month to 20 years. The AI auto-chooses the best path, but you can override any decision — death, divorce, depression, risk — and watch the net worth rewrite in real time.' },
   { id: 'build', label: 'Build', icon: Hammer, purpose: 'Generate the full launch pack — brand, site, content.', summary: 'Runs in the background: business name, palette, website copy, and a 30-day social schedule.' },
   { id: 'launch', label: 'Launch', icon: Rocket, purpose: 'Provision infrastructure and ship to production.', summary: 'Vercel + Supabase provisioning, domain, and the live URL — gated by unit economics.' },
   { id: 'compound', label: 'Compound', icon: Brain, purpose: 'Extract a doctrine from the outcome.', summary: 'What worked becomes a reusable insight that feeds tomorrow\u2019s discovery — the compounding loop closes.' },
@@ -45,6 +48,8 @@ export default function DestinyFlow() {
   const [recommendation, setRecommendation] = useState(null);
   const [selectedStrategy, setSelectedStrategy] = useState(null);
   const [outcomes, setOutcomes] = useState(null);
+  const [persona, setPersona] = useState(null);
+  const [personaProfileId, setPersonaProfileId] = useState(null);
   const [buildPack, setBuildPack] = useState(null);
   const [launch, setLaunch] = useState(null);
   const [doctrine, setDoctrine] = useState(null);
@@ -64,6 +69,8 @@ export default function DestinyFlow() {
         setRecommendation(saved.recommendation || null);
         setSelectedStrategy(saved.selectedStrategy || null);
         setOutcomes(saved.outcomes || null);
+        setPersona(saved.persona || null);
+        setPersonaProfileId(saved.personaProfileId || null);
         setBuildPack(saved.buildPack || null);
         setLaunch(saved.launch || null);
         setDoctrine(saved.doctrine || null);
@@ -73,7 +80,7 @@ export default function DestinyFlow() {
 
   // ── Persist state ──
   useEffect(() => {
-    const state = { step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine };
+    const state = { step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, persona, personaProfileId, buildPack, launch, doctrine };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
   }, [step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine]);
 
@@ -361,8 +368,8 @@ export default function DestinyFlow() {
         {/* ── STRATEGIES ── */}
         {cur.id === 'strategies' && !introOpen && (
           <div>
-            <h1 className="font-display text-3xl tracking-tight">210 strategies from your vision.</h1>
-            <p className="mt-3 text-muted-foreground leading-relaxed">The system generated 210 distinct strategies across 7 archetypes and ranked them to your goal. Pick one to simulate — or take the recommended best.</p>
+            <h1 className="font-display text-3xl tracking-tight">10 top strategies from your vision.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">The system generated 210 distinct strategies across 7 archetypes and ranked them to your goal. The top 10 are shown first — pick one to carry into your life simulation, or expand to see all 210.</p>
             <div className="mt-8">
               {!strategies ? (
                 <Button onClick={genStrategies} disabled={running} className="rounded-full h-11 px-6">
@@ -370,13 +377,13 @@ export default function DestinyFlow() {
                   {running ? 'Generating 210 strategies…' : 'Generate strategies'}
                 </Button>
               ) : (
-                <StrategyList strategies={strategies} recommendation={recommendation} selectedId={selectedStrategy?.id} onSelect={setSelectedStrategy} />
+                <StrategyList strategies={strategies} recommendation={recommendation} selectedId={selectedStrategy?.id} onSelect={setSelectedStrategy} topN={10} />
               )}
             </div>
             {strategies && (
               <div className="flex items-center gap-3 mt-8">
                 <Button onClick={next} disabled={!selectedStrategy} className="rounded-full h-11 px-6">
-                  Simulate this strategy <ArrowRight className="w-4 h-4 ml-1.5" />
+                  Continue to personal <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
                 <Button variant="outline" onClick={genStrategies} disabled={running} className="rounded-full h-11">Regenerate</Button>
               </div>
@@ -384,28 +391,48 @@ export default function DestinyFlow() {
           </div>
         )}
 
-        {/* ── SIMULATE ── */}
-        {cur.id === 'simulate' && !introOpen && (
+        {/* ── PERSONAL ── */}
+        {cur.id === 'personal' && !introOpen && (
           <div>
-            <h1 className="font-display text-3xl tracking-tight">Simulated futures.</h1>
+            <h1 className="font-display text-3xl tracking-tight">Now, tell it who you are.</h1>
             <p className="mt-3 text-muted-foreground leading-relaxed">
-              {selectedStrategy ? `Strategy: ${selectedStrategy.title} — ${selectedStrategy.one_liner}` : 'Pick a strategy first.'}
+              {selectedStrategy ? `Strategy locked: ${selectedStrategy.title}. ` : ''}The simulator models your actual life — your decisions, your risk, your story — not a generic founder's.
             </p>
             <div className="mt-8">
-              {!outcomes ? (
-                <Button onClick={simulate} disabled={running || !selectedStrategy} className="rounded-full h-11 px-6">
-                  {running ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-                  {running ? 'Simulating outcomes…' : 'Simulate outcomes'}
-                </Button>
+              {persona ? (
+                <div className="rounded-2xl border border-border bg-muted/40 p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="w-4 h-4 text-primary" />
+                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Your persona</p>
+                  </div>
+                  <p className="font-display text-2xl">{persona.archetype}</p>
+                  <p className="text-sm text-muted-foreground mt-2">{persona.summary}</p>
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-muted border border-border">Decides: {persona.decision_style}</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-muted border border-border">Risk: {persona.risk_tolerance}</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">Founder fit: {persona.entrepreneur_fit}/100</span>
+                  </div>
+                  <Button onClick={next} className="rounded-full h-11 px-6 mt-6">
+                    Run my life simulation <ArrowRight className="w-4 h-4 ml-1.5" />
+                  </Button>
+                </div>
               ) : (
-                <OutcomeView outcomes={outcomes} />
+                <PersonalQuest vision={seed} onComplete={(p, pid) => { setPersona(p); setPersonaProfileId(pid); }} />
               )}
             </div>
-            {outcomes && (
-              <Button onClick={next} className="rounded-full h-11 px-6 mt-8">
-                Continue to build <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Button>
-            )}
+          </div>
+        )}
+
+        {/* ── LIFE SIM ── */}
+        {cur.id === 'simulate' && !introOpen && (
+          <div>
+            <h1 className="font-display text-3xl tracking-tight">Your simulated life.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">
+              {selectedStrategy ? `${selectedStrategy.title} · ` : ''}{persona?.archetype ? `${persona.archetype} · ` : ''}Pick a horizon and change any decision — the net worth rewrites in real time.
+            </p>
+            <div className="mt-8">
+              <LifeSimulator vision={seed} strategy={selectedStrategy} persona={{ ...persona, relationship_status: answers.find((a) => a.question.includes('relationship'))?.answer }} onDone={next} />
+            </div>
           </div>
         )}
 

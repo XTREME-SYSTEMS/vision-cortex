@@ -1,0 +1,140 @@
+{
+  "name": "PersonaProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "vision": {
+      "type": "string"
+    },
+    "archetype": {
+      "type": "string"
+    },
+    "big_five": {
+      "type": "object",
+      "properties": {
+        "openness": {
+          "type": "number"
+        },
+        "conscientiousness": {
+          "type": "number"
+        },
+        "extraversion": {
+          "type": "number"
+        },
+        "agreeableness": {
+          "type": "number"
+        },
+        "neuroticism": {
+          "type": "number"
+        }
+      }
+    },
+    "decision_style": {
+      "type": "string"
+    },
+    "risk_tolerance": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "extreme"
+      ],
+      "default": "medium"
+    },
+    "jobs_held": {
+      "type": "number"
+    },
+    "longest_job_years": {
+      "type": "number"
+    },
+    "relationship_status": {
+      "type": "string"
+    },
+    "childhood": {
+      "type": "string"
+    },
+    "education": {
+      "type": "string"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "passions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "traumas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blind_spots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "entrepreneur_fit": {
+      "type": "number"
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "create": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
