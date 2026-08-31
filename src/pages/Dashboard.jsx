@@ -5,6 +5,8 @@ import IdeaRow from '@/components/ideas/IdeaRow';
 import { money } from '@/components/ideas/format';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import VisionStatement from '@/components/dashboard/VisionStatement';
+import MorningBrief from '@/components/dashboard/MorningBrief';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -41,6 +43,11 @@ export default function Dashboard() {
         <p className="mt-4 text-muted-foreground leading-relaxed">
           Scraped from forums, social platforms, and the world's top products — scored, validated, and priced for launch.
         </p>
+      </div>
+
+      <div className="space-y-4">
+        <VisionStatement />
+        <MorningBrief />
       </div>
 
       {totals && (

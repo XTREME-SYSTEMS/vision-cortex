@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 3 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Nightly ritual at 3am ET: reads the owner's vision statement, has the Council choose 10 strategies, produces 10 fully-prepared pipelines with estimated results, runs a simulation (highest return, fastest return, best balance), and stages the Morning Brief for the 8am group meeting.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "nightly_pipeline_prep",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "prep": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "nightlyPipelinePrep",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Prep 10 pipelines",
+            "description": "Council chooses 10 strategies, simulates results, stages morning brief"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Nightly Pipeline Prep"
+}
