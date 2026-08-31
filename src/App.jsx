@@ -31,6 +31,7 @@ import BuildPortal from '@/pages/BuildPortal';
 import Onboarding from '@/pages/Onboarding';
 import Simulation from '@/pages/Simulation';
 import BuildApprovals from '@/pages/BuildApprovals';
+import Marketer from '@/pages/Marketer';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/simulation" element={<Simulation />} />
           <Route path="/approvals" element={<BuildApprovals />} />
+          <Route path="/marketer" element={<Marketer />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
