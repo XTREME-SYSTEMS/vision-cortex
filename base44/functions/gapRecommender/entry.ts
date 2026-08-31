@@ -45,10 +45,57 @@ export default async function (req) {
       return Response.json({ gap: updated, validation: { passed, score, notes } });
     }
 
-    // ── APPLY: mark as applied, store timestamp ──
+    // ── SUGGEST: generate new gap ideas from current gap landscape (server-side) ──
+    if (mode === 'suggest') {
+      const all = await base44.entities.Gap.list('-number', 100);
+      const res = await core.InvokeLLM({
+        prompt: `You are the autonomous improvement engine for Vision Cortex. Here are the current system gaps:
+
+${all.map((g) => `#${g.number} [${g.severity}/${g.status}] ${g.title}: ${g.description || '(no description)'}`).join('\n')}
+
+Based on these gaps, generate 1-3 NEW gap ideas that the system should track but doesn't yet. Think about what's missing from the user's vision of a zero-interaction autonomous business-creation platform that serves ANY human. Consider: accessibility, onboarding friction, language support, mobile experience, error recovery, trust/transparency, data portability, offline capability.
+
+For each, provide: title, description, category (deployment/monetization/automation/ux/integration/data/security/other), severity (critical/high/medium/low), and a one-line rationale.`,
+        model: 'gemini_3_flash',
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            suggestions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  title: { type: 'string' },
+                  description: { type: 'string' },
+                  category: { type: 'string' },
+                  severity: { type: 'string' },
+                  rationale: { type: 'string' },
+                },
+              },
+            },
+          },
+          required: ['suggestions'],
+        },
+      });
+      return Response.json(res);
+    }
+
+    // ── APPLY: validate the generated code, then mark as applied ──
     if (mode === 'apply') {
       const gap = await base44.entities.Gap.get(body.gap_id);
       if (!gap) return Response.json({ error: 'Gap not found' }, { status: 404 });
+
+      // Zero-failure validation: the recommendation must be complete and deployable
+      const failures = [];
+      if (!gap.recommendation) failures.push('No recommendation generated');
+      if (!gap.implementation_code || gap.implementation_code.trim().length < 20) failures.push('Implementation code is missing or too short');
+      if (!gap.affected_files || gap.affected_files.length === 0) failures.push('No affected files specified');
+      if (!gap.implementation_steps || gap.implementation_steps.length === 0) failures.push('No implementation steps provided');
+
+      if (failures.length > 0) {
+        return Response.json({ error: 'Cannot apply — recommendation is incomplete', failures }, { status: 400 });
+      }
+
       const updated = await base44.entities.Gap.update(body.gap_id, {
         status: 'applied',
         applied_at: new Date().toISOString(),
@@ -57,9 +104,9 @@ export default async function (req) {
         agent_name: 'Gap Engine',
         level: 'success',
         category: 'gap_applied',
-        message: `Gap #${gap.number} "${gap.title}" marked as applied.`,
+        message: `Gap #${gap.number} "${gap.title}" validated and marked as applied. Code staged in ${gap.affected_files.length} file(s).`,
       });
-      return Response.json({ gap: updated });
+      return Response.json({ gap: updated, validated: true });
     }
 
     // ── RECOMMEND (single) or RECOMMEND_ALL ──

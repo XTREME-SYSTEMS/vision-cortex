@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Loader2, Lightbulb } from 'lucide-react';
+import { Sparkles, Loader2, Lightbulb, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -14,47 +14,34 @@ export default function AutoRecommendPanel({ gaps, onRefresh }) {
     setError(null);
     setSuggestion(null);
     try {
-      const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `You are the autonomous improvement engine for Vision Cortex. Here are the current system gaps:
-
-${gaps.map((g) => `#${g.number} [${g.severity}/${g.status}] ${g.title}: ${g.description}`).join('\n')}
-
-Based on these gaps, generate 1-3 NEW gap ideas that the system should track but doesn't yet. Think about what's missing from the user's vision of a zero-interaction autonomous business-creation platform that serves ANY human. Consider: accessibility, onboarding friction, language support, mobile experience, error recovery, trust/transparency, data portability, offline capability.
-
-For each, provide: title, description, category (deployment/monetization/automation/ux/integration/data/security/other), severity (critical/high/medium/low), and a one-line rationale.`,
-        model: 'gemini_3_flash',
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            suggestions: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  title: { type: 'string' },
-                  description: { type: 'string' },
-                  category: { type: 'string' },
-                  severity: { type: 'string' },
-                  rationale: { type: 'string' },
-                },
-              },
-            },
-          },
-          required: ['suggestions'],
-        },
-      });
-      setSuggestion(res);
+      const res = await base44.functions.invoke('gapRecommender', { mode: 'suggest' });
+      setSuggestion(res.data || res);
     } catch (e) {
-      setError(e.message);
+      setError(e.message || 'Failed to generate suggestions');
     }
     setLoading(false);
   };
 
   const addSuggestion = async (s) => {
     const nextNumber = gaps.length > 0 ? Math.max(...gaps.map((g) => g.number || 0)) + 1 : 1;
-    await base44.entities.Gap.create({ ...s, number: nextNumber });
-    setSuggestion((prev) => ({ ...prev, suggestions: prev.suggestions.filter((x) => x.title !== s.title) }));
-    onRefresh();
+    try {
+      const created = await base44.entities.Gap.create({
+        title: s.title,
+        description: s.description,
+        category: s.category || 'other',
+        severity: s.severity || 'medium',
+        number: nextNumber,
+      });
+      // Auto-recommend the new gap immediately
+      await base44.functions.invoke('gapRecommender', { mode: 'recommend', gap_id: created.id });
+      setSuggestion((prev) => ({
+        ...prev,
+        suggestions: (prev?.suggestions || []).filter((x) => x.title !== s.title),
+      }));
+      onRefresh();
+    } catch (e) {
+      setError(`Failed to add suggestion: ${e.message}`);
+    }
   };
 
   return (
@@ -66,7 +53,7 @@ For each, provide: title, description, category (deployment/monetization/automat
         <div className="flex-1">
           <div className="text-sm font-medium">Auto-Recommender</div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Analyzes all current gaps and suggests new ones the system should track. These also surface as ideas across the app.
+            Analyzes all current gaps and suggests new ones the system should track. Added suggestions get an instant AI recommendation.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={generate} disabled={loading}>
@@ -75,7 +62,12 @@ For each, provide: title, description, category (deployment/monetization/automat
         </Button>
       </div>
 
-      {error && <p className="text-xs text-rose-500 mt-3">{error}</p>}
+      {error && (
+        <div className="mt-3 flex items-start gap-2 text-xs text-rose-500">
+          <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       {suggestion?.suggestions?.length > 0 && (
         <div className="mt-4 space-y-2">

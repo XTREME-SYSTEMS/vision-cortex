@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, CheckCircle2, Play, ShieldCheck, Trash2, Edit3, ChevronDown, ChevronRight, Code2, Loader2 } from 'lucide-react';
+import { Sparkles, CheckCircle2, Play, ShieldCheck, Trash2, Edit3, ChevronDown, ChevronRight, Code2, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -27,34 +27,38 @@ export default function GapRow({ gap, onDelete, onUpdate, onEdit }) {
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(gap.title);
   const [editDesc, setEditDesc] = useState(gap.description);
+  const [actionError, setActionError] = useState(null);
 
   const recommend = async () => {
     setLoading('recommend');
+    setActionError(null);
     try {
       await base44.functions.invoke('gapRecommender', { mode: 'recommend', gap_id: gap.id });
       const fresh = await base44.entities.Gap.get(gap.id);
       onUpdate(fresh);
-    } catch (e) { console.error(e); }
+    } catch (e) { setActionError(e.message || 'Recommendation failed'); }
     setLoading(null);
   };
 
   const apply = async () => {
     setLoading('apply');
+    setActionError(null);
     try {
       await base44.functions.invoke('gapRecommender', { mode: 'apply', gap_id: gap.id });
       const fresh = await base44.entities.Gap.get(gap.id);
       onUpdate(fresh);
-    } catch (e) { console.error(e); }
+    } catch (e) { setActionError(e.message || 'Apply failed — recommendation may be incomplete'); }
     setLoading(null);
   };
 
   const validate = async () => {
     setLoading('validate');
+    setActionError(null);
     try {
       await base44.functions.invoke('gapRecommender', { mode: 'validate', gap_id: gap.id });
       const fresh = await base44.entities.Gap.get(gap.id);
       onUpdate(fresh);
-    } catch (e) { console.error(e); }
+    } catch (e) { setActionError(e.message || 'Validation failed'); }
     setLoading(null);
   };
 
@@ -130,6 +134,13 @@ export default function GapRow({ gap, onDelete, onUpdate, onEdit }) {
                 </div>
               ) : (
                 <p className="text-xs text-muted-foreground italic pl-3">No recommendation yet. Click "AI Assist" to generate one.</p>
+              )}
+
+              {actionError && (
+                <div className="flex items-start gap-2 text-xs text-rose-500 bg-rose-500/10 rounded-lg p-2">
+                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span>{actionError}</span>
+                </div>
               )}
 
               <div className="flex flex-wrap gap-1.5">

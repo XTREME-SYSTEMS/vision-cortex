@@ -6,6 +6,7 @@ import StatsCards from '@/components/lifelab/StatsCards';
 import TrajectoryChart from '@/components/lifelab/TrajectoryChart';
 import EventFrequency from '@/components/lifelab/EventFrequency';
 import LifeGrid from '@/components/lifelab/LifeGrid';
+import PathComparison from '@/components/lifelab/PathComparison';
 
 const DEFAULT_CFG = {
   sex: 'male',
@@ -179,6 +180,7 @@ export default function LifeLab() {
             <>
               <StatsCards stats={result.stats} count={result.simulations} />
               <TrajectoryChart lives={result.lives} />
+              <PathComparison lives={result.lives} />
               <div className="grid md:grid-cols-2 gap-4">
                 <EventFrequency stats={result.stats} />
                 <LifeGrid lives={result.lives} />

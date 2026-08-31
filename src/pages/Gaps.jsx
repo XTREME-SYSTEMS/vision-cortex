@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Sparkles, Loader2, ListChecks } from 'lucide-react';
+import { Plus, Sparkles, Loader2, ListChecks, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
@@ -12,6 +12,9 @@ export default function Gaps() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
+  const [autoProgress, setAutoProgress] = useState(null);
+  const [error, setError] = useState(null);
+  const [creatingGap, setCreatingGap] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -27,8 +30,19 @@ export default function Gaps() {
   const nextNumber = gaps.length > 0 ? Math.max(...gaps.map((g) => g.number || 0)) + 1 : 1;
 
   const addGap = async (data) => {
-    await base44.entities.Gap.create({ ...data, number: nextNumber });
-    load();
+    setCreatingGap(true);
+    setError(null);
+    try {
+      // Create the gap
+      const created = await base44.entities.Gap.create({ ...data, number: nextNumber });
+      // Auto-recommend immediately — every new gap gets an AI recommendation
+      await base44.functions.invoke('gapRecommender', { mode: 'recommend', gap_id: created.id });
+      load();
+    } catch (e) {
+      setError(`Failed to add gap: ${e.message}`);
+      load(); // still reload in case the gap was created
+    }
+    setCreatingGap(false);
   };
 
   const deleteGap = async (id) => {
@@ -40,13 +54,31 @@ export default function Gaps() {
     setGaps((prev) => prev.map((g) => (g.id === updated.id ? updated : g)));
   };
 
+  // Process gaps one at a time to avoid the 5-minute timeout that killed the old bulk call.
+  // Each gap takes ~30s; we show live progress so the user knows it's working.
   const autoRecommendAll = async () => {
     setAutoLoading(true);
+    setError(null);
+    setAutoProgress({ done: 0, total: 0 });
     try {
-      await base44.functions.invoke('gapRecommender', { mode: 'recommend_all' });
+      const openGaps = gaps.filter((g) => !g.recommendation);
+      setAutoProgress({ done: 0, total: openGaps.length });
+      let done = 0;
+      for (const gap of openGaps) {
+        try {
+          await base44.functions.invoke('gapRecommender', { mode: 'recommend', gap_id: gap.id });
+          done++;
+          setAutoProgress({ done, total: openGaps.length });
+        } catch (e) {
+          console.error(`Failed to recommend gap ${gap.id}:`, e);
+        }
+      }
       load();
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setError(`Auto-recommend failed: ${e.message}`);
+    }
     setAutoLoading(false);
+    setAutoProgress(null);
   };
 
   const stats = {
@@ -64,9 +96,17 @@ export default function Gaps() {
           <ListChecks className="w-7 h-7" /> System Gaps
         </h1>
         <p className="text-muted-foreground text-sm max-w-2xl">
-          Track, prioritize, and fix the gaps between Vision Cortex today and the zero-interaction autonomous system it needs to become. Add gaps manually, let the AI recommend fixes, apply them, and validate.
+          Track, prioritize, and fix the gaps between Vision Cortex today and the zero-interaction autonomous system it needs to become. Every gap you add gets an instant AI recommendation with deployable code. Apply, then validate.
         </p>
       </div>
+
+      {error && (
+        <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-sm text-rose-600 dark:text-rose-300 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="ml-auto text-rose-400 hover:text-rose-600"><AlertCircle className="w-3.5 h-3.5" /></button>
+        </div>
+      )}
 
       <div className="grid grid-cols-5 gap-2">
         {[
@@ -84,12 +124,26 @@ export default function Gaps() {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4" /> Add Gap</Button>
+        <Button onClick={() => setShowForm(true)} disabled={creatingGap}>
+          {creatingGap ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          {creatingGap ? 'Adding & Recommending…' : 'Add Gap'}
+        </Button>
         <Button variant="outline" onClick={autoRecommendAll} disabled={autoLoading || stats.open === 0}>
           {autoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          Auto-Recommend All ({stats.open})
+          {autoLoading && autoProgress
+            ? `Recommending ${autoProgress.done}/${autoProgress.total}…`
+            : `Auto-Recommend All (${stats.open})`}
         </Button>
       </div>
+
+      {autoLoading && autoProgress && (
+        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+          <div
+            className="bg-foreground h-full transition-all duration-300"
+            style={{ width: `${autoProgress.total > 0 ? (autoProgress.done / autoProgress.total) * 100 : 0}%` }}
+          />
+        </div>
+      )}
 
       {loading ? (
         <Card className="p-12 text-center text-muted-foreground"><Loader2 className="w-6 h-6 mx-auto animate-spin" /></Card>
