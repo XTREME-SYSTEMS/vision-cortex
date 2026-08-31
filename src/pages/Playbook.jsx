@@ -39,6 +39,7 @@ const CHAPTERS = [
   { file: '33-self-healing-hardening-prompts.md', title: '33 — Self-Healing & Hardening Prompts' },
   { file: '34-governance-doctrine-prompts.md', title: '34 — Governance & Doctrine Prompts' },
   { file: '35-prompt-engineering-meta.md', title: '35 — Prompt Engineering (Meta)' },
+  { file: '36-vision-and-auto-recommendation.md', title: '36 — Vision & Auto-Recommendation Engine' },
 ];
 
 export default function Playbook() {

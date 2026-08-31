@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import VisionStatement from '@/components/dashboard/VisionStatement';
 import MorningBrief from '@/components/dashboard/MorningBrief';
+import RecommendationsPanel from '@/components/dashboard/RecommendationsPanel';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -49,6 +50,8 @@ export default function Dashboard() {
         <VisionStatement />
         <MorningBrief />
       </div>
+
+      <RecommendationsPanel />
 
       {totals && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
