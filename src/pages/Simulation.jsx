@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from 'recharts';
-import { FlaskConical, Loader2, Plus, Trash2, Undo2, Play } from 'lucide-react';
+import { FlaskConical, Loader2, Plus, Trash2, Undo2, Play, RefreshCw } from 'lucide-react';
 
 const DEFAULT_ASSUMPTIONS = [
   { name: 'Starting capital', value: 5000, unit: 'usd' },
@@ -107,9 +107,16 @@ export default function Simulation() {
             </div>
           </div>
 
-          <Button onClick={() => run()} disabled={loading} className="w-full rounded-full">
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />} Run forecast
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => run()} disabled={loading} className="flex-1 rounded-full">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />} Run forecast
+            </Button>
+            {sim && (
+              <Button variant="outline" onClick={() => run()} disabled={loading} className="rounded-full shrink-0">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Regenerate
+              </Button>
+            )}
+          </div>
 
           <div className="pt-3 border-t border-border/50">
             <label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Reverse-engineer a target</label>

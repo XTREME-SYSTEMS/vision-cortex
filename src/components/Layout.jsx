@@ -14,6 +14,7 @@ const nav = [
   { to: '/lifelab', label: 'Life Lab', icon: FlaskConical },
   { to: '/usersim', label: 'User Sim', icon: Users },
   { to: '/gaps', label: 'Gaps', icon: ListChecks },
+  { to: '/forensic', label: 'Forensic Audit', icon: ShieldCheck },
   { to: '/build', label: 'Build Studio', icon: Workflow },
   { to: '/simulation', label: 'Simulate', icon: FlaskConical },
   { to: '/approvals', label: 'Approvals', icon: Rocket },

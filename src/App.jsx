@@ -37,6 +37,7 @@ import DestinyFlow from '@/pages/DestinyFlow';
 import LifeLab from '@/pages/LifeLab';
 import UserSimulator from '@/pages/UserSimulator';
 import Gaps from '@/pages/Gaps';
+import ForensicAudit from '@/pages/ForensicAudit';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
           <Route path="/lifelab" element={<LifeLab />} />
           <Route path="/usersim" element={<UserSimulator />} />
           <Route path="/gaps" element={<Gaps />} />
+          <Route path="/forensic" element={<ForensicAudit />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

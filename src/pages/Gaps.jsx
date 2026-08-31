@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Sparkles, Loader2, ListChecks, AlertCircle } from 'lucide-react';
+import { Plus, Sparkles, Loader2, ListChecks, AlertCircle, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { base44 } from '@/api/base44Client';
@@ -13,6 +13,8 @@ export default function Gaps() {
   const [showForm, setShowForm] = useState(false);
   const [autoLoading, setAutoLoading] = useState(false);
   const [autoProgress, setAutoProgress] = useState(null);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [applyProgress, setApplyProgress] = useState(null);
   const [error, setError] = useState(null);
   const [creatingGap, setCreatingGap] = useState(false);
 
@@ -81,6 +83,34 @@ export default function Gaps() {
     setAutoProgress(null);
   };
 
+  // One-click Apply All: validates + stages every recommended gap in sequence.
+  const applyAll = async () => {
+    setApplyLoading(true);
+    setError(null);
+    setApplyProgress({ done: 0, total: 0 });
+    try {
+      const recommended = gaps.filter((g) => g.status === 'recommended' && g.recommendation);
+      setApplyProgress({ done: 0, total: recommended.length });
+      let done = 0;
+      let failed = 0;
+      for (const gap of recommended) {
+        try {
+          await base44.functions.invoke('gapRecommender', { mode: 'apply', gap_id: gap.id });
+          done++;
+          setApplyProgress({ done, total: recommended.length, failed });
+        } catch (e) {
+          failed++;
+          setApplyProgress({ done, total: recommended.length, failed });
+        }
+      }
+      load();
+    } catch (e) {
+      setError(`Apply all failed: ${e.message}`);
+    }
+    setApplyLoading(false);
+    setApplyProgress(null);
+  };
+
   const stats = {
     total: gaps.length,
     open: gaps.filter((g) => g.status === 'open').length,
@@ -128,13 +158,30 @@ export default function Gaps() {
           {creatingGap ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           {creatingGap ? 'Adding & Recommending…' : 'Add Gap'}
         </Button>
-        <Button variant="outline" onClick={autoRecommendAll} disabled={autoLoading || stats.open === 0}>
-          {autoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          {autoLoading && autoProgress
-            ? `Recommending ${autoProgress.done}/${autoProgress.total}…`
-            : `Auto-Recommend All (${stats.open})`}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={autoRecommendAll} disabled={autoLoading || stats.open === 0}>
+            {autoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {autoLoading && autoProgress
+              ? `Recommending ${autoProgress.done}/${autoProgress.total}…`
+              : `Auto-Recommend All (${stats.open})`}
+          </Button>
+          <Button onClick={applyAll} disabled={applyLoading || stats.recommended === 0}>
+            {applyLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            {applyLoading && applyProgress
+              ? `Applying ${applyProgress.done}/${applyProgress.total}…`
+              : `Apply All (${stats.recommended})`}
+          </Button>
+        </div>
       </div>
+
+      {applyLoading && applyProgress && (
+        <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+          <div
+            className="bg-emerald-500 h-full transition-all duration-300"
+            style={{ width: `${applyProgress.total > 0 ? (applyProgress.done / applyProgress.total) * 100 : 0}%` }}
+          />
+        </div>
+      )}
 
       {autoLoading && autoProgress && (
         <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">

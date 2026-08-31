@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FlaskConical, Loader2 } from 'lucide-react';
+import { FlaskConical, Loader2, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
 import ConfigPanel from '@/components/lifelab/ConfigPanel';
 import StatsCards from '@/components/lifelab/StatsCards';
 import TrajectoryChart from '@/components/lifelab/TrajectoryChart';
@@ -120,11 +121,13 @@ export default function LifeLab() {
     });
   }, []);
 
-  const run = async () => {
+  const run = async (newSeed = false) => {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke('lifeChoiceGenerator', { ...cfg, simulations: 50 });
+      const payload = { ...cfg, simulations: 50 };
+      if (newSeed) payload.seed = Math.floor(Math.random() * 1000000);
+      const res = await base44.functions.invoke('lifeChoiceGenerator', payload);
       setResult(res.data);
     } catch (e) {
       setError(e.message || 'Simulation failed');
@@ -132,6 +135,8 @@ export default function LifeLab() {
       setRunning(false);
     }
   };
+
+  const regenerate = () => run(true);
 
   return (
     <div className="space-y-8">
@@ -178,6 +183,12 @@ export default function LifeLab() {
           )}
           {result && (
             <>
+              <div className="flex items-center justify-end">
+                <Button variant="outline" size="sm" className="rounded-full" disabled={running} onClick={regenerate}>
+                  {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                  Regenerate 50 lives
+                </Button>
+              </div>
               <StatsCards stats={result.stats} count={result.simulations} />
               <TrajectoryChart lives={result.lives} />
               <PathComparison lives={result.lives} />

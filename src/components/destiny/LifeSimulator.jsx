@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Loader2, Sparkles, AlertTriangle, Zap, TrendingUp, Heart, Skull } from 'lucide-react';
+import { Loader2, Sparkles, AlertTriangle, Zap, TrendingUp, Heart, Skull, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
 import { money } from '@/components/ideas/format';
+import LifeTimeline from '@/components/destiny/LifeTimeline';
 
 const HORIZONS = ['1m', '3m', '6m', '1y', '2y', '3y', '5y', '10y', '15y', '20y'];
+const QUICK_HORIZONS = ['1y', '5y', '20y'];
 
 const SCENARIO_COLOR = {
   conservative: '#64748b',
@@ -60,23 +62,42 @@ export default function LifeSimulator({ vision, strategy, persona, onDone }) {
 
   return (
     <div className="space-y-8">
-      {/* Horizon selector */}
+      {/* Quick toggle: 1 / 5 / 20 year */}
       <div>
-        <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Time horizon</p>
-        <div className="flex flex-wrap gap-2">
-          {HORIZONS.map((h) => (
+        <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Projection horizon</p>
+        <div className="flex gap-2 mb-3">
+          {QUICK_HORIZONS.map((h) => (
             <button
               key={h}
               onClick={() => { setHorizon(h); setResult(null); setChoices([]); }}
               className={cn(
-                'px-3.5 py-1.5 rounded-full text-sm border transition-colors',
+                'flex-1 py-3 rounded-xl text-sm font-medium border-2 transition-all',
                 horizon === h ? 'bg-foreground text-background border-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
               )}
             >
-              {h === '1m' ? '1 month' : h === '3m' ? '3 months' : h === '6m' ? '6 months' : h}
+              <span className="font-display text-lg block">{h === '1y' ? '1' : h === '5y' ? '5' : '20'}</span>
+              <span className="text-[10px] uppercase tracking-wider">{h === '1y' ? 'year' : 'years'}</span>
             </button>
           ))}
         </div>
+        {/* Fine-grained horizon selector */}
+        <details className="text-xs">
+          <summary className="text-muted-foreground cursor-pointer hover:text-foreground">Fine-grained control</summary>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {HORIZONS.map((h) => (
+              <button
+                key={h}
+                onClick={() => { setHorizon(h); setResult(null); setChoices([]); }}
+                className={cn(
+                  'px-3 py-1 rounded-full text-xs border transition-colors',
+                  horizon === h ? 'bg-foreground text-background border-foreground' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/40'
+                )}
+              >
+                {h === '1m' ? '1 mo' : h === '3m' ? '3 mo' : h === '6m' ? '6 mo' : h}
+              </button>
+            ))}
+          </div>
+        </details>
       </div>
 
       {!result && (
@@ -93,7 +114,8 @@ export default function LifeSimulator({ vision, strategy, persona, onDone }) {
             <div className="flex items-center justify-between mb-3">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Projected net worth</p>
               <Button variant="outline" size="sm" className="rounded-full" disabled={running} onClick={() => run()}>
-                {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Re-run'}
+                {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+                Regenerate
               </Button>
             </div>
             <div className="h-56">
@@ -114,6 +136,9 @@ export default function LifeSimulator({ vision, strategy, persona, onDone }) {
               </ResponsiveContainer>
             </div>
           </div>
+
+          {/* Visual timeline: controllable + unpredictable */}
+          <LifeTimeline result={result} onJumpDecision={() => {}} />
 
           {/* Outcomes */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
