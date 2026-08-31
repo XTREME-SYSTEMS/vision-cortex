@@ -9,6 +9,7 @@ import VisionStatement from '@/components/dashboard/VisionStatement';
 import MorningBrief from '@/components/dashboard/MorningBrief';
 import MorningFeed from '@/components/dashboard/MorningFeed';
 import RecommendationsPanel from '@/components/dashboard/RecommendationsPanel';
+import DestinyLoop from '@/components/dashboard/DestinyLoop';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -53,6 +54,7 @@ export default function Dashboard() {
         <MorningFeed />
       </div>
 
+      <DestinyLoop />
       <RecommendationsPanel />
 
       {totals && (
