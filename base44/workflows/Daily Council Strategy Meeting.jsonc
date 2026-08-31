@@ -1,0 +1,48 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "30 7 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Council convenes daily at 7:30am ET to persistently identify the highest-probability opportunity and resolve the single next action toward autonomous residual income.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_council_strategy_meeting",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "convene": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "councilSession",
+            "args": {
+              "topic": "Daily strategy meeting: review autonomous-income pipeline progress, identify the single highest-probability opportunity to advance today, and resolve the one next action. Be concrete and evidence-based.",
+              "webSearch": true
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Convene Council",
+            "description": "Daily opportunity identification"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Daily Council Strategy Meeting"
+}

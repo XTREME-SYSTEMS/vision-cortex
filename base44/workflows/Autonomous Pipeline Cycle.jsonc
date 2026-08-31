@@ -1,0 +1,59 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */4 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Every 4 hours, 24/7: the Council recursively enhances the autonomous income pipeline \u2014 deliberates over current state, queues the next opportunity, compounds doctrine, then auto-launches any council-approved build via Vercel. Persists until high-growth success is achieved.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "autonomous_pipeline_cycle",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "orchestrate": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "pipelineOrchestrator",
+            "args": {}
+          },
+          "then": "launch",
+          "x-base44": {
+            "title": "Recursive enhancement",
+            "description": "Deliberate, queue next opportunity, compound doctrine, gate-check"
+          }
+        }
+      },
+      {
+        "launch": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "launchPipelineBuild",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Launch approved build",
+            "description": "Provision Vercel for council-approved build"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Autonomous Pipeline Cycle"
+}

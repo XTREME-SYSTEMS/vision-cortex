@@ -18,6 +18,7 @@ const CHAPTERS = [
   { file: '12-security-rls-playbook.md', title: '12 — Security & RLS Playbook' },
   { file: '13-roadmap-90-days.md', title: '13 — 90-Day Execution Roadmap' },
   { file: '14-cloning-for-chris.md', title: '14 — Cloning the Trio for Chris' },
+  { file: '15-autonomous-income-pipeline.md', title: '15 — Autonomous Income Pipeline' },
 ];
 
 export default function Playbook() {
