@@ -10,6 +10,7 @@ import StrategyList from '@/components/destiny/StrategyList';
 import OutcomeView from '@/components/destiny/OutcomeView';
 import PersonalQuest from '@/components/destiny/PersonalQuest';
 import LifeSimulator from '@/components/destiny/LifeSimulator';
+import AccountabilityPanel from '@/components/destiny/AccountabilityPanel';
 import { money } from '@/components/ideas/format';
 
 const STEPS = [
@@ -22,6 +23,7 @@ const STEPS = [
   { id: 'build', label: 'Build', icon: Hammer, purpose: 'Generate the full launch pack — brand, site, content.', summary: 'Runs in the background: business name, palette, website copy, and a 30-day social schedule.' },
   { id: 'launch', label: 'Launch', icon: Rocket, purpose: 'Provision infrastructure and ship to production.', summary: 'Vercel + Supabase provisioning, domain, and the live URL — gated by unit economics.' },
   { id: 'compound', label: 'Compound', icon: Brain, purpose: 'Extract a doctrine from the outcome.', summary: 'What worked becomes a reusable insight that feeds tomorrow\u2019s discovery — the compounding loop closes.' },
+  { id: 'accountability', label: 'Live It', icon: Target, purpose: 'Turn the simulation into a life you actually live.', summary: 'Sync milestones to your Google Calendar, log reality vs the simulation, and let your personal AI coach keep you on the path — recalibrating every time reality diverges.' },
 ];
 
 const STORAGE_KEY = 'destinyFlow.v2';
@@ -53,6 +55,8 @@ export default function DestinyFlow() {
   const [buildPack, setBuildPack] = useState(null);
   const [launch, setLaunch] = useState(null);
   const [doctrine, setDoctrine] = useState(null);
+  const [lifePlanId, setLifePlanId] = useState(null);
+  const [ideaId, setIdeaId] = useState(null);
 
   // ── Resume from last step ──
   useEffect(() => {
@@ -74,15 +78,17 @@ export default function DestinyFlow() {
         setBuildPack(saved.buildPack || null);
         setLaunch(saved.launch || null);
         setDoctrine(saved.doctrine || null);
+        setLifePlanId(saved.lifePlanId || null);
+        setIdeaId(saved.ideaId || null);
       }
     } catch { /* ignore */ }
   }, []);
 
   // ── Persist state ──
   useEffect(() => {
-    const state = { step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, persona, personaProfileId, buildPack, launch, doctrine };
+    const state = { step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, persona, personaProfileId, buildPack, launch, doctrine, lifePlanId, ideaId };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
-  }, [step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine]);
+  }, [step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine, lifePlanId, ideaId]);
 
   const cur = STEPS[step];
   const completed = new Set(STEPS.map((s, i) => i).filter((i) => i < step));
@@ -215,12 +221,34 @@ export default function DestinyFlow() {
     }
   };
 
+  // ── Lock the life plan (creates Idea + LifePlan), then continue ──
+  const lockAndContinue = async (simulation) => {
+    setRunning(true);
+    setError(null);
+    try {
+      const res = await base44.functions.invoke('lockLifePlan', {
+        vision: seed,
+        strategy: selectedStrategy,
+        persona_id: personaProfileId,
+        horizon: simulation?.horizon || '1y',
+        simulation,
+      });
+      setLifePlanId(res.data?.life_plan_id);
+      setIdeaId(res.data?.idea_id);
+      next();
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setRunning(false);
+    }
+  };
+
   // ── Build pack ──
   const build = async () => {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke('generateBuildPack', { idea_id: selectedStrategy?.id, build_id: buildId });
+      const res = await base44.functions.invoke('generateBuildPack', { idea_id: ideaId, build_id: buildId });
       setBuildPack(res.data || res);
     } catch (e) {
       setError(e.message || String(e));
@@ -431,7 +459,7 @@ export default function DestinyFlow() {
               {selectedStrategy ? `${selectedStrategy.title} · ` : ''}{persona?.archetype ? `${persona.archetype} · ` : ''}Pick a horizon and change any decision — the net worth rewrites in real time.
             </p>
             <div className="mt-8">
-              <LifeSimulator vision={seed} strategy={selectedStrategy} persona={{ ...persona, relationship_status: answers.find((a) => a.question.includes('relationship'))?.answer }} onDone={next} />
+              <LifeSimulator vision={seed} strategy={selectedStrategy} persona={{ ...persona, relationship_status: answers.find((a) => a.question.includes('relationship'))?.answer }} onDone={(result) => lockAndContinue(result)} />
             </div>
           </div>
         )}
@@ -482,6 +510,17 @@ export default function DestinyFlow() {
             )}
             {doctrine && <p className="text-sm text-primary font-medium">Destiny cycle complete. The loop is closed.</p>}
           </StepRunner>
+        )}
+
+        {/* ── ACCOUNTABILITY ── */}
+        {cur.id === 'accountability' && !introOpen && (
+          <div>
+            <h1 className="font-display text-3xl tracking-tight">Live it.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">You loved the simulation. Now make it real — sync milestones to your calendar, log reality as it happens, and let your coach keep you on the path.</p>
+            <div className="mt-8">
+              {lifePlanId ? <AccountabilityPanel lifePlanId={lifePlanId} /> : <p className="text-muted-foreground">Lock a plan from your life simulation first.</p>}
+            </div>
+          </div>
         )}
 
         {error && (

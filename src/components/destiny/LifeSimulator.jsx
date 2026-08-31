@@ -202,8 +202,8 @@ export default function LifeSimulator({ vision, strategy, persona, onDone }) {
             </div>
           )}
 
-          <Button onClick={onDone} className="rounded-full h-11 px-6">
-            Continue to build
+          <Button onClick={() => onDone(result)} className="rounded-full h-11 px-6">
+            Lock this plan & continue
           </Button>
         </>
       )}
