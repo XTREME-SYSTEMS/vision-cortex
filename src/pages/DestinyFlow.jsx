@@ -125,7 +125,7 @@ export default function DestinyFlow() {
     setError(null);
     try {
       const res = await base44.functions.invoke("visionSweep", { goal });
-      const list = res.data?.ideas || res.ideas || [];
+      const list = res.items || res.data?.items || [];
       setIdeas(list);
       setTopIdea(list[0] || null);
     } catch (e) {
