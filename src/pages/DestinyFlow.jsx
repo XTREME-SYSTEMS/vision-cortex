@@ -1,22 +1,27 @@
-import { useEffect, useState, useCallback } from "react";
-import { base44 } from "@/api/base44Client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2, ArrowRight, ArrowLeft, Sparkles, HelpCircle, Target, Telescope, FlaskConical, Hammer, Rocket, Brain, CheckCircle2, AlertTriangle } from "lucide-react";
-import DestinyTimeline from "@/components/destiny/DestinyTimeline";
-import IntroCard from "@/components/destiny/IntroCard";
-import { money } from "@/components/ideas/format";
+import { useEffect, useState, useCallback } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Loader2, ArrowRight, ArrowLeft, Sparkles, HelpCircle, Target, Layers, FlaskConical, Hammer, Rocket, Brain, AlertTriangle, Lightbulb, SkipForward } from 'lucide-react';
+import DestinyTimeline from '@/components/destiny/DestinyTimeline';
+import IntroCard from '@/components/destiny/IntroCard';
+import AIAssistButton from '@/components/destiny/AIAssistButton';
+import StrategyList from '@/components/destiny/StrategyList';
+import OutcomeView from '@/components/destiny/OutcomeView';
+import { money } from '@/components/ideas/format';
 
 const STEPS = [
-  { id: "vision", label: "Vision", icon: Sparkles, purpose: "Tell the system, in one honest sentence, the life you want.", summary: "Your seed sentence is the root everything grows from. The more specific, the sharper every later decision becomes." },
-  { id: "quest", label: "Quest", icon: HelpCircle, purpose: "Answer a few questions. Each answer compounds into the next one.", summary: "The system narrows your goal from open-ended to locked — steering every opportunity, simulation, and build toward it." },
-  { id: "goal", label: "Goal Lock", icon: Target, purpose: "Confirm your locked goal. This becomes the engine's target.", summary: "Once locked, the engine scores every scraped opportunity against this goal and reverse-engineers the path to hit it." },
-  { id: "discover", label: "Discover", icon: Telescope, purpose: "The system scrapes the web for opportunities matched to your goal.", summary: "Vision sweeps forums, trends, and products in the background, then scores each one to your profile and goal." },
-  { id: "simulate", label: "Simulate", icon: FlaskConical, purpose: "Forecast the top opportunity across multiple horizons.", summary: "Revenue, cost, break-even, and probability of hitting your goal — with reverse-engineering if it falls short." },
-  { id: "build", label: "Build", icon: Hammer, purpose: "Generate the full launch pack — brand, site, content.", summary: "Runs in the background: business name, palette, website copy, and a 30-day social schedule." },
-  { id: "launch", label: "Launch", icon: Rocket, purpose: "Provision infrastructure and ship to production.", summary: "Vercel + Supabase provisioning, domain, and the live URL — gated by unit economics." },
-  { id: "compound", label: "Compound", icon: Brain, purpose: "Extract a doctrine from the outcome.", summary: "What worked becomes a reusable insight that feeds tomorrow's discovery — the compounding loop closes." },
+  { id: 'vision', label: 'Vision', icon: Sparkles, purpose: 'Tell the system, in one honest sentence, the life you want.', summary: 'Your seed sentence is the root everything grows from. Type a few words and tap the sparkle to let AI expand it — or write your own.' },
+  { id: 'quest', label: 'Quest', icon: HelpCircle, purpose: 'A few questions to sharpen your goal. Each answer compounds into the next.', summary: 'Optional. Answer yourself, accept an AI suggestion, or skip entirely — the strategy generator works from your vision alone.' },
+  { id: 'goal', label: 'Goal Lock', icon: Target, purpose: 'Confirm your locked goal. This becomes the engine\u2019s target.', summary: 'Once locked, the engine scores every strategy and simulation against this goal and reverse-engineers the path to hit it.' },
+  { id: 'strategies', label: 'Strategies', icon: Layers, purpose: 'The system generates 210 distinct strategies from your vision — and recommends the best.', summary: '210 strategies across 7 archetypes, ranked by fit to your goal. Pick one to simulate, or take the recommended best.' },
+  { id: 'simulate', label: 'Simulate', icon: FlaskConical, purpose: 'See multiple simulated futures for your chosen strategy.', summary: 'Three scenarios — conservative, base, aggressive — each with a 12-month profit timeline and probability.' },
+  { id: 'build', label: 'Build', icon: Hammer, purpose: 'Generate the full launch pack — brand, site, content.', summary: 'Runs in the background: business name, palette, website copy, and a 30-day social schedule.' },
+  { id: 'launch', label: 'Launch', icon: Rocket, purpose: 'Provision infrastructure and ship to production.', summary: 'Vercel + Supabase provisioning, domain, and the live URL — gated by unit economics.' },
+  { id: 'compound', label: 'Compound', icon: Brain, purpose: 'Extract a doctrine from the outcome.', summary: 'What worked becomes a reusable insight that feeds tomorrow\u2019s discovery — the compounding loop closes.' },
 ];
+
+const STORAGE_KEY = 'destinyFlow.v2';
 
 export default function DestinyFlow() {
   const [step, setStep] = useState(0);
@@ -24,35 +29,65 @@ export default function DestinyFlow() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
 
-  // onboarding state
-  const [seed, setSeed] = useState("");
+  // onboarding
+  const [seed, setSeed] = useState('');
   const [profileId, setProfileId] = useState(null);
   const [question, setQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
-  const [custom, setCustom] = useState("");
+  const [custom, setCustom] = useState('');
   const [goal, setGoal] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
+  const [suggesting, setSuggesting] = useState(false);
 
-  // pipeline state
+  // pipeline
   const [buildId, setBuildId] = useState(null);
-  const [ideas, setIdeas] = useState(null);
-  const [topIdea, setTopIdea] = useState(null);
-  const [simulation, setSimulation] = useState(null);
+  const [strategies, setStrategies] = useState(null);
+  const [recommendation, setRecommendation] = useState(null);
+  const [selectedStrategy, setSelectedStrategy] = useState(null);
+  const [outcomes, setOutcomes] = useState(null);
   const [buildPack, setBuildPack] = useState(null);
   const [launch, setLaunch] = useState(null);
   const [doctrine, setDoctrine] = useState(null);
+
+  // ── Resume from last step ──
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+      if (saved) {
+        setStep(saved.step ?? 0);
+        setSeed(saved.seed || '');
+        setProfileId(saved.profileId || null);
+        setAnswers(saved.answers || []);
+        setGoal(saved.goal || null);
+        setBuildId(saved.buildId || null);
+        setStrategies(saved.strategies || null);
+        setRecommendation(saved.recommendation || null);
+        setSelectedStrategy(saved.selectedStrategy || null);
+        setOutcomes(saved.outcomes || null);
+        setBuildPack(saved.buildPack || null);
+        setLaunch(saved.launch || null);
+        setDoctrine(saved.doctrine || null);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // ── Persist state ──
+  useEffect(() => {
+    const state = { step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+  }, [step, seed, profileId, answers, goal, buildId, strategies, recommendation, selectedStrategy, outcomes, buildPack, launch, doctrine]);
 
   const cur = STEPS[step];
   const completed = new Set(STEPS.map((s, i) => i).filter((i) => i < step));
 
   const goStep = useCallback((i) => {
-    setStep(i);
+    setStep(Math.max(0, Math.min(i, STEPS.length - 1)));
     setIntroOpen(true);
     setError(null);
   }, []);
-
   const beginStep = () => setIntroOpen(false);
-  const next = () => step < STEPS.length - 1 && goStep(step + 1);
-  const back = () => step > 0 && goStep(step - 1);
+  const next = () => goStep(step + 1);
+  const back = () => goStep(step - 1);
 
   // ── Vision: start the quest ──
   const startQuest = async () => {
@@ -60,7 +95,7 @@ export default function DestinyFlow() {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("onboardingQuest", { action: "start", seed_sentence: seed });
+      const res = await base44.functions.invoke('onboardingQuest', { action: 'start', seed_sentence: seed });
       setProfileId(res.data?.profile_id);
       setQuestion(res.data?.question);
       next();
@@ -71,7 +106,7 @@ export default function DestinyFlow() {
     }
   };
 
-  // ── Quest: answer (compounds into next question) ──
+  // ── Quest: answer (compounds) ──
   const answer = async (value) => {
     setRunning(true);
     setError(null);
@@ -79,14 +114,15 @@ export default function DestinyFlow() {
       const ans = { question: question.question, answer: value };
       const newAnswers = [...answers, ans];
       setAnswers(newAnswers);
-      const res = await base44.functions.invoke("onboardingQuest", { answer: ans });
+      setSuggestions(null);
+      const res = await base44.functions.invoke('onboardingQuest', { answer: ans });
       if (res.data?.completed) {
         setGoal(res.data.goal);
-        setStep(STEPS.findIndex((s) => s.id === "goal"));
+        setStep(STEPS.findIndex((s) => s.id === 'goal'));
         setIntroOpen(true);
       } else {
         setQuestion(res.data.question);
-        setCustom("");
+        setCustom('');
       }
     } catch (e) {
       setError(e.message || String(e));
@@ -95,19 +131,43 @@ export default function DestinyFlow() {
     }
   };
 
-  // ── Goal Lock: create build context ──
+  // ── Quest: AI suggestions ──
+  const getSuggestions = async () => {
+    setSuggesting(true);
+    setError(null);
+    try {
+      const res = await base44.functions.invoke('aiAssist', {
+        mode: 'suggest',
+        context: { vision: seed, question: question?.question, answers },
+      });
+      setSuggestions(res.data?.suggestions || []);
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setSuggesting(false);
+    }
+  };
+
+  // ── Quest: skip (AI steers) ──
+  const skipQuest = () => {
+    setGoal({ kind: 'residual income', value: 10000, by_horizon: '1 year', summary: 'AI-derived from your vision — the engine will steer itself.' });
+    setStep(STEPS.findIndex((s) => s.id === 'goal'));
+    setIntroOpen(true);
+  };
+
+  // ── Goal Lock ──
   const lockGoal = async () => {
     setRunning(true);
     setError(null);
     try {
-      const title = `Destiny: ${goal?.kind || "residual income"} → ${goal?.value || ""} by ${goal?.by_horizon || "1y"}`.trim();
+      const title = `Destiny: ${goal?.kind || 'residual income'} \u2192 ${goal?.value || ''} by ${goal?.by_horizon || '1y'}`.trim();
       const b = await base44.entities.BuildQueue.create({
         title,
         business_name: title,
-        stage: "queued",
-        status: "running",
-        current_step: "discover",
-        source: "destiny_flow",
+        stage: 'queued',
+        status: 'running',
+        current_step: 'strategies',
+        source: 'destiny_flow',
         notes: JSON.stringify({ goal, seed, answers }),
       });
       setBuildId(b.id);
@@ -119,15 +179,14 @@ export default function DestinyFlow() {
     }
   };
 
-  // ── Discover: scrape in background ──
-  const discover = async () => {
+  // ── Strategies: generate 210 ──
+  const genStrategies = async () => {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("visionSweep", { goal });
-      const list = res.items || res.data?.items || [];
-      setIdeas(list);
-      setTopIdea(list[0] || null);
+      const res = await base44.functions.invoke('generateStrategies', { vision: seed, goal });
+      setStrategies(res.data?.strategies || []);
+      setRecommendation(res.data?.recommendation || null);
     } catch (e) {
       setError(e.message || String(e));
     } finally {
@@ -135,13 +194,13 @@ export default function DestinyFlow() {
     }
   };
 
-  // ── Simulate ──
+  // ── Simulate outcomes ──
   const simulate = async () => {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("simulateStrategy", { idea_id: topIdea?.id, goal });
-      setSimulation(res.data || res);
+      const res = await base44.functions.invoke('simulateOutcomes', { strategy: selectedStrategy, goal });
+      setOutcomes(res.data?.outcomes || []);
     } catch (e) {
       setError(e.message || String(e));
     } finally {
@@ -154,7 +213,7 @@ export default function DestinyFlow() {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("generateBuildPack", { idea_id: topIdea?.id, build_id: buildId });
+      const res = await base44.functions.invoke('generateBuildPack', { idea_id: selectedStrategy?.id, build_id: buildId });
       setBuildPack(res.data || res);
     } catch (e) {
       setError(e.message || String(e));
@@ -168,7 +227,7 @@ export default function DestinyFlow() {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("launchPipelineBuild", { id: buildId });
+      const res = await base44.functions.invoke('launchPipelineBuild', { id: buildId });
       setLaunch(res.data || res);
     } catch (e) {
       setError(e.message || String(e));
@@ -182,7 +241,7 @@ export default function DestinyFlow() {
     setRunning(true);
     setError(null);
     try {
-      const res = await base44.functions.invoke("councilCompound", {});
+      const res = await base44.functions.invoke('councilCompound', {});
       setDoctrine(res.data || res);
     } catch (e) {
       setError(e.message || String(e));
@@ -199,44 +258,52 @@ export default function DestinyFlow() {
       <IntroCard step={stepWithMeta} open={introOpen} onBegin={beginStep} running={running} />
 
       <main className="max-w-2xl mx-auto px-5 py-12">
-        {/* Back button */}
+        {/* Manual back / forward */}
         {step > 0 && !introOpen && (
-          <button onClick={back} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
+          <div className="flex items-center justify-between mb-8">
+            <button onClick={back} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+              <ArrowLeft className="w-4 h-4" /> Back
+            </button>
+            {step < STEPS.length - 1 && (
+              <button onClick={next} className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+                Forward <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         )}
 
         {/* ── VISION ── */}
-        {cur.id === "vision" && !introOpen && (
+        {cur.id === 'vision' && !introOpen && (
           <div>
             <h1 className="font-display text-4xl sm:text-5xl tracking-tight leading-[1.05]">Describe the life you want.</h1>
             <p className="mt-4 text-muted-foreground leading-relaxed">
-              One sentence. Be honest and specific — the system will spend the next few questions turning it into a locked goal, then steer every recommendation toward it.
+              One sentence. Type a few words and tap the sparkle to let AI expand it — or write your own. This is the root everything grows from.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            <div className="mt-8 flex gap-3">
               <Input
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && startQuest()}
-                placeholder="e.g. I want to be a millionaire in a year running a fully automated digital business."
+                onKeyDown={(e) => e.key === 'Enter' && startQuest()}
+                placeholder="e.g. millionaire in a year, fully automated…"
                 className="rounded-full h-12 text-base flex-1"
                 autoFocus
               />
+              <AIAssistButton text={seed} context="vision sentence" onResult={setSeed} />
               <Button onClick={startQuest} disabled={running || !seed.trim()} className="rounded-full h-12 px-6">
-                {running ? <Loader2 className="w-4 h-4 animate-spin" /> : "Begin quest"}
+                {running ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Begin'}
               </Button>
             </div>
           </div>
         )}
 
         {/* ── QUEST ── */}
-        {cur.id === "quest" && !introOpen && (
+        {cur.id === 'quest' && !introOpen && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                Question {answers.length + 1}
-              </span>
-              <span className="text-[11px] text-muted-foreground">{answers.length} answered</span>
+              <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Question {answers.length + 1}</span>
+              <button onClick={skipQuest} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+                <SkipForward className="w-3.5 h-3.5" /> Skip — let AI steer
+              </button>
             </div>
             <div className="h-1 bg-muted rounded-full mb-10 overflow-hidden">
               <div className="h-full bg-primary transition-all" style={{ width: `${Math.round((answers.length / 6) * 100)}%` }} />
@@ -250,27 +317,24 @@ export default function DestinyFlow() {
                 <h2 className="font-display text-3xl tracking-tight leading-tight">{question.question}</h2>
                 <div className="mt-8 space-y-3">
                   {question.options?.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => answer(opt)}
-                      disabled={running}
-                      className="w-full text-left p-4 rounded-2xl border border-border/60 hover:border-primary hover:bg-muted/40 transition-colors text-[15px]"
-                    >
+                    <button key={opt} onClick={() => answer(opt)} disabled={running} className="w-full text-left p-4 rounded-2xl border border-border/60 hover:border-primary hover:bg-muted/40 transition-colors text-[15px]">
                       {opt}
                     </button>
                   ))}
+                  {suggestions?.map((opt) => (
+                    <button key={opt} onClick={() => answer(opt)} disabled={running} className="w-full text-left p-4 rounded-2xl border border-primary/30 bg-primary/5 hover:border-primary transition-colors text-[15px] flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-primary mt-0.5 shrink-0" /> {opt}
+                    </button>
+                  ))}
                   <div className="flex gap-2 pt-2">
-                    <Input
-                      value={custom}
-                      onChange={(e) => setCustom(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && custom.trim() && answer(custom)}
-                      placeholder="Something else…"
-                      className="rounded-full"
-                    />
-                    <Button variant="outline" className="rounded-full" disabled={running || !custom.trim()} onClick={() => answer(custom)}>
-                      Send
-                    </Button>
+                    <Input value={custom} onChange={(e) => setCustom(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && custom.trim() && answer(custom)} placeholder="Something else…" className="rounded-full" />
+                    <Button variant="outline" className="rounded-full" disabled={running || !custom.trim()} onClick={() => answer(custom)}>Send</Button>
                   </div>
+                  {!suggestions && (
+                    <button onClick={getSuggestions} disabled={suggesting} className="text-sm text-primary hover:underline flex items-center gap-1.5 pt-2">
+                      {suggesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lightbulb className="w-3.5 h-3.5" />} Suggest answers
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -278,93 +342,76 @@ export default function DestinyFlow() {
         )}
 
         {/* ── GOAL LOCK ── */}
-        {cur.id === "goal" && !introOpen && (
+        {cur.id === 'goal' && !introOpen && (
           <div>
             <h1 className="font-display text-4xl tracking-tight">Your goal is locked.</h1>
             <div className="mt-6 rounded-2xl border border-border bg-muted/40 p-6">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2">Locked target</p>
-              <p className="font-display text-2xl">{goal?.kind || "Residual income"} → {goal?.value || ""}</p>
-              <p className="text-sm text-muted-foreground mt-1">by {goal?.by_horizon || "1 year"}</p>
+              <p className="font-display text-2xl">{goal?.kind || 'Residual income'} → {goal?.value || ''}</p>
+              <p className="text-sm text-muted-foreground mt-1">by {goal?.by_horizon || '1 year'}</p>
               {goal?.summary && <p className="text-sm text-muted-foreground mt-4 pt-4 border-t border-border">{goal.summary}</p>}
             </div>
-            <p className="mt-6 text-sm text-muted-foreground">
-              From here, everything runs in the background. The engine scrapes opportunities, simulates the best one, builds the launch pack, and ships it — you just approve.
-            </p>
+            <p className="mt-6 text-sm text-muted-foreground">From here, everything runs in the background. The engine generates 210 strategies, simulates the best, builds the launch pack, and ships it.</p>
             <Button onClick={lockGoal} disabled={running} className="mt-8 rounded-full h-12 px-8">
-              {running ? <Loader2 className="w-4 h-4 animate-spin" /> : "Lock & start the engine"}
+              {running ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Lock & start the engine'}
             </Button>
           </div>
         )}
 
-        {/* ── DISCOVER ── */}
-        {cur.id === "discover" && !introOpen && (
-          <StepRunner
-            title="Discovering opportunities"
-            desc="Vision is scraping forums, trends, and products — matched to your goal."
-            onRun={discover}
-            running={running}
-            done={!!ideas}
-            cta="Continue to simulation"
-            onNext={next}
-          >
-            {ideas?.length > 0 ? (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{ideas.length} opportunities found. Top match:</p>
-                <div className="rounded-xl border border-border p-4">
-                  <p className="font-medium">{topIdea?.title}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{topIdea?.one_liner}</p>
-                  <div className="flex gap-4 text-xs text-muted-foreground mt-3">
-                    <span>Profit: {money(topIdea?.est_monthly_profit_usd)}/mo</span>
-                    <span>Launch: {money(topIdea?.launch_cost_usd)}</span>
-                    <span>{topIdea?.time_to_launch_days}d</span>
-                  </div>
-                </div>
+        {/* ── STRATEGIES ── */}
+        {cur.id === 'strategies' && !introOpen && (
+          <div>
+            <h1 className="font-display text-3xl tracking-tight">210 strategies from your vision.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">The system generated 210 distinct strategies across 7 archetypes and ranked them to your goal. Pick one to simulate — or take the recommended best.</p>
+            <div className="mt-8">
+              {!strategies ? (
+                <Button onClick={genStrategies} disabled={running} className="rounded-full h-11 px-6">
+                  {running ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                  {running ? 'Generating 210 strategies…' : 'Generate strategies'}
+                </Button>
+              ) : (
+                <StrategyList strategies={strategies} recommendation={recommendation} selectedId={selectedStrategy?.id} onSelect={setSelectedStrategy} />
+              )}
+            </div>
+            {strategies && (
+              <div className="flex items-center gap-3 mt-8">
+                <Button onClick={next} disabled={!selectedStrategy} className="rounded-full h-11 px-6">
+                  Simulate this strategy <ArrowRight className="w-4 h-4 ml-1.5" />
+                </Button>
+                <Button variant="outline" onClick={genStrategies} disabled={running} className="rounded-full h-11">Regenerate</Button>
               </div>
-            ) : null}
-          </StepRunner>
+            )}
+          </div>
         )}
 
         {/* ── SIMULATE ── */}
-        {cur.id === "simulate" && !introOpen && (
-          <StepRunner
-            title="Simulating the top opportunity"
-            desc="Forecasting revenue, cost, break-even, and probability of your goal."
-            onRun={simulate}
-            running={running}
-            done={!!simulation}
-            cta="Continue to build"
-            onNext={next}
-          >
-            {simulation?.metrics && (
-              <div className="grid grid-cols-2 gap-3">
-                <Metric label="12m revenue" value={money(simulation.metrics.total_revenue)} />
-                <Metric label="12m profit" value={money(simulation.metrics.total_profit)} />
-                <Metric label="Break-even day" value={simulation.metrics.break_even_day || "—"} />
-                <Metric label="ROI" value={`${simulation.metrics.roi_pct || 0}%`} />
-                {simulation.reverse_feasible !== undefined && (
-                  <div className="col-span-2 rounded-lg border border-border p-3 text-sm">
-                    <span className="text-muted-foreground">Reverse-engineered to goal: </span>
-                    <span className={simulation.reverse_feasible ? "text-primary font-medium" : "text-destructive font-medium"}>
-                      {simulation.reverse_feasible ? "feasible" : "needs adjustment"}
-                    </span>
-                  </div>
-                )}
-              </div>
+        {cur.id === 'simulate' && !introOpen && (
+          <div>
+            <h1 className="font-display text-3xl tracking-tight">Simulated futures.</h1>
+            <p className="mt-3 text-muted-foreground leading-relaxed">
+              {selectedStrategy ? `Strategy: ${selectedStrategy.title} — ${selectedStrategy.one_liner}` : 'Pick a strategy first.'}
+            </p>
+            <div className="mt-8">
+              {!outcomes ? (
+                <Button onClick={simulate} disabled={running || !selectedStrategy} className="rounded-full h-11 px-6">
+                  {running ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                  {running ? 'Simulating outcomes…' : 'Simulate outcomes'}
+                </Button>
+              ) : (
+                <OutcomeView outcomes={outcomes} />
+              )}
+            </div>
+            {outcomes && (
+              <Button onClick={next} className="rounded-full h-11 px-6 mt-8">
+                Continue to build <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
             )}
-          </StepRunner>
+          </div>
         )}
 
         {/* ── BUILD ── */}
-        {cur.id === "build" && !introOpen && (
-          <StepRunner
-            title="Generating the launch pack"
-            desc="Brand, website copy, and 30-day social schedule — in the background."
-            onRun={build}
-            running={running}
-            done={!!buildPack}
-            cta="Continue to launch"
-            onNext={next}
-          >
+        {cur.id === 'build' && !introOpen && (
+          <StepRunner title="Generating the launch pack" desc="Brand, website copy, and 30-day social schedule — in the background." onRun={build} running={running} done={!!buildPack} cta="Continue to launch" onNext={next}>
             {buildPack?.brand && (
               <div className="space-y-3">
                 <div className="rounded-xl border border-border p-4">
@@ -378,63 +425,35 @@ export default function DestinyFlow() {
                     </div>
                   )}
                 </div>
-                {buildPack.website?.sections?.length > 0 && (
-                  <p className="text-sm text-muted-foreground">{buildPack.website.sections.length} site sections generated.</p>
-                )}
+                {buildPack.website?.sections?.length > 0 && <p className="text-sm text-muted-foreground">{buildPack.website.sections.length} site sections generated.</p>}
               </div>
             )}
           </StepRunner>
         )}
 
         {/* ── LAUNCH ── */}
-        {cur.id === "launch" && !introOpen && (
-          <StepRunner
-            title="Launching to production"
-            desc="Provisioning Vercel + Supabase and shipping the live site."
-            onRun={launchIt}
-            running={running}
-            done={!!launch}
-            cta="Continue to compound"
-            onNext={next}
-          >
+        {cur.id === 'launch' && !introOpen && (
+          <StepRunner title="Launching to production" desc="Provisioning Vercel + Supabase and shipping the live site." onRun={launchIt} running={running} done={!!launch} cta="Continue to compound" onNext={next}>
             {launch?.live_url && (
               <div className="rounded-xl border border-border p-4">
                 <p className="text-sm text-muted-foreground">Live URL</p>
-                <a href={launch.live_url} target="_blank" rel="noreferrer" className="text-primary font-medium underline">
-                  {launch.live_url}
-                </a>
+                <a href={launch.live_url} target="_blank" rel="noreferrer" className="text-primary font-medium underline">{launch.live_url}</a>
               </div>
             )}
-            {launch?.status === "blocked" && (
-              <p className="text-sm text-muted-foreground">{launch.blocked_reason || "Launch gated — check unit economics."}</p>
-            )}
+            {launch?.status === 'blocked' && <p className="text-sm text-muted-foreground">{launch.blocked_reason || 'Launch gated — check unit economics.'}</p>}
           </StepRunner>
         )}
 
         {/* ── COMPOUND ── */}
-        {cur.id === "compound" && !introOpen && (
-          <StepRunner
-            title="Compounding the brain"
-            desc="Extracting a doctrine from this run to feed tomorrow's discovery."
-            onRun={compound}
-            running={running}
-            done={!!doctrine}
-            cta="Finish cycle"
-            onNext={() => {}}
-            isLast
-          >
+        {cur.id === 'compound' && !introOpen && (
+          <StepRunner title="Compounding the brain" desc="Extracting a doctrine from this run to feed tomorrow's discovery." onRun={compound} running={running} done={!!doctrine} cta="Finish cycle" onNext={() => {}} isLast>
             {doctrine?.doctrine && (
               <div className="rounded-xl border border-border bg-muted/40 p-4">
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">New doctrine</p>
                 <p className="text-sm">{doctrine.doctrine}</p>
               </div>
             )}
-            {doctrine && (
-              <div className="flex items-center gap-2 text-primary">
-                <CheckCircle2 className="w-5 h-5" />
-                <p className="text-sm font-medium">Destiny cycle complete. The loop is closed.</p>
-              </div>
-            )}
+            {doctrine && <p className="text-sm text-primary font-medium">Destiny cycle complete. The loop is closed.</p>}
           </StepRunner>
         )}
 
@@ -459,27 +478,12 @@ function StepRunner({ title, desc, onRun, running, done, cta, onNext, children, 
         {!done && (
           <Button onClick={onRun} disabled={running} className="rounded-full h-11 px-6">
             {running ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
-            {running ? "Running in background…" : "Run now"}
+            {running ? 'Running in background…' : 'Run now'}
           </Button>
         )}
-        {done && !isLast && (
-          <Button onClick={onNext} className="rounded-full h-11 px-6">
-            {cta} <ArrowRight className="w-4 h-4 ml-1.5" />
-          </Button>
-        )}
-        {done && isLast && (
-          <span className="text-sm text-muted-foreground">Cycle complete.</span>
-        )}
+        {done && !isLast && <Button onClick={onNext} className="rounded-full h-11 px-6">{cta} <ArrowRight className="w-4 h-4 ml-1.5" /></Button>}
+        {done && isLast && <span className="text-sm text-muted-foreground">Cycle complete.</span>}
       </div>
-    </div>
-  );
-}
-
-function Metric({ label, value }) {
-  return (
-    <div className="rounded-lg border border-border p-3">
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="font-display text-xl mt-0.5">{value}</p>
     </div>
   );
 }
