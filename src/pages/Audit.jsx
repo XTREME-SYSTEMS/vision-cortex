@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, XCircle, Lightbulb } from 'lucide-react';
+import { ShieldCheck, Loader2, AlertTriangle, CheckCircle2, XCircle, Lightbulb, RefreshCw } from 'lucide-react';
 
 export default function Audit() {
   const [running, setRunning] = useState(false);
+  const [healing, setHealing] = useState(false);
   const [data, setData] = useState(null);
+  const [heal, setHeal] = useState(null);
   const [err, setErr] = useState('');
 
   const run = async () => {
@@ -16,6 +18,17 @@ export default function Audit() {
     } catch (e) {
       setErr('Audit failed — try again.');
     } finally { setRunning(false); }
+  };
+
+  const healEngine = async () => {
+    setHealing(true); setErr(''); setHeal(null);
+    try {
+      const res = await base44.functions.invoke('healDestinyEngine', { brand_limit: 10 });
+      setHeal(res.data?.remediation);
+      await run();
+    } catch (e) {
+      setErr('Heal failed — try again.');
+    } finally { setHealing(false); }
   };
 
   const report = data?.report;
@@ -34,12 +47,26 @@ export default function Audit() {
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <Button onClick={run} disabled={running} className="rounded-full">
+      <div className="flex items-center gap-3 flex-wrap">
+        <Button onClick={run} disabled={running || healing} className="rounded-full">
           {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />} Run engine audit
+        </Button>
+        <Button onClick={healEngine} disabled={running || healing} variant="outline" className="rounded-full">
+          {healing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Heal engine
         </Button>
         {err && <span className="text-sm text-destructive">{err}</span>}
       </div>
+
+      {heal && (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3.5 text-sm">
+          <div className="flex items-center gap-2 font-medium text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="w-4 h-4" /> Healing pass complete
+          </div>
+          <p className="text-muted-foreground mt-1">
+            Branded <b>{heal.branded}</b> ideas · linked <b>{heal.linked_builds}</b> builds · validated <b>{heal.validated_doctrines}</b> doctrines.
+          </p>
+        </div>
+      )}
 
       {running && !data && (
         <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
