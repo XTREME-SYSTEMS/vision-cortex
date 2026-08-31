@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Loader2, ShieldCheck, RefreshCw, Target, AlertTriangle, Compass, TrendingUp } from 'lucide-react';
+import { Loader2, ShieldCheck, RefreshCw, Target, AlertTriangle, Compass, TrendingUp, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const severityColor = {
@@ -24,6 +24,8 @@ export default function ForensicAudit() {
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
+  const [deepRec, setDeepRec] = useState(null);
+  const [deepLoading, setDeepLoading] = useState(false);
 
   const run = useCallback(async () => {
     setRunning(true);
@@ -45,6 +47,21 @@ export default function ForensicAudit() {
 
   useEffect(() => { run(); }, [run]);
 
+  // AI Assist: deep strategic recommendation beyond the standard audit
+  const runDeepAssist = async () => {
+    if (!report) return;
+    setDeepLoading(true);
+    setDeepRec(null);
+    try {
+      const res = await base44.functions.invoke('forensicAudit', { deep: true });
+      const data = res.data || res;
+      if (!data.error && data.report) setDeepRec(data.report);
+    } catch {
+      // silent — user can retry
+    }
+    setDeepLoading(false);
+  };
+
   const score = report?.alignment_score ?? 0;
   const scoreTone = score >= 75 ? 'text-emerald-500' : score >= 50 ? 'text-amber-500' : 'text-rose-500';
 
@@ -60,10 +77,18 @@ export default function ForensicAudit() {
             A forensic cross-reference of your simulation results, life plan, and vision statement. Every drift is named. Every correction is specific.
           </p>
         </div>
-        <Button variant="outline" onClick={run} disabled={running} className="rounded-full">
-          {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-          Regenerate Audit
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={run} disabled={running} className="rounded-full">
+            {running ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+            Regenerate Audit
+          </Button>
+          {report && (
+            <Button onClick={runDeepAssist} disabled={deepLoading} className="rounded-full">
+              {deepLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              AI Assist — Deep Strategy
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading && (
@@ -162,6 +187,36 @@ export default function ForensicAudit() {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* AI Assist — Deep strategic recommendation */}
+          {deepLoading && (
+            <Card className="p-6 flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Generating deep strategic recommendation…</span>
+            </Card>
+          )}
+          {deepRec && !deepLoading && (
+            <Card className="p-5 border-primary/30 bg-primary/5">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <p className="text-[11px] uppercase tracking-wider text-primary">AI Assist — Deep Strategy</p>
+              </div>
+              {deepRec.summary && <p className="text-sm leading-relaxed mb-3">{deepRec.summary}</p>}
+              {deepRec.course_corrections?.length > 0 && (
+                <div className="space-y-2">
+                  {deepRec.course_corrections.map((c, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      <span className="font-mono text-xs text-muted-foreground mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                      <div>
+                        <p>{c.action}</p>
+                        {c.rationale && <p className="text-xs text-muted-foreground mt-0.5">{c.rationale}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
           )}
         </>
       )}
