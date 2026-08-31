@@ -23,7 +23,7 @@ export default async function (req) {
       base44.entities.Doctrine.list('-created_date', 50).catch(() => []),
     ]);
 
-    const remediation = { branded: 0, linked_builds: 0, validated_doctrines: 0, skipped: [] };
+    const remediation = { branded: 0, linked_builds: 0, validated_doctrines: 0, doctrines_generated: 0, skipped: [] };
 
     // 1. Brand unbranded ideas — one batched LLM call
     const unbranded = (ideas || []).filter((i) => !i.branding || !i.branding.brand_name).slice(0, brandLimit);
@@ -111,11 +111,47 @@ IDEAS: ${JSON.stringify((ideas || []).map((i) => ({ id: i.id, title: i.title, in
       remediation.validated_doctrines = toValidate.length;
     }
 
+    // 4. Revenue → doctrine feedback: generate marketer doctrines from launched builds
+    const launched = (builds || []).filter((b) => b.stage === 'launched' && b.idea_id);
+    if (launched.length) {
+      const ideasById = new Map((ideas || []).map((i) => [i.id, i]));
+      const docRes = await core.InvokeLLM({
+        prompt: `You are the Marketer agent closing the revenue→doctrine feedback loop. For each launched build, distill 2 reusable marketing doctrines (what worked, what to repeat). Return a JSON array of doctrines.
+BUILDS: ${JSON.stringify(launched.map((b) => ({ build: b.title, idea: ideasById.get(b.idea_id)?.title, industry: b.industry })))}
+Each doctrine: { "topic": <str>, "insight": <str>, "category": "tactic"|"market", "source": "marketer", "confidence": <0-1> }`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            doctrines: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  topic: { type: "string" },
+                  insight: { type: "string" },
+                  category: { type: "string" },
+                  source: { type: "string" },
+                  confidence: { type: "number" },
+                },
+                required: ["topic", "insight", "category", "source", "confidence"],
+              },
+            },
+          },
+          required: ["doctrines"],
+        },
+      });
+      const newDocs = (docRes?.doctrines || []).filter((d) => d.topic && d.insight);
+      if (newDocs.length) {
+        await base44.entities.Doctrine.bulkCreate(newDocs.map((d) => ({ ...d, weight: 1, validated: false })));
+        remediation.doctrines_generated = newDocs.length;
+      }
+    }
+
     await base44.entities.AgentLog.create({
       agent_name: 'Fortress Engineer',
       level: 'success',
       category: 'self_healing',
-      message: `Healing pass complete: branded ${remediation.branded} ideas, linked ${remediation.linked_builds} builds, validated ${remediation.validated_doctrines} doctrines.`,
+      message: `Healing pass complete: branded ${remediation.branded} ideas, linked ${remediation.linked_builds} builds, validated ${remediation.validated_doctrines} doctrines, generated ${remediation.doctrines_generated} marketer doctrines.`,
     });
 
     return Response.json({ remediation });
