@@ -40,6 +40,7 @@ const CHAPTERS = [
   { file: '34-governance-doctrine-prompts.md', title: '34 — Governance & Doctrine Prompts' },
   { file: '35-prompt-engineering-meta.md', title: '35 — Prompt Engineering (Meta)' },
   { file: '36-vision-and-auto-recommendation.md', title: '36 — Vision & Auto-Recommendation Engine' },
+  { file: '37-master-autonomous-build.md', title: '37 — The Master Autonomous Build' },
 ];
 
 export default function Playbook() {

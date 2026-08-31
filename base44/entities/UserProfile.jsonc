@@ -1,0 +1,84 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "seed_sentence": {
+      "type": "string"
+    },
+    "vision_statement": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number"
+        },
+        "by_horizon": {
+          "type": "string"
+        }
+      }
+    },
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "industry_focus": {
+      "type": "string"
+    },
+    "financial_focus": {
+      "type": "string"
+    },
+    "autonomy_level": {
+      "type": "string"
+    },
+    "risk_tolerance": {
+      "type": "string"
+    },
+    "time_horizon": {
+      "type": "string"
+    },
+    "brand_aesthetic": {
+      "type": "string"
+    },
+    "brand_voice": {
+      "type": "string"
+    },
+    "target_audience": {
+      "type": "string"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id"
+  ],
+  "rls": {
+    "read": {},
+    "create": {},
+    "update": {},
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
