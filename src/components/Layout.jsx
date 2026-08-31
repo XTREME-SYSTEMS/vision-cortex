@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -17,6 +17,7 @@ const nav = [
   { to: '/paper', label: 'Paper Desk', icon: LineChart },
   { to: '/queue', label: 'Queue', icon: ListTodo },
   { to: '/live', label: 'Live Chat', icon: MessageCircle },
+  { to: '/playbook', label: 'Playbook', icon: BookOpen },
 ];
 
 const adminNav = [
