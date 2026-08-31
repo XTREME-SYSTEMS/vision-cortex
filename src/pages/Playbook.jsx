@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BookOpen, Loader2, FileText } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownContent from '@/components/MarkdownContent';
 
 const CHAPTERS = [
   { file: '00-README.md', title: 'README — The Trio Playbook' },
@@ -65,9 +65,7 @@ export default function Playbook() {
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-headings:font-display prose-headings:tracking-tight prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-pre:bg-muted prose-pre:text-foreground prose-code:text-foreground prose-table:text-sm">
-            <ReactMarkdown>{content}</ReactMarkdown>
-          </div>
+          <MarkdownContent content={content} />
         )}
       </article>
     </div>
