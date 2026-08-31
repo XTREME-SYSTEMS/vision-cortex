@@ -26,6 +26,7 @@ import Queue from '@/pages/Queue';
 import LiveChat from '@/pages/LiveChat';
 import Playbook from '@/pages/Playbook';
 import Codebase from '@/pages/Codebase';
+import Build from '@/pages/Build';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
           <Route path="/live" element={<LiveChat />} />
           <Route path="/playbook" element={<Playbook />} />
           <Route path="/codebase" element={<Codebase />} />
+          <Route path="/build" element={<Build />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />
