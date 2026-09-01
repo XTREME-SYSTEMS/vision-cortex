@@ -13,6 +13,7 @@ import DestinyLoop from '@/components/dashboard/DestinyLoop';
 import DriftAlerts from '@/components/dashboard/DriftAlerts';
 import OpportunityFeed from '@/components/dashboard/OpportunityFeed';
 import AutonomousActions from '@/components/dashboard/AutonomousActions';
+import KanbanBoard from '@/components/dashboard/KanbanBoard';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -61,6 +62,8 @@ export default function Dashboard() {
       <DriftAlerts />
 
       <AutonomousActions />
+
+      <KanbanBoard />
 
       <OpportunityFeed />
 

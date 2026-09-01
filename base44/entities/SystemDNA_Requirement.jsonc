@@ -1,0 +1,129 @@
+{
+  "name": "SystemDNA_Requirement",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "REQ-000001 format"
+    },
+    "system_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_System.dna_id"
+    },
+    "parent_id": {
+      "type": "string",
+      "description": "Parent requirement if hierarchical"
+    },
+    "capability_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_Capability.dna_id"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "functional",
+        "non_functional",
+        "constraint",
+        "security",
+        "performance",
+        "reliability",
+        "usability",
+        "compliance"
+      ],
+      "default": "functional"
+    },
+    "statement": {
+      "type": "string",
+      "description": "The system SHALL... \u2014 objectively verifiable"
+    },
+    "source": {
+      "type": "string"
+    },
+    "source_reference": {
+      "type": "string"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "default": "P2"
+    },
+    "risk": {
+      "type": "string"
+    },
+    "acceptance_criteria": {
+      "type": "string",
+      "description": "Measurable \u2014 no vague terms. Required for completion."
+    },
+    "verification_method": {
+      "type": "string",
+      "enum": [
+        "analysis",
+        "inspection",
+        "demonstration",
+        "test",
+        "automated_test"
+      ],
+      "default": "test"
+    },
+    "validation_method": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "defined",
+        "planned",
+        "building",
+        "implemented",
+        "testing",
+        "validated",
+        "hardened",
+        "production",
+        "blocked",
+        "failed",
+        "deprecated"
+      ],
+      "default": "defined"
+    },
+    "has_acceptance_criteria": {
+      "type": "boolean",
+      "default": false,
+      "description": "False = cannot be marked complete (spec \u00a77)"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    }
+  },
+  "required": [
+    "system_id",
+    "statement"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

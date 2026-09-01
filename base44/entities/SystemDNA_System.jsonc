@@ -1,0 +1,135 @@
+{
+  "name": "SystemDNA_System",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "SYS-000001 format \u2014 permanent unique ID"
+    },
+    "name": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "vision_cortex",
+        "cloud_browser",
+        "auto_builder",
+        "website_factory",
+        "other"
+      ],
+      "default": "other"
+    },
+    "description": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    },
+    "lifecycle_state": {
+      "type": "string",
+      "enum": [
+        "concept",
+        "prototype",
+        "developing",
+        "functional",
+        "advanced",
+        "validated",
+        "hardened",
+        "production_verified",
+        "best_verified_tier",
+        "blocked",
+        "failed",
+        "deprecated"
+      ],
+      "default": "developing"
+    },
+    "north_star_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Target score 0-100"
+    },
+    "current_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Verified current score 0-100 \u2014 never inflated"
+    },
+    "health_status": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "healthy",
+        "degraded",
+        "critical",
+        "failed"
+      ],
+      "default": "unknown"
+    },
+    "security_health": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "secure",
+        "partial",
+        "vulnerable",
+        "critical"
+      ],
+      "default": "unknown"
+    },
+    "validation_health": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "validated",
+        "partial",
+        "untested",
+        "failed"
+      ],
+      "default": "unknown"
+    },
+    "critical_gaps_count": {
+      "type": "number",
+      "default": 0
+    },
+    "blocked_requirements_count": {
+      "type": "number",
+      "default": 0
+    },
+    "failed_tests_count": {
+      "type": "number",
+      "default": 0
+    },
+    "active_actions_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_change_id": {
+      "type": "string"
+    },
+    "next_action_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

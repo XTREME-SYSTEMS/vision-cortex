@@ -1,0 +1,115 @@
+{
+  "name": "SystemDNA_Gap",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "GAP-000001 format"
+    },
+    "system_id": {
+      "type": "string"
+    },
+    "requirement_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_Requirement"
+    },
+    "capability_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_Capability"
+    },
+    "target_state": {
+      "type": "string"
+    },
+    "current_state": {
+      "type": "string"
+    },
+    "measurable_difference": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "default": "P2",
+      "description": "P0 critical, P1 high, P2 medium, P3 low"
+    },
+    "impact": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "default": "P2"
+    },
+    "root_cause": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "proposed_solution": {
+      "type": "string"
+    },
+    "evidence_id": {
+      "type": "string"
+    },
+    "action_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_Action"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "blocked",
+        "accepted",
+        "wont_fix"
+      ],
+      "default": "open"
+    },
+    "is_blocking": {
+      "type": "boolean",
+      "default": false,
+      "description": "Critical security/safety/data-loss gaps block deployment"
+    }
+  },
+  "required": [
+    "system_id",
+    "target_state"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

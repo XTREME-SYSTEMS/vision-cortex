@@ -1,0 +1,129 @@
+{
+  "name": "SystemDNA_Action",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "ACT-000001 format"
+    },
+    "system_id": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "requirement",
+        "gap",
+        "risk",
+        "benchmark",
+        "defect",
+        "research",
+        "security_finding",
+        "user_request",
+        "architectural_decision"
+      ],
+      "default": "gap"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Ref to the source object"
+    },
+    "scope": {
+      "type": "string"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_criteria": {
+      "type": "string"
+    },
+    "test_plan": {
+      "type": "string"
+    },
+    "rollback_strategy": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "default": "P2"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "in_progress",
+        "testing",
+        "validated",
+        "deployed",
+        "blocked",
+        "failed",
+        "cancelled"
+      ],
+      "default": "queued"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "build_order_step": {
+      "type": "string"
+    },
+    "kanban_column": {
+      "type": "string",
+      "enum": [
+        "backlog",
+        "queued",
+        "in_progress",
+        "testing",
+        "done",
+        "blocked"
+      ],
+      "default": "backlog",
+      "description": "Kanban board column for drag-and-drop"
+    },
+    "kanban_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Sort order within column"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "system_id",
+    "objective"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

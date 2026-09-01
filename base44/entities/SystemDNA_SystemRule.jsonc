@@ -1,0 +1,68 @@
+{
+  "name": "SystemDNA_SystemRule",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "RULE-000001 format"
+    },
+    "article": {
+      "type": "number",
+      "description": "Rule number 1-20 from spec \u00a726"
+    },
+    "principle": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "evidence",
+        "validation",
+        "quality",
+        "security",
+        "traceability",
+        "governance",
+        "charter"
+      ],
+      "default": "quality"
+    },
+    "enforcement": {
+      "type": "string",
+      "description": "How this rule is enforced"
+    },
+    "rank": {
+      "type": "number"
+    },
+    "immutable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Immutable rules cannot be weakened by the AI"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0"
+    }
+  },
+  "required": [
+    "article",
+    "principle"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

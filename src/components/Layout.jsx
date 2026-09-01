@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, Sparkles, ListChecks, ScanLine, Factory, Target } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, Sparkles, ListChecks, ScanLine, Factory, Target, Dna } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
 const nav = [
+  { to: '/dna', label: 'System DNA', icon: Dna },
   { to: '/capabilities', label: 'Capabilities', icon: Target },
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
   { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },

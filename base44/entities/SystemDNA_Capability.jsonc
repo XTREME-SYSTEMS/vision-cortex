@@ -1,0 +1,184 @@
+{
+  "name": "SystemDNA_Capability",
+  "type": "object",
+  "properties": {
+    "dna_id": {
+      "type": "string",
+      "description": "CAP-000001 format"
+    },
+    "system_id": {
+      "type": "string",
+      "description": "Ref to SystemDNA_System.dna_id"
+    },
+    "system_name": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string",
+      "description": "Subsystem or module within the system"
+    },
+    "capability": {
+      "type": "string",
+      "description": "Specific capability being measured"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "core",
+        "intelligence",
+        "automation",
+        "security",
+        "scalability",
+        "integration",
+        "ui",
+        "data",
+        "observability",
+        "cost",
+        "anti_detection",
+        "infrastructure"
+      ],
+      "default": "core"
+    },
+    "benchmark_reference": {
+      "type": "string",
+      "description": "#1 rated proven system that exemplifies this"
+    },
+    "benchmark_state": {
+      "type": "string",
+      "description": "The ideal / target state"
+    },
+    "current_state": {
+      "type": "string",
+      "description": "What currently exists \u2014 UNKNOWN is legitimate"
+    },
+    "implemented": {
+      "type": "boolean",
+      "default": false
+    },
+    "validated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Independent dimension \u2014 implemented does NOT imply validated"
+    },
+    "hardened": {
+      "type": "boolean",
+      "default": false,
+      "description": "Independent dimension"
+    },
+    "production_ready": {
+      "type": "boolean",
+      "default": false,
+      "description": "Independent dimension"
+    },
+    "monitored": {
+      "type": "boolean",
+      "default": false,
+      "description": "Independent dimension"
+    },
+    "maturity_state": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "defined",
+        "planned",
+        "building",
+        "implemented",
+        "testing",
+        "validated",
+        "hardened",
+        "production",
+        "monitored",
+        "improvement",
+        "blocked",
+        "failed",
+        "regression",
+        "deprecated"
+      ],
+      "default": "unknown"
+    },
+    "capability_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-5: 0 absent, 1 conceptual, 2 implemented, 3 functional, 4 validated, 5 hardened"
+    },
+    "evidence_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-5: 0 none, 1 assertion, 2 weak, 3 test, 4 repeatable, 5 strong independent"
+    },
+    "reliability_score": {
+      "type": "number",
+      "default": 0
+    },
+    "security_score": {
+      "type": "number",
+      "default": 0
+    },
+    "performance_score": {
+      "type": "number",
+      "default": 0
+    },
+    "operational_score": {
+      "type": "number",
+      "default": 0
+    },
+    "benchmark_position": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 vs benchmark set"
+    },
+    "gap_severity": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "high"
+    },
+    "gap_description": {
+      "type": "string"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Refs to SystemDNA_Requirement.dna_id"
+    },
+    "evidence_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "last_audited_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "system_id",
+    "module",
+    "capability"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
