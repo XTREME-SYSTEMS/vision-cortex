@@ -8,7 +8,7 @@ export default async function(req) {
     if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
-    const { industry, sub_industry, project_id, regenerate } = body;
+    const { industry, sub_industry, project_id, regenerate, product_type } = body;
 
     if (!industry || !sub_industry) {
       return Response.json({ error: 'industry and sub_industry are required' }, { status: 400 });
@@ -55,23 +55,22 @@ Return JSON with this exact schema:
 
     // ── Persist to FactoryProject ──
     let project;
+    const createData = {
+      name_options: seed.name_options,
+      domain_options: seed.domain_options,
+      target_locations: seed.target_locations,
+      target_audience: seed.target_audience,
+      product_type: product_type || 'marketing_site',
+      stage: 'seeded'
+    };
+
     if (project_id && !regenerate) {
-      project = await base44.asServiceRole.entities.FactoryProject.update(project_id, {
-        name_options: seed.name_options,
-        domain_options: seed.domain_options,
-        target_locations: seed.target_locations,
-        target_audience: seed.target_audience,
-        stage: 'seeded'
-      });
+      project = await base44.asServiceRole.entities.FactoryProject.update(project_id, createData);
     } else {
       project = await base44.asServiceRole.entities.FactoryProject.create({
         industry,
         sub_industry,
-        name_options: seed.name_options,
-        domain_options: seed.domain_options,
-        target_locations: seed.target_locations,
-        target_audience: seed.target_audience,
-        stage: 'seeded'
+        ...createData
       });
     }
 

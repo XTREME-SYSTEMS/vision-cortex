@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Search, Check, Globe, MapPin, Users } from 'lucide-react';
+import { Loader2, Search, Check, Globe, MapPin, Users, LayoutGrid } from 'lucide-react';
 
 export function FactorySeedPanel({ project, onCreated, onUpdated }) {
   const [industry, setIndustry] = useState(project?.industry || '');
@@ -14,6 +14,7 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
   const [error, setError] = useState(null);
   const [selectedName, setSelectedName] = useState(project?.business_name || '');
   const [selectedDomain, setSelectedDomain] = useState(project?.domain_url || '');
+  const [productType, setProductType] = useState(project?.product_type || 'marketing_site');
 
   const isExisting = !!project;
 
@@ -25,6 +26,7 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
       const res = await base44.functions.invoke('factorySeedGenerator', {
         industry,
         sub_industry: subIndustry,
+        product_type: productType,
         project_id: project?.id
       });
       if (onCreated) onCreated(res.data);
@@ -70,6 +72,33 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Template type selector */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1"><LayoutGrid className="w-4 h-4" /> Website Template</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setProductType('marketing_site')}
+              className={`p-3 rounded-lg border text-left text-sm transition-colors ${
+                productType === 'marketing_site' ? 'border-primary bg-primary/10 font-medium' : 'border-border hover:bg-accent/50'
+              }`}
+            >
+              <div className="font-medium">Marketing Site</div>
+              <div className="text-xs text-muted-foreground">5-8 page brochure site</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setProductType('growth_os')}
+              className={`p-3 rounded-lg border text-left text-sm transition-colors ${
+                productType === 'growth_os' ? 'border-primary bg-primary/10 font-medium' : 'border-border hover:bg-accent/50'
+              }`}
+            >
+              <div className="font-medium">Growth OS</div>
+              <div className="text-xs text-muted-foreground">Full AI business OS: services, problems, locations, visual quote engine, SEO/AEO loop, 24-agent roster</div>
+            </button>
+          </div>
+        </div>
+
         {/* Industry inputs */}
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -194,6 +223,29 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Generate 10 Logos
+          </Button>
+        )}
+
+        {/* Generate Growth OS Website (stamps the repeatable template) */}
+        {project?.brand_pack && !project.website_config && productType === 'growth_os' && (
+          <Button
+            onClick={async () => {
+              setLoading(true);
+              setError(null);
+              try {
+                await base44.functions.invoke('factoryGrowthOSGenerator', { project_id: project.id });
+                if (onUpdated) onUpdated();
+              } catch (e) {
+                setError(e.response?.data?.error || e.message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            className="w-full"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LayoutGrid className="w-4 h-4" />}
+            Stamp Growth OS Website
           </Button>
         )}
       </CardContent>
