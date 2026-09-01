@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ShadowCommandCenter from '@/components/shadow/ShadowCommandCenter';
 import CapabilityMatrix from '@/components/shadow/CapabilityMatrix';
+import ShadowCodex from '@/components/shadow/ShadowCodex';
 import MonetizationPanel from '@/components/shadow/MonetizationPanel';
 import PerformanceLog from '@/components/shadow/PerformanceLog';
 import ProfitabilityChart from '@/components/shadow/ProfitabilityChart';
@@ -128,6 +129,8 @@ export default function Shadow() {
       <BuildStrategyPanel />
 
       <CapabilityMatrix />
+
+      <ShadowCodex />
 
       <div className="rounded-2xl border border-border/60 bg-background/40">
         <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">
