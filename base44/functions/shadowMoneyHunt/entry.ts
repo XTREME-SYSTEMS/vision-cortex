@@ -49,6 +49,9 @@ For each finding, provide:
 - algorithms: the specific algorithms, models, or mathematical methods to use
 - obtain_asap: exact steps to obtain or replicate this ASAP — the fastest path to money
 - avoid: what to avoid — pitfalls, traps, legal risks, red flags, things that will lose money
+- failure_points: the specific points where this method can fail — technical, market, operational, financial
+- common_pitfalls: the common mistakes people make attempting this — what trips people up
+- competitor_weaknesses: weaknesses in existing competitors/solutions that this method exploits
 - action_steps: exact steps to replicate or access it
 - url: source URL where you found this
 - impact_score: 1-10 based on wealth potential and actionability
@@ -78,6 +81,9 @@ Be exhaustive and specific. Return everything you find — the more actionable, 
                 algorithms: { type: 'string', description: 'Specific algorithms, models, or math methods to use' },
                 obtain_asap: { type: 'string', description: 'Fastest path to obtain/replicate this ASAP' },
                 avoid: { type: 'string', description: 'What to avoid — pitfalls, traps, legal risks, red flags' },
+                failure_points: { type: 'string', description: 'Specific points where this method can fail' },
+                common_pitfalls: { type: 'string', description: 'Common mistakes people make attempting this' },
+                competitor_weaknesses: { type: 'string', description: 'Weaknesses in existing competitors this exploits' },
                 action_steps: { type: 'array', items: { type: 'string' } },
                 url: { type: 'string' },
                 impact_score: { type: 'number' },
@@ -115,6 +121,9 @@ Be exhaustive and specific. Return everything you find — the more actionable, 
         f.tricks ? `[TRICKS] ${f.tricks}` : '',
         f.algorithms ? `[ALGORITHMS] ${f.algorithms}` : '',
         f.obtain_asap ? `[OBTAIN ASAP] ${f.obtain_asap}` : '',
+        f.failure_points ? `[FAILURE POINTS] ${f.failure_points}` : '',
+        f.common_pitfalls ? `[COMMON PITFALLS] ${f.common_pitfalls}` : '',
+        f.competitor_weaknesses ? `[COMPETITOR WEAKNESSES] ${f.competitor_weaknesses}` : '',
       ].filter(Boolean).join('\n\n');
       const record = await base44.entities.IntelFeed.create({
         category: f.category || 'shadow_money_hunt',

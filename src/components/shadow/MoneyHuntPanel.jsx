@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Crosshair, ChevronDown, ChevronRight, ExternalLink, AlertTriangle, Sparkles, DollarSign, MapPin, Cpu, Wrench, Zap, ShieldAlert, Rocket } from 'lucide-react';
+import { Loader2, Crosshair, ChevronDown, ChevronRight, ExternalLink, AlertTriangle, Sparkles, DollarSign, MapPin, Cpu, Wrench, Zap, ShieldAlert, Rocket, Target, Users, Bug } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const categoryColor = {
@@ -32,6 +32,9 @@ function parseSummary(summary) {
     '[TRICKS]': 'tricks',
     '[ALGORITHMS]': 'algorithms',
     '[OBTAIN ASAP]': 'obtainAsap',
+    '[FAILURE POINTS]': 'failurePoints',
+    '[COMMON PITFALLS]': 'pitfalls',
+    '[COMPETITOR WEAKNESSES]': 'competitorWeaknesses',
   };
   const parts = summary.split(/\n\n/);
   for (const part of parts) {
@@ -92,6 +95,14 @@ function IntelCard({ item }) {
             <DetailSection icon={Wrench} label="Tricks" value={sections.tricks} tone="text-amber-600" />
             <DetailSection icon={Cpu} label="Algorithms" value={sections.algorithms} tone="text-blue-600" />
             <DetailSection icon={Rocket} label="Obtain ASAP" value={sections.obtainAsap} tone="text-emerald-600" />
+
+            {/* Risk Analysis Section */}
+            <div className="rounded-lg bg-rose-500/5 border border-rose-500/20 p-3 space-y-3">
+              <p className="text-[10px] uppercase tracking-wider text-rose-600 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Risk Analysis</p>
+              <DetailSection icon={Target} label="Failure Points" value={sections.failurePoints} tone="text-rose-600" />
+              <DetailSection icon={Bug} label="Common Pitfalls" value={sections.pitfalls} tone="text-amber-600" />
+              <DetailSection icon={Users} label="Competitor Weaknesses" value={sections.competitorWeaknesses} tone="text-indigo-600" />
+            </div>
 
             {avoid && (
               <div className="rounded-lg bg-rose-500/5 border border-rose-500/20 p-3 space-y-1">

@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import MoneyHuntPanel from '@/components/shadow/MoneyHuntPanel';
 import BuildStrategyPanel from '@/components/shadow/BuildStrategyPanel';
+import MissionTracker from '@/components/shadow/MissionTracker';
+import SentimentTracker from '@/components/shadow/SentimentTracker';
 
 const AGENT_NAME = 'shadow';
 
@@ -102,6 +104,10 @@ export default function Shadow() {
       </div>
 
       <MoneyHuntPanel />
+
+      <MissionTracker />
+
+      <SentimentTracker />
 
       <BuildStrategyPanel />
 
