@@ -1,0 +1,70 @@
+{
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "system_dna_loop",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "detect_gaps": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "dnaGapEngine"
+          },
+          "then": "score_systems",
+          "x-base44": {
+            "title": "Detect gaps",
+            "description": "Scan capabilities vs benchmark"
+          }
+        }
+      },
+      {
+        "score_systems": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "dnaScoreSystem"
+          },
+          "then": "trace_and_act",
+          "x-base44": {
+            "title": "Score systems",
+            "description": "Multi-score, never hide critical"
+          }
+        }
+      },
+      {
+        "trace_and_act": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "dnaTraceability"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Trace & create actions",
+            "description": "Auto-disposition open gaps"
+          }
+        }
+      }
+    ]
+  },
+  "name": "System DNA Autonomous Loop",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/30 * * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Runs the System DNA engine every 30 minutes \u2014 detects gaps, scores every system (aggregate never hides critical failures), and auto-creates actions for unresolved gaps. The 24/7 self-evolution loop."
+}
