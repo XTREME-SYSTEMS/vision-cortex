@@ -1,0 +1,130 @@
+{
+  "name": "CapabilityMatrix",
+  "type": "object",
+  "properties": {
+    "system": {
+      "type": "string",
+      "enum": [
+        "vision_cortex",
+        "cloud_browser",
+        "auto_builder"
+      ],
+      "description": "Which of the three core systems this capability belongs to"
+    },
+    "module": {
+      "type": "string",
+      "description": "Subsystem or module name within the system"
+    },
+    "capability": {
+      "type": "string",
+      "description": "Specific capability or feature being measured"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "core",
+        "intelligence",
+        "automation",
+        "security",
+        "scalability",
+        "integration",
+        "ui",
+        "data",
+        "observability",
+        "cost",
+        "anti_detection",
+        "infrastructure"
+      ],
+      "default": "core"
+    },
+    "benchmark_reference": {
+      "type": "string",
+      "description": "The #1 rated proven system that exemplifies this capability at its best"
+    },
+    "benchmark_state": {
+      "type": "string",
+      "description": "What the ideal / target state looks like (the benchmark bar)"
+    },
+    "current_state": {
+      "type": "string",
+      "description": "What Vision Cortex currently has for this capability"
+    },
+    "implemented": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has this capability been built and deployed?"
+    },
+    "tested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has it been tested with a passing test suite?"
+    },
+    "score": {
+      "type": "number",
+      "default": 0,
+      "description": "Capability score 0-100 vs benchmark"
+    },
+    "hardened": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has it been security-hardened?"
+    },
+    "launch_ready": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is it production / launch ready?"
+    },
+    "optimized": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has it been performance optimized?"
+    },
+    "enhanced": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has it been enhanced beyond baseline?"
+    },
+    "gap_severity": {
+      "type": "string",
+      "enum": [
+        "none",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "high",
+      "description": "How severe the gap between current and benchmark is"
+    },
+    "gap_description": {
+      "type": "string",
+      "description": "What specifically is missing or needs work"
+    },
+    "last_audited_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "system",
+    "module",
+    "capability"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
