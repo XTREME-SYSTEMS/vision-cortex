@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": 6,
+      "interval_unit": "hours",
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "shadow_money_hunt",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "hunt": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "shadowMoneyHunt",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Shadow money hunt",
+            "description": "Follow the money \u2014 hunt billionaire AI deals, algorithmic trading secrets, data markets, hidden wealth programs, deal timing, and digital expert methods. Log to Shadow screen and email owner."
+          }
+        }
+      }
+    ]
+  },
+  "description": "Shadow Money Hunt \u2014 runs every 6 hours. The Shadow agent follows the money: hunts down billionaire AI deals, algorithmic trading secrets, data markets, hidden wealth programs, deal-timing methods, AI-generated wealth systems, and digital experts making millions in unknown places. Logs all intelligence to the Shadow screen and emails the owner every time.",
+  "name": "Shadow Money Hunt"
+}
