@@ -73,6 +73,18 @@
       "items": {
         "type": "string"
       }
+    },
+    "stripe_product_id": {
+      "type": "string"
+    },
+    "stripe_payment_link": {
+      "type": "string"
+    },
+    "predicted_revenue_monthly": {
+      "type": "number"
+    },
+    "actual_revenue": {
+      "type": "number"
     }
   },
   "required": [

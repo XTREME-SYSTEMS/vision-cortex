@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ShadowCommandCenter from '@/components/shadow/ShadowCommandCenter';
 import CapabilityMatrix from '@/components/shadow/CapabilityMatrix';
+import MonetizationPanel from '@/components/shadow/MonetizationPanel';
+import PerformanceLog from '@/components/shadow/PerformanceLog';
+import ProfitabilityChart from '@/components/shadow/ProfitabilityChart';
 import MoneyHuntPanel from '@/components/shadow/MoneyHuntPanel';
 import BuildStrategyPanel from '@/components/shadow/BuildStrategyPanel';
 import MissionTracker from '@/components/shadow/MissionTracker';
@@ -107,6 +110,12 @@ export default function Shadow() {
       </div>
 
       <ShadowCommandCenter />
+
+      <MonetizationPanel />
+
+      <ProfitabilityChart />
+
+      <PerformanceLog />
 
       <MoneyHuntPanel />
 
