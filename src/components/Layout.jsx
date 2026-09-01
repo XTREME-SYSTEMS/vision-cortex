@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, ShieldAlert, Sparkles, ListChecks, ScanLine, Factory, Target, Dna } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, ShieldAlert, Sparkles, ListChecks, ScanLine, Factory, Target, Dna, Gauge, History, Trophy } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
@@ -12,6 +12,9 @@ import { base44 } from '@/api/base44Client';
 const nav = [
   { to: '/dna', label: 'System DNA', icon: Dna },
   { to: '/dna-audit', label: 'DNA Audit', icon: ShieldAlert },
+  { to: '/performance', label: 'Performance', icon: Gauge },
+  { to: '/dna-actions', label: 'DNA Actions', icon: History },
+  { to: '/rewards', label: 'Rewards', icon: Trophy },
   { to: '/capabilities', label: 'Capabilities', icon: Target },
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
   { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },

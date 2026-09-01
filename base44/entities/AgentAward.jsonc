@@ -1,0 +1,68 @@
+{
+  "name": "AgentAward",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string"
+    },
+    "award_type": {
+      "type": "string",
+      "enum": [
+        "proactive",
+        "genius",
+        "most_active",
+        "cracked",
+        "weekly_top3",
+        "monthly_ceremony",
+        "achievement",
+        "bonus"
+      ],
+      "default": "bonus"
+    },
+    "title": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "evidence": {
+      "type": "string"
+    },
+    "bonus_points": {
+      "type": "number",
+      "default": 0
+    },
+    "ceremony_month": {
+      "type": "string"
+    },
+    "letter_content": {
+      "type": "string"
+    },
+    "awarded_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent_name",
+    "award_type",
+    "title"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -15,6 +15,7 @@ import OpportunityFeed from '@/components/dashboard/OpportunityFeed';
 import AutonomousActions from '@/components/dashboard/AutonomousActions';
 import KanbanBoard from '@/components/dashboard/KanbanBoard';
 import AutoRunStatus from '@/components/dashboard/AutoRunStatus';
+import GoogleCalendarEmbed from '@/components/GoogleCalendarEmbed';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -95,6 +96,8 @@ export default function Dashboard() {
           <IdeaRow key={idea.id} idea={idea} open={openId === idea.id} onToggle={() => setOpenId(openId === idea.id ? null : idea.id)} />
         ))}
       </div>
+
+      <GoogleCalendarEmbed title="My Calendar" />
     </div>
   );
 }
