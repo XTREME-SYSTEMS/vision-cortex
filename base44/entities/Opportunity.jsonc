@@ -1,0 +1,161 @@
+{
+  "name": "Opportunity",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Headline of the request or ad"
+    },
+    "source": {
+      "type": "string",
+      "description": "Platform where found (craigslist, reddit, linkedin, google, etc.)"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "Direct link to the original posting"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full text of what they are requesting"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string"
+    },
+    "sub_industry": {
+      "type": "string"
+    },
+    "budget": {
+      "type": "string",
+      "description": "Any price or budget mentioned"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "research": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "what_they_need": {
+          "type": "string"
+        },
+        "proposed_approach": {
+          "type": "string"
+        },
+        "estimated_value": {
+          "type": "string"
+        },
+        "competitive_angle": {
+          "type": "string"
+        },
+        "services_we_can_offer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "research_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "done",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "response_draft": {
+      "type": "string",
+      "description": "Pre-configured humanistic response email"
+    },
+    "response_subject": {
+      "type": "string"
+    },
+    "response_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "drafted",
+        "sent",
+        "followed_up",
+        "closed"
+      ],
+      "default": "pending"
+    },
+    "follow_up_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_follow_up_at": {
+      "type": "string"
+    },
+    "sent_at": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "researched",
+        "responded",
+        "followed_up",
+        "closed"
+      ],
+      "default": "new"
+    },
+    "score": {
+      "type": "number",
+      "default": 0,
+      "description": "Relevance score 0-100"
+    },
+    "scraped_at": {
+      "type": "string"
+    },
+    "batch_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "source"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

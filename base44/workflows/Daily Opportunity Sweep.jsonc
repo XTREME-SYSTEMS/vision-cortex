@@ -1,0 +1,59 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": 24,
+      "interval_unit": "hours",
+      "interval_anchor": "2026-09-01T03:00:00",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_opportunity_sweep",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sweep": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "opportunitySweep",
+            "args": {
+              "max_sources": 5
+            }
+          },
+          "then": "research"
+        }
+      },
+      {
+        "research": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "opportunityResearch",
+            "args": {
+              "max_batch": 10
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Research new opportunities",
+            "description": "Do preliminary research + draft humanistic response emails for all newly scraped opportunities."
+          }
+        }
+      }
+    ]
+  },
+  "description": "Daily Opportunity Sweep \u2014 runs every 24h (anchored at 3am ET). Scrapes Craigslist, Reddit, Hacker News, and Google for people requesting websites, apps, AI automation, data scraping, and tech services. Extracts opportunities, does preliminary research, and drafts humanistic response emails for approval.",
+  "name": "Daily Opportunity Sweep"
+}

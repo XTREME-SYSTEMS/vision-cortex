@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": 24,
+      "interval_unit": "hours",
+      "interval_anchor": "2026-09-01T12:00:00",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_opportunity_followup",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "followup": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "opportunityFollowUp",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Send follow-up emails",
+            "description": "Sends warm, humanistic follow-up emails to opportunities that were responded to but haven't replied in 3+ days. Max 2 follow-ups per opportunity."
+          }
+        }
+      }
+    ]
+  },
+  "description": "Daily Opportunity Follow-Up \u2014 runs every 24h (anchored at 12pm ET). Sends friendly follow-up emails to opportunities that received our initial response but haven't replied after 3 days. Max 2 follow-ups per opportunity, then closes them out.",
+  "name": "Daily Opportunity Follow-Up"
+}

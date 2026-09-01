@@ -11,6 +11,7 @@ import MorningFeed from '@/components/dashboard/MorningFeed';
 import RecommendationsPanel from '@/components/dashboard/RecommendationsPanel';
 import DestinyLoop from '@/components/dashboard/DestinyLoop';
 import DriftAlerts from '@/components/dashboard/DriftAlerts';
+import OpportunityFeed from '@/components/dashboard/OpportunityFeed';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -57,6 +58,9 @@ export default function Dashboard() {
 
       <DestinyLoop />
       <DriftAlerts />
+
+      <OpportunityFeed />
+
       <RecommendationsPanel />
 
       {totals && (
