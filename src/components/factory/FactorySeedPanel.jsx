@@ -13,6 +13,7 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedName, setSelectedName] = useState(project?.business_name || '');
+  const [customName, setCustomName] = useState('');
   const [selectedDomain, setSelectedDomain] = useState(project?.domain_url || '');
   const [productType, setProductType] = useState(project?.product_type || 'marketing_site');
 
@@ -133,7 +134,7 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
         {/* Name options */}
         {project?.name_options?.length > 0 && (
           <div className="space-y-2">
-            <Label className="flex items-center gap-1"><Users className="w-4 h-4" /> Business Name (pick one)</Label>
+            <Label className="flex items-center gap-1"><Users className="w-4 h-4" /> Business Name</Label>
             <div className="grid grid-cols-2 gap-2">
               {project.name_options.map((name, i) => (
                 <button
@@ -150,6 +151,25 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
                 </button>
               ))}
             </div>
+            <div className="flex gap-2 pt-1">
+              <Input
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                placeholder="Or type your own name"
+                disabled={loading}
+                onKeyDown={(e) => { if (e.key === 'Enter' && customName.trim()) handleSelectName(customName.trim()); }}
+              />
+              <Button
+                onClick={() => customName.trim() && handleSelectName(customName.trim())}
+                disabled={loading || !customName.trim()}
+                variant="secondary"
+              >
+                Save
+              </Button>
+            </div>
+            {selectedName && (
+              <p className="text-xs text-muted-foreground">Selected: <span className="font-medium text-foreground">{selectedName}</span></p>
+            )}
           </div>
         )}
 
