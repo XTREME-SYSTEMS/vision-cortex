@@ -1,7 +1,8 @@
 {
   "type": "googledrive",
   "scopes": [
-    "https://www.googleapis.com/auth/drive.file",
-    "email"
+    "https://www.googleapis.com/auth/drive.readonly",
+    "email",
+    "https://www.googleapis.com/auth/drive.file"
   ]
 }
