@@ -39,15 +39,21 @@ Search for ALL of the following:
 
 For each finding, provide:
 - headline: the opportunity or secret (what it is)
+- category: one of billionaire_deal, algo_trading, data_market, hidden_program, deal_timing, ai_wealth, digital_expert, wealthy_secret, emerging_system
 - method: how it works (the actual method, not vague)
 - location: where to find it (the platform, website, tool, or place)
 - wealth_potential: how much money is being made or could be made
-- algorithm_or_data: the algorithm, data source, or system behind it
+- algorithm_or_data: the specific algorithm, data source, or system behind it
+- build_system_value: the full value of building this system — what it's worth, why it matters, what it unlocks
+- tricks: the tricks, hacks, shortcuts, and exploits that make it work (the non-obvious edge)
+- algorithms: the specific algorithms, models, or mathematical methods to use
+- obtain_asap: exact steps to obtain or replicate this ASAP — the fastest path to money
+- avoid: what to avoid — pitfalls, traps, legal risks, red flags, things that will lose money
 - action_steps: exact steps to replicate or access it
 - url: source URL where you found this
-- category: one of billionaire_deal, algo_trading, data_market, hidden_program, deal_timing, ai_wealth, digital_expert, wealthy_secret, emerging_system
+- impact_score: 1-10 based on wealth potential and actionability
 
-Be exhaustive and specific. Return everything you find — the more actionable, the better.`;
+Be exhaustive and specific. Return everything you find — the more actionable, the better. Pack every field with maximum detail.`;
 
     const res = await core.InvokeLLM({
       prompt,
@@ -67,6 +73,11 @@ Be exhaustive and specific. Return everything you find — the more actionable, 
                 location: { type: 'string', description: 'Where to find it — platform, website, tool' },
                 wealth_potential: { type: 'string', description: 'Estimated money upside' },
                 algorithm_or_data: { type: 'string', description: 'The algorithm, data, or system behind it' },
+                build_system_value: { type: 'string', description: 'Full value of building this system — what it unlocks' },
+                tricks: { type: 'string', description: 'Tricks, hacks, shortcuts, exploits — the non-obvious edge' },
+                algorithms: { type: 'string', description: 'Specific algorithms, models, or math methods to use' },
+                obtain_asap: { type: 'string', description: 'Fastest path to obtain/replicate this ASAP' },
+                avoid: { type: 'string', description: 'What to avoid — pitfalls, traps, legal risks, red flags' },
                 action_steps: { type: 'array', items: { type: 'string' } },
                 url: { type: 'string' },
                 impact_score: { type: 'number' },
@@ -92,15 +103,27 @@ Be exhaustive and specific. Return everything you find — the more actionable, 
     });
 
     // Store detailed findings in IntelFeed so they persist on the Shadow screen
+    // Pack ALL detail into the summary as labeled sections for full display
     const created = [];
     for (const f of findings) {
+      const sections = [
+        f.method ? `[METHOD] ${f.method}` : '',
+        f.location ? `[LOCATION] ${f.location}` : '',
+        f.wealth_potential ? `[WEALTH POTENTIAL] ${f.wealth_potential}` : '',
+        f.algorithm_or_data ? `[ALGORITHM/DATA] ${f.algorithm_or_data}` : '',
+        f.build_system_value ? `[BUILD SYSTEM VALUE] ${f.build_system_value}` : '',
+        f.tricks ? `[TRICKS] ${f.tricks}` : '',
+        f.algorithms ? `[ALGORITHMS] ${f.algorithms}` : '',
+        f.obtain_asap ? `[OBTAIN ASAP] ${f.obtain_asap}` : '',
+      ].filter(Boolean).join('\n\n');
       const record = await base44.entities.IntelFeed.create({
         category: f.category || 'shadow_money_hunt',
         headline: f.headline,
-        summary: `${f.method || ''}${f.location ? ' | Location: ' + f.location : ''}${f.algorithm_or_data ? ' | Algorithm/Data: ' + f.algorithm_or_data : ''}`,
+        summary: sections,
         source: 'Shadow Money Hunt',
         url: f.url || '',
         signals: f.action_steps || [],
+        correlations: f.avoid ? [f.avoid] : [],
         impact_score: f.impact_score || 5,
       });
       created.push(record.id);
