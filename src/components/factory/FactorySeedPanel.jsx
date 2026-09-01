@@ -173,6 +173,30 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
           </div>
         )}
 
+        {/* Generate domains for custom name */}
+        {project?.business_name && (
+          <Button
+            onClick={async () => {
+              setLoading(true);
+              setError(null);
+              try {
+                await base44.functions.invoke('factoryDomainGenerator', { project_id: project.id });
+                if (onUpdated) onUpdated();
+              } catch (e) {
+                setError(e.response?.data?.error || e.message);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={loading}
+            variant="secondary"
+            className="w-full"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+            Generate Domains for "{project.business_name}"
+          </Button>
+        )}
+
         {/* Domain options */}
         {project?.domain_options?.length > 0 && (
           <div className="space-y-2">
