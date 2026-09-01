@@ -34,8 +34,13 @@ export default function FactoryPage() {
     return unsub;
   }, []);
 
-  const handleProjectCreated = (project) => {
-    setSelectedProject(project);
+  const handleProjectCreated = async (project) => {
+    if (project?.id) {
+      setSelectedProject(project);
+    } else if (project?.project_id) {
+      const full = await base44.entities.FactoryProject.get(project.project_id);
+      setSelectedProject(full);
+    }
     loadProjects();
   };
 

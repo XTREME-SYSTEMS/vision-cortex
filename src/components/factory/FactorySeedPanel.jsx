@@ -57,11 +57,13 @@ export function FactorySeedPanel({ project, onCreated, onUpdated }) {
 
   const handleSelectName = async (name) => {
     setSelectedName(name);
+    if (!project?.id) return;
     await base44.entities.FactoryProject.update(project.id, { business_name: name });
   };
 
   const handleSelectDomain = async (domain) => {
     setSelectedDomain(domain);
+    if (!project?.id) return;
     await base44.entities.FactoryProject.update(project.id, { domain_url: domain });
   };
 
