@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import ShadowCommandCenter from '@/components/shadow/ShadowCommandCenter';
 import CapabilityMatrix from '@/components/shadow/CapabilityMatrix';
 import ShadowCodex from '@/components/shadow/ShadowCodex';
+import VisionPipelinePanel from '@/components/shadow/VisionPipelinePanel';
 import MonetizationPanel from '@/components/shadow/MonetizationPanel';
 import PerformanceLog from '@/components/shadow/PerformanceLog';
 import ProfitabilityChart from '@/components/shadow/ProfitabilityChart';
@@ -111,6 +112,8 @@ export default function Shadow() {
       </div>
 
       <ShadowCommandCenter />
+
+      <VisionPipelinePanel />
 
       <MonetizationPanel />
 

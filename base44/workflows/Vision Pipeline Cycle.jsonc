@@ -1,0 +1,47 @@
+{
+  "name": "Vision Pipeline Cycle",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "vision_pipeline_cycle",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "advance": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "visionPipelineOrchestrator",
+            "args": {
+              "auto_advance": true
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Advance Vision Pipeline",
+            "description": "Find and advance the next active pipeline stage"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Autonomously advances active Vision Pipelines through their 10 stages every 30 minutes \u2014 no human intervention needed",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": 30,
+      "interval_unit": "minutes",
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}

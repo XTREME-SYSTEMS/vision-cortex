@@ -1,0 +1,269 @@
+{
+  "name": "VisionPipeline",
+  "type": "object",
+  "properties": {
+    "vision_statement": {
+      "type": "string",
+      "description": "The user's one-sentence vision that drives the entire pipeline"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "vision",
+        "strategizing",
+        "simulating",
+        "recommending",
+        "researching",
+        "queuing",
+        "building",
+        "provisioning",
+        "cloning",
+        "validating",
+        "launching",
+        "complete",
+        "failed"
+      ],
+      "default": "vision"
+    },
+    "strategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "angle": {
+            "type": "string"
+          },
+          "monetization": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "automation_level": {
+            "type": "string"
+          },
+          "est_12m_revenue_usd": {
+            "type": "number"
+          },
+          "build_cost_usd": {
+            "type": "number"
+          },
+          "fit_score": {
+            "type": "number"
+          },
+          "financial_prediction": {
+            "type": "object",
+            "properties": {
+              "monthly_revenue_year1": {
+                "type": "number"
+              },
+              "monthly_revenue_year2": {
+                "type": "number"
+              },
+              "break_even_month": {
+                "type": "number"
+              },
+              "margin_pct": {
+                "type": "number"
+              },
+              "cac_payback_months": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "description": "10 strategies specific to Shadow's skillset, each with a financial prediction"
+    },
+    "simulations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "strategy_name": {
+            "type": "string"
+          },
+          "p10": {
+            "type": "number"
+          },
+          "p50": {
+            "type": "number"
+          },
+          "p90": {
+            "type": "number"
+          },
+          "probability_of_success": {
+            "type": "number"
+          },
+          "key_risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "description": "Monte Carlo simulation results per strategy with confidence bands"
+    },
+    "recommendation": {
+      "type": "object",
+      "properties": {
+        "strategy_name": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "probability_of_goal": {
+          "type": "number"
+        }
+      },
+      "description": "The Council's recommended strategy"
+    },
+    "tech_research": {
+      "type": "object",
+      "properties": {
+        "best_tech_stack": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "best_templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "best_ai_models": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_capability_features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Web-search-backed research on the best tech, templates, and AI models"
+    },
+    "build_queue_id": {
+      "type": "string",
+      "description": "Linked BuildQueue record"
+    },
+    "build_pack": {
+      "type": "object",
+      "description": "Full build manifest \u2014 pages, entities, functions, integrations, auth, payment, build order"
+    },
+    "provision_status": {
+      "type": "object",
+      "properties": {
+        "vercel": {
+          "type": "string"
+        },
+        "supabase": {
+          "type": "string"
+        },
+        "github": {
+          "type": "string"
+        },
+        "drive": {
+          "type": "string"
+        }
+      }
+    },
+    "clone_status": {
+      "type": "object",
+      "properties": {
+        "shadow_cloned": {
+          "type": "boolean"
+        },
+        "system_cloned": {
+          "type": "boolean"
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "replacements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Clone status + identified gaps + reverse-engineered replacements"
+    },
+    "validation_scores": {
+      "type": "object",
+      "description": "Per-stage validation scores (target: 100). Keys are stage names, values are 0-100."
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true, the pipeline advances automatically via workflow"
+    },
+    "agent_assignments": {
+      "type": "object",
+      "description": "Stage \u2192 agent name mapping. Records which agent managed each stage."
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "complete",
+        "failed",
+        "paused"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "vision_statement"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
