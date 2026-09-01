@@ -43,6 +43,7 @@ import Factory from '@/pages/Factory';
 import AutonomousBuilder from '@/pages/AutonomousBuilder';
 import Capabilities from '@/pages/Capabilities';
 import DNA from '@/pages/DNA';
+import DnaAudit from '@/pages/DnaAudit';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -105,6 +106,7 @@ const AuthenticatedApp = () => {
           <Route path="/autonomous" element={<AutonomousBuilder />} />
           <Route path="/capabilities" element={<Capabilities />} />
           <Route path="/dna" element={<DNA />} />
+          <Route path="/dna-audit" element={<DnaAudit />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

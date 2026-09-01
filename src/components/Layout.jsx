@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, Sparkles, ListChecks, ScanLine, Factory, Target, Dna } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, ShieldAlert, Sparkles, ListChecks, ScanLine, Factory, Target, Dna } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
+import SystemDnaBar from '@/components/SystemDnaBar';
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
 const nav = [
   { to: '/dna', label: 'System DNA', icon: Dna },
+  { to: '/dna-audit', label: 'DNA Audit', icon: ShieldAlert },
   { to: '/capabilities', label: 'Capabilities', icon: Target },
   { to: '/', label: 'Opportunities', icon: LayoutDashboard },
   { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },
@@ -117,6 +119,8 @@ export default function Layout() {
           </div>
         </div>
       </header>
+
+      <SystemDnaBar />
 
       <main className="max-w-7xl mx-auto px-5 py-10">
         <Outlet />
