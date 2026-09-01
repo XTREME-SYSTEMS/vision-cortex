@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Loader2, Rocket, FileText, Cpu, DollarSign, CheckCircle2, XCircle,
-  ChevronDown, ChevronRight, Building2, Map, ShieldCheck, ListOrdered, AlertTriangle, Sparkles, Zap, ExternalLink
+  ChevronDown, ChevronRight, Building2, Map, ShieldCheck, ListOrdered, AlertTriangle, Sparkles, Zap, ExternalLink, Folder, Calendar, CheckCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +30,7 @@ function DocSection({ icon: Icon, label, value, tone }) {
   );
 }
 
-function MethodCard({ method, index, onLaunch, launching, launched }) {
+function MethodCard({ method, index, onLaunch, launching, launched, onSave, onSchedule, saving, scheduling, saved, scheduled }) {
   const [expanded, setExpanded] = useState(false);
   return (
     <div className="border-l-4 border-emerald-500/40 rounded-lg bg-card overflow-hidden">
@@ -59,15 +59,37 @@ function MethodCard({ method, index, onLaunch, launching, launched }) {
               <span className="text-muted-foreground flex items-center gap-1"><Building2 className="w-3 h-3" />{method.industry}</span>
             </div>
           </div>
-          <Button
-            size="sm"
-            onClick={() => onLaunch(method)}
-            disabled={launching || launched}
-            className="rounded-full shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
-          >
-            {launching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : launched ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
-            {launched ? 'Launched' : 'Launch Now'}
-          </Button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => onSave(method)}
+              disabled={saving}
+              title="Save playbook to Google Drive"
+              className="h-8 w-8 rounded-full"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Folder className="w-3.5 h-3.5" />}
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => onSchedule(method)}
+              disabled={scheduling}
+              title="Schedule milestones on Google Calendar"
+              className="h-8 w-8 rounded-full"
+            >
+              {scheduling ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : scheduled ? <CheckCircle className="w-3.5 h-3.5 text-emerald-600" /> : <Calendar className="w-3.5 h-3.5" />}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onLaunch(method)}
+              disabled={launching || launched}
+              className="rounded-full shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"
+            >
+              {launching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : launched ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Zap className="w-3.5 h-3.5" />}
+              {launched ? 'Launched' : 'Launch Now'}
+            </Button>
+          </div>
         </div>
 
         {expanded && (
@@ -118,6 +140,10 @@ export default function BuildStrategyPanel() {
   const [error, setError] = useState(null);
   const [launchingId, setLaunchingId] = useState(null);
   const [launchedIds, setLaunchedIds] = useState({});
+  const [savingId, setSavingId] = useState(null);
+  const [savedIds, setSavedIds] = useState({});
+  const [schedulingId, setSchedulingId] = useState(null);
+  const [scheduledIds, setScheduledIds] = useState({});
 
   const run = async () => {
     setRunning(true);
@@ -148,6 +174,40 @@ export default function BuildStrategyPanel() {
       setError(e.message || 'Launch failed');
     }
     setLaunchingId(null);
+  };
+
+  const saveToDrive = async (method) => {
+    if (!method.queue_id) return;
+    setSavingId(method.queue_id);
+    try {
+      const res = await base44.functions.invoke('shadowSaveToDrive', { queue_id: method.queue_id });
+      const data = res.data || res;
+      if (data.saved) {
+        setSavedIds((prev) => ({ ...prev, [method.queue_id]: data.web_view_link }));
+      } else if (data.error) {
+        setError(`Drive save failed: ${data.error}`);
+      }
+    } catch (e) {
+      setError(e.message || 'Drive save failed');
+    }
+    setSavingId(null);
+  };
+
+  const scheduleMilestones = async (method) => {
+    if (!method.queue_id) return;
+    setSchedulingId(method.queue_id);
+    try {
+      const res = await base44.functions.invoke('shadowScheduleMilestones', { queue_id: method.queue_id });
+      const data = res.data || res;
+      if (data.scheduled) {
+        setScheduledIds((prev) => ({ ...prev, [method.queue_id]: data.events?.length || 0 }));
+      } else if (data.error) {
+        setError(`Scheduling failed: ${data.error}`);
+      }
+    } catch (e) {
+      setError(e.message || 'Scheduling failed');
+    }
+    setSchedulingId(null);
   };
 
   return (
@@ -228,6 +288,12 @@ export default function BuildStrategyPanel() {
                   onLaunch={launchMethod}
                   launching={launchingId === m.queue_id}
                   launched={!!launchedIds[m.queue_id]}
+                  onSave={saveToDrive}
+                  onSchedule={scheduleMilestones}
+                  saving={savingId === m.queue_id}
+                  scheduling={schedulingId === m.queue_id}
+                  saved={!!savedIds[m.queue_id]}
+                  scheduled={!!scheduledIds[m.queue_id]}
                 />
               ))}
             </div>
