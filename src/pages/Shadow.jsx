@@ -4,6 +4,8 @@ import ReactMarkdown from 'react-markdown';
 import { Send, Loader2, EyeOff, ShieldOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import ShadowCommandCenter from '@/components/shadow/ShadowCommandCenter';
+import CapabilityMatrix from '@/components/shadow/CapabilityMatrix';
 import MoneyHuntPanel from '@/components/shadow/MoneyHuntPanel';
 import BuildStrategyPanel from '@/components/shadow/BuildStrategyPanel';
 import MissionTracker from '@/components/shadow/MissionTracker';
@@ -104,6 +106,8 @@ export default function Shadow() {
         <p className="mt-3 text-sm text-muted-foreground">Unrestricted access to every entity and function. Invisible to all other users. No trace left on shared feeds.</p>
       </div>
 
+      <ShadowCommandCenter />
+
       <MoneyHuntPanel />
 
       <MissionTracker />
@@ -113,6 +117,8 @@ export default function Shadow() {
       <RevenueTracker />
 
       <BuildStrategyPanel />
+
+      <CapabilityMatrix />
 
       <div className="rounded-2xl border border-border/60 bg-background/40">
         <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">
