@@ -8,6 +8,7 @@ import MoneyHuntPanel from '@/components/shadow/MoneyHuntPanel';
 import BuildStrategyPanel from '@/components/shadow/BuildStrategyPanel';
 import MissionTracker from '@/components/shadow/MissionTracker';
 import SentimentTracker from '@/components/shadow/SentimentTracker';
+import RevenueTracker from '@/components/shadow/RevenueTracker';
 
 const AGENT_NAME = 'shadow';
 
@@ -108,6 +109,8 @@ export default function Shadow() {
       <MissionTracker />
 
       <SentimentTracker />
+
+      <RevenueTracker />
 
       <BuildStrategyPanel />
 
