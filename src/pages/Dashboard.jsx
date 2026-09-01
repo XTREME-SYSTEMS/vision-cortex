@@ -12,6 +12,7 @@ import RecommendationsPanel from '@/components/dashboard/RecommendationsPanel';
 import DestinyLoop from '@/components/dashboard/DestinyLoop';
 import DriftAlerts from '@/components/dashboard/DriftAlerts';
 import OpportunityFeed from '@/components/dashboard/OpportunityFeed';
+import AutonomousActions from '@/components/dashboard/AutonomousActions';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -58,6 +59,8 @@ export default function Dashboard() {
 
       <DestinyLoop />
       <DriftAlerts />
+
+      <AutonomousActions />
 
       <OpportunityFeed />
 

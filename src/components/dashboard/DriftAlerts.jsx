@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw, X, Lightbulb, TrendingUp, Target, Activity, CheckCircle2 } from 'lucide-react';
+import { Loader2, RefreshCw, X, Lightbulb, TrendingUp, Target, Activity, CheckCircle2, HeartPulse } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const severityStyle = {
@@ -89,6 +89,8 @@ function DriftAlertCard({ notification, onDismiss }) {
 export default function DriftAlerts() {
   const [alerts, setAlerts] = useState(null);
   const [checking, setChecking] = useState(false);
+  const [healing, setHealing] = useState(false);
+  const [healResult, setHealResult] = useState(null);
   const [error, setError] = useState(null);
   const [lastCheck, setLastCheck] = useState(null);
 
@@ -123,6 +125,28 @@ export default function DriftAlerts() {
     setChecking(false);
   };
 
+  const autoHeal = async () => {
+    setHealing(true);
+    setHealResult(null);
+    try {
+      const res = await base44.functions.invoke('healDestinyEngine', {});
+      const data = res?.data || res;
+      if (data?.error) {
+        setHealResult({ ok: false, msg: data.error });
+      } else {
+        const r = data?.remediation || data;
+        const summary = r
+          ? Object.entries(r).filter(([k]) => k !== 'skipped').map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`).join(' · ')
+          : 'Healing complete';
+        setHealResult({ ok: true, msg: summary });
+        await load();
+      }
+    } catch (e) {
+      setHealResult({ ok: false, msg: e?.message || 'Heal failed' });
+    }
+    setHealing(false);
+  };
+
   const dismiss = async (id) => {
     await base44.entities.Notification.update(id, { read: true });
     setAlerts((prev) => (prev || []).filter((a) => a.id !== id));
@@ -153,12 +177,29 @@ export default function DriftAlerts() {
               Dismiss all
             </Button>
           )}
-          <Button variant="outline" size="sm" className="rounded-full" disabled={checking} onClick={runCheck}>
-            {checking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-            Check now
-          </Button>
+          <div className="flex items-center gap-2">
+            {count > 0 && (
+              <Button variant="default" size="sm" className="rounded-full gap-1.5" disabled={healing} onClick={autoHeal}>
+                {healing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <HeartPulse className="w-3.5 h-3.5" />}
+                {healing ? 'Healing…' : 'Auto-Heal'}
+              </Button>
+            )}
+            <Button variant="outline" size="sm" className="rounded-full" disabled={checking} onClick={runCheck}>
+              {checking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Check now
+            </Button>
+          </div>
         </div>
       </div>
+
+      {healResult && (
+        <Card className={cn('p-3', healResult.ok ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-red-500/40 bg-red-500/5')}>
+          <p className={cn('text-xs leading-relaxed', healResult.ok ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')}>
+            {healResult.ok && <CheckCircle2 className="w-3.5 h-3.5 inline mr-1.5" />}
+            {healResult.msg}
+          </p>
+        </Card>
+      )}
 
       {error && (
         <Card className="p-3 border-amber-500/40 bg-amber-500/5">

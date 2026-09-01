@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Sparkles, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, ArrowUpRight, ShieldCheck, Wrench, CheckCircle2, Loader2 } from 'lucide-react';
 
 const STATUS_STYLE = {
   pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
@@ -14,6 +14,9 @@ const STATUS_STYLE = {
 export default function RecommendationsPanel() {
   const [recs, setRecs] = useState(null);
   const [running, setRunning] = useState(false);
+  const [implementing, setImplementing] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [actionMsg, setActionMsg] = useState(null);
 
   const load = () => {
     base44.entities.SystemEnhancement.list('-created_date', 6)
@@ -29,6 +32,7 @@ export default function RecommendationsPanel() {
 
   const runNow = async () => {
     setRunning(true);
+    setActionMsg(null);
     try {
       await base44.functions.invoke('autoRecommend', {});
       load();
@@ -37,6 +41,38 @@ export default function RecommendationsPanel() {
     } finally {
       setRunning(false);
     }
+  };
+
+  const implementAll = async () => {
+    setImplementing(true);
+    setActionMsg(null);
+    try {
+      const res = await base44.functions.invoke('autoEnhanceAll', { max_per_run: 5 });
+      const data = res?.data || res;
+      setActionMsg({ ok: true, msg: `Implemented: ${data?.implemented ?? 'done'}` });
+      load();
+    } catch (e) {
+      setActionMsg({ ok: false, msg: e?.message || 'Implement failed' });
+    }
+    setImplementing(false);
+  };
+
+  const validateAll = async () => {
+    setValidating(true);
+    setActionMsg(null);
+    try {
+      const res = await base44.functions.invoke('auditDestinyEngine', {});
+      const data = res?.data || res;
+      if (data?.error) {
+        setActionMsg({ ok: false, msg: data.error });
+      } else {
+        setActionMsg({ ok: true, msg: data?.summary || 'Validation complete' });
+      }
+      load();
+    } catch (e) {
+      setActionMsg({ ok: false, msg: e?.message || 'Validate failed' });
+    }
+    setValidating(false);
   };
 
   return (
@@ -51,15 +87,39 @@ export default function RecommendationsPanel() {
             <p className="text-[11px] text-muted-foreground">The system reflecting on itself — autonomously.</p>
           </div>
         </div>
-        <button
-          onClick={runNow}
-          disabled={running}
-          className="text-[12px] px-3 py-1.5 rounded-full border border-border/60 hover:bg-muted transition-colors disabled:opacity-50 flex items-center gap-1.5"
-        >
-          <ArrowUpRight className="w-3.5 h-3.5" />
-          {running ? 'Reflecting…' : 'Reflect now'}
-        </button>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={runNow}
+            disabled={running || implementing || validating}
+            className="text-[12px] px-3 py-1.5 rounded-full border border-border/60 hover:bg-muted transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          >
+            <ArrowUpRight className="w-3.5 h-3.5" />
+            {running ? 'Reflecting…' : 'Reflect'}
+          </button>
+          <button
+            onClick={implementAll}
+            disabled={running || implementing || validating}
+            className="text-[12px] px-3 py-1.5 rounded-full border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {implementing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wrench className="w-3.5 h-3.5" />}
+            {implementing ? 'Implementing…' : 'Implement'}
+          </button>
+          <button
+            onClick={validateAll}
+            disabled={running || implementing || validating}
+            className="text-[12px] px-3 py-1.5 rounded-full border border-teal-500/40 text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {validating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+            {validating ? 'Validating…' : 'Validate'}
+          </button>
+        </div>
       </div>
+
+      {actionMsg && (
+        <div className={`text-[11px] mb-2 px-3 py-1.5 rounded-lg ${actionMsg.ok ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/5' : 'text-red-600 dark:text-red-400 bg-red-500/5'}`}>
+          {actionMsg.msg}
+        </div>
+      )}
 
       <div className="space-y-2.5">
         {recs === null && <p className="text-sm text-muted-foreground">Loading recommendations…</p>}
