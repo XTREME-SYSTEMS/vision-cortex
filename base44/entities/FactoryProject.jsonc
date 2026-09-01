@@ -1,0 +1,360 @@
+{
+  "name": "FactoryProject",
+  "type": "object",
+  "properties": {
+    "industry": {
+      "type": "string",
+      "description": "Primary industry (e.g., 'fitness', 'legal', 'real estate')"
+    },
+    "sub_industry": {
+      "type": "string",
+      "description": "Niche within the industry (e.g., 'boutique gym', 'immigration law', 'luxury condos')"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "domain_url": {
+      "type": "string"
+    },
+    "name_options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "10 generated business name candidates"
+    },
+    "domain_options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "10 generated domain candidates"
+    },
+    "target_locations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Target cities/regions for lead generation"
+    },
+    "target_audience": {
+      "type": "string",
+      "description": "Ideal customer profile for lead generation"
+    },
+    "competitor_research": {
+      "type": "object",
+      "properties": {
+        "competitors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "strengths": {
+                "type": "string"
+              },
+              "weaknesses": {
+                "type": "string"
+              },
+              "gap": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "viral_hooks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trending_topics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "best_content_formats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "logos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "style": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "10 logo candidates with transparent backgrounds"
+    },
+    "selected_logo_index": {
+      "type": "number",
+      "default": -1
+    },
+    "brand_pack": {
+      "type": "object",
+      "properties": {
+        "logo_url": {
+          "type": "string"
+        },
+        "primary_color": {
+          "type": "string"
+        },
+        "accent_color": {
+          "type": "string"
+        },
+        "background_color": {
+          "type": "string"
+        },
+        "text_color": {
+          "type": "string"
+        },
+        "font_heading": {
+          "type": "string"
+        },
+        "font_body": {
+          "type": "string"
+        },
+        "voice": {
+          "type": "string"
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "brand_story": {
+          "type": "string"
+        }
+      }
+    },
+    "website_config": {
+      "type": "object",
+      "properties": {
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "slug": {
+                "type": "string"
+              },
+              "sections": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "theme_tokens": {
+          "type": "object",
+          "properties": {
+            "light": {
+              "type": "object"
+            },
+            "dark": {
+              "type": "object"
+            }
+          }
+        },
+        "pwa": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "short_name": {
+              "type": "string"
+            },
+            "display": {
+              "type": "string"
+            },
+            "theme_color": {
+              "type": "string"
+            },
+            "background_color": {
+              "type": "string"
+            }
+          }
+        },
+        "responsive": {
+          "type": "boolean",
+          "default": true
+        },
+        "has_dark_mode": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "viral_content": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "hook": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "cta": {
+            "type": "string"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "best_post_time": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "social_config": {
+      "type": "object",
+      "properties": {
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "auto_post_enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "posting_schedule": {
+          "type": "string"
+        },
+        "auto_respond_enabled": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "social_ai_state": {
+      "type": "object",
+      "properties": {
+        "engagement_metrics": {
+          "type": "object",
+          "properties": {
+            "total_posts": {
+              "type": "number"
+            },
+            "total_replies": {
+              "type": "number"
+            },
+            "avg_engagement_rate": {
+              "type": "number"
+            },
+            "best_performing_hook": {
+              "type": "string"
+            },
+            "worst_performing_hook": {
+              "type": "string"
+            }
+          }
+        },
+        "learned_patterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "response_templates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "last_post_at": {
+          "type": "string"
+        },
+        "last_learned_at": {
+          "type": "string"
+        }
+      }
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "seeded",
+        "researched",
+        "branded",
+        "website_built",
+        "content_generated",
+        "social_connected",
+        "deployed",
+        "failed"
+      ],
+      "default": "seeded"
+    },
+    "quality_scores": {
+      "type": "object",
+      "description": "Per-stage quality scores 0-100"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Groups projects generated in the same batch"
+    },
+    "deployed_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "industry",
+    "sub_industry"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -39,6 +39,7 @@ import UserSimulator from '@/pages/UserSimulator';
 import Gaps from '@/pages/Gaps';
 import ForensicAudit from '@/pages/ForensicAudit';
 import SystemAnalyst from '@/pages/SystemAnalyst';
+import Factory from '@/pages/Factory';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -97,6 +98,7 @@ const AuthenticatedApp = () => {
           <Route path="/gaps" element={<Gaps />} />
           <Route path="/forensic" element={<ForensicAudit />} />
           <Route path="/system-analyst" element={<SystemAnalyst />} />
+          <Route path="/factory" element={<Factory />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
