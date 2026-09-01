@@ -1,0 +1,44 @@
+{
+  "name": "Master System Analysis",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */4 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "master_system_analysis",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "scan": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "masterSystemAnalysis"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Scan all systems",
+            "description": "Analyze Factory, Auto-Builder, Shadow, Council for gaps"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Scans all Vision Cortex systems every 4 hours for failures, stagnation, and improvement opportunities. Auto-creates SystemEnhancement records for findings."
+}

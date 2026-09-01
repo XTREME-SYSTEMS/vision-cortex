@@ -1,0 +1,44 @@
+{
+  "name": "Persistent Auto-Recommend",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */12 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "persistent_auto_recommend",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "recommend": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "autoRecommendAllSystems"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Generate recommendations",
+            "description": "Identify gaps + write implementation code"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Every 12 hours, scans all systems and generates new gap recommendations with full implementation code. Auto-creates Gap records ready for deployment."
+}

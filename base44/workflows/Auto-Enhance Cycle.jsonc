@@ -1,0 +1,47 @@
+{
+  "name": "Auto-Enhance Cycle",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 2 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "auto_enhance_cycle",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "enhance": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "autoEnhanceAll",
+            "args": {
+              "max_per_run": 3
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Implement enhancements",
+            "description": "Generate code + validate top 3 pending"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Daily autonomous implementation engine. Picks top 3 pending SystemEnhancement records, generates implementation code, validates, and marks as implemented or failed. Runs 24/7."
+}

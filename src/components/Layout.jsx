@@ -35,6 +35,7 @@ const nav = [
 
 const adminNav = [
   { to: '/factory', label: 'Factory', icon: Factory },
+  { to: '/autonomous', label: 'Autonomous', icon: Bot },
   { to: '/shadow', label: 'Shadow', icon: EyeOff },
 ];
 

@@ -1,0 +1,48 @@
+{
+  "name": "Continuous Auto-Enhance",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */6 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "continuous_auto_enhance",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "enhance": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "autoEnhanceAll",
+            "args": {
+              "max_per_run": 2,
+              "priority_filter": 2
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Implement top 2",
+            "description": "24/7 autonomous enhancement"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Every 6 hours, picks top 2 pending enhancements and implements them. Ensures 24/7 autonomous implementation of the enhancement queue."
+}
