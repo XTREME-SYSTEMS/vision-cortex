@@ -5,6 +5,7 @@ import { Send, Loader2, EyeOff, ShieldOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import MoneyHuntPanel from '@/components/shadow/MoneyHuntPanel';
+import BuildStrategyPanel from '@/components/shadow/BuildStrategyPanel';
 
 const AGENT_NAME = 'shadow';
 
@@ -101,6 +102,8 @@ export default function Shadow() {
       </div>
 
       <MoneyHuntPanel />
+
+      <BuildStrategyPanel />
 
       <div className="rounded-2xl border border-border/60 bg-background/40">
         <div className="no-scrollbar p-5 space-y-5 max-h-[55vh] overflow-y-auto">
