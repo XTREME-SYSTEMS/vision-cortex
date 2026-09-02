@@ -48,6 +48,7 @@ import Performance from '@/pages/Performance';
 import DnaActions from '@/pages/DnaActions';
 import Rewards from '@/pages/Rewards';
 import SiteMonitor from '@/pages/SiteMonitor';
+import XtremeAI from '@/pages/XtremeAI';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -115,6 +116,7 @@ const AuthenticatedApp = () => {
           <Route path="/dna-actions" element={<DnaActions />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/site-monitor" element={<SiteMonitor />} />
+          <Route path="/xtreme-ai" element={<XtremeAI />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
