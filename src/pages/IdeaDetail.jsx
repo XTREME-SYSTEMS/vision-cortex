@@ -3,13 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import Section, { Bullets } from '@/components/ideas/Section';
 import Stat from '@/components/ui/stat';
+import { Button } from '@/components/ui/button';
 import { money, verdictTone } from '@/components/ideas/format';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Rocket, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function IdeaDetail() {
   const { id } = useParams();
   const [idea, setIdea] = useState(null);
   const [missing, setMissing] = useState(false);
+  const [dispatching, setDispatching] = useState(false);
+  const [dispatchResult, setDispatchResult] = useState(null);
 
   useEffect(() => {
     base44.entities.Idea.filter({ id }).then((rows) => {
@@ -17,6 +20,24 @@ export default function IdeaDetail() {
       else setMissing(true);
     });
   }, [id]);
+
+  const dispatchToBuilder = async () => {
+    setDispatching(true);
+    setDispatchResult(null);
+    try {
+      const res = await base44.functions.invoke('dispatchToBuilder', {
+        idea_id: idea.id,
+        auto_advance: true,
+        product_type: 'marketing_site'
+      });
+      setDispatchResult({ ok: true, autobuild_id: res.autobuild_id, message: res.message });
+      setIdea({ ...idea, stage: 'building' });
+    } catch (err) {
+      setDispatchResult({ ok: false, message: err.message || 'Dispatch failed' });
+    } finally {
+      setDispatching(false);
+    }
+  };
 
   if (missing) return <p className="text-sm text-muted-foreground">This opportunity no longer exists.</p>;
   if (!idea) return <p className="text-sm text-muted-foreground">Loading file…</p>;
@@ -43,6 +64,35 @@ export default function IdeaDetail() {
           <span className="text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full border border-border bg-muted/50 text-muted-foreground">
             stage: {idea.stage}
           </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          <Button
+            onClick={dispatchToBuilder}
+            disabled={dispatching || idea.stage === 'building'}
+            className="gap-2"
+          >
+            {dispatching ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : idea.stage === 'building' ? (
+              <CheckCircle2 className="w-4 h-4" />
+            ) : (
+              <Rocket className="w-4 h-4" />
+            )}
+            {idea.stage === 'building' ? 'Dispatched to Builder' : 'Dispatch to Builder'}
+          </Button>
+          {dispatchResult?.ok && (
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              AutoBuild {dispatchResult.autobuild_id?.slice(0, 8)}… queued on Xtreme AI v2
+            </p>
+          )}
+          {dispatchResult && !dispatchResult.ok && (
+            <p className="text-xs text-destructive flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              {dispatchResult.message}
+            </p>
+          )}
         </div>
       </header>
 
