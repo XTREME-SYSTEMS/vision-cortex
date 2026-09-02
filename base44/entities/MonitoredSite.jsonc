@@ -1,0 +1,145 @@
+{
+  "name": "MonitoredSite",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Friendly label for the monitored site"
+    },
+    "url": {
+      "type": "string",
+      "description": "Live deployed URL (e.g. https://hiddenpropertyintel.com)"
+    },
+    "github_repo": {
+      "type": "string",
+      "description": "GitHub repository URL for the codebase"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "active",
+        "degraded",
+        "critical",
+        "paused"
+      ],
+      "default": "active"
+    },
+    "audit_score": {
+      "type": "number",
+      "default": 0,
+      "description": "Overall audit score 0-100"
+    },
+    "performance_score": {
+      "type": "number",
+      "default": 0
+    },
+    "seo_score": {
+      "type": "number",
+      "default": 0
+    },
+    "security_score": {
+      "type": "number",
+      "default": 0
+    },
+    "accessibility_score": {
+      "type": "number",
+      "default": 0
+    },
+    "content_score": {
+      "type": "number",
+      "default": 0
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low"
+            ]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "performance",
+              "seo",
+              "security",
+              "accessibility",
+              "content",
+              "code",
+              "infrastructure"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "recommendation": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Issues found in the last audit"
+    },
+    "issues_count": {
+      "type": "number",
+      "default": 0
+    },
+    "critical_issues_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_audit_at": {
+      "type": "string"
+    },
+    "last_action": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "fix",
+        "heal",
+        "optimize",
+        "enhance",
+        ""
+      ],
+      "default": ""
+    },
+    "last_action_at": {
+      "type": "string"
+    },
+    "last_action_summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

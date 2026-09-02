@@ -47,6 +47,7 @@ import DnaAudit from '@/pages/DnaAudit';
 import Performance from '@/pages/Performance';
 import DnaActions from '@/pages/DnaActions';
 import Rewards from '@/pages/Rewards';
+import SiteMonitor from '@/pages/SiteMonitor';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -113,6 +114,7 @@ const AuthenticatedApp = () => {
           <Route path="/performance" element={<Performance />} />
           <Route path="/dna-actions" element={<DnaActions />} />
           <Route path="/rewards" element={<Rewards />} />
+          <Route path="/site-monitor" element={<SiteMonitor />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
