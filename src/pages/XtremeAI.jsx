@@ -9,6 +9,7 @@ import {
   ExternalLink, Activity, Sparkles, Gauge, Lock, Search, Eye, FileText, Zap, Microscope,
 } from 'lucide-react';
 import DeepAuditReport from '@/components/xtreme/DeepAuditReport';
+import SearchConsolePanel from '@/components/xtreme/SearchConsolePanel';
 
 const STATUS_STYLE = {
   healthy: 'text-emerald-500',
@@ -309,6 +310,9 @@ export default function XtremeAI() {
       {cycleResult?.error && (
         <Card className="p-4 border-destructive/30 bg-destructive/5"><p className="text-sm text-destructive">{cycleResult.error}</p></Card>
       )}
+
+      {/* Google Search Console */}
+      <SearchConsolePanel />
 
       {/* Launch readiness grid */}
       <div>

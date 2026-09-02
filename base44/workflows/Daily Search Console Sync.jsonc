@@ -1,0 +1,49 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 8 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_search_console_sync",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sync": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "searchConsoleSync",
+            "args": {
+              "site_url": "thevisioncortex.com",
+              "period_days": 7,
+              "autonomous": true
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sync Search Console",
+            "description": "Pull 7-day metrics for thevisioncortex.com"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Daily Search Console Sync",
+  "description": "Pulls daily search performance, top queries/pages, and sitemap indexing status from Google Search Console for thevisioncortex.com"
+}

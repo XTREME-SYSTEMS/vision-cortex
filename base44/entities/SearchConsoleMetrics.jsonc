@@ -1,0 +1,158 @@
+{
+  "name": "SearchConsoleMetrics",
+  "type": "object",
+  "properties": {
+    "site_url": {
+      "type": "string",
+      "description": "The site property URL tracked in Google Search Console"
+    },
+    "report_date": {
+      "type": "string",
+      "description": "The end date of the reporting period (ISO date)"
+    },
+    "period_days": {
+      "type": "number",
+      "default": 7,
+      "description": "How many days the aggregate metrics cover"
+    },
+    "clicks": {
+      "type": "number",
+      "default": 0
+    },
+    "impressions": {
+      "type": "number",
+      "default": 0
+    },
+    "ctr": {
+      "type": "number",
+      "default": 0,
+      "description": "Click-through rate (0-1)"
+    },
+    "position": {
+      "type": "number",
+      "default": 0,
+      "description": "Average position in search results"
+    },
+    "top_queries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "clicks": {
+            "type": "number"
+          },
+          "impressions": {
+            "type": "number"
+          },
+          "ctr": {
+            "type": "number"
+          },
+          "position": {
+            "type": "number"
+          }
+        }
+      },
+      "default": []
+    },
+    "top_pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "clicks": {
+            "type": "number"
+          },
+          "impressions": {
+            "type": "number"
+          },
+          "ctr": {
+            "type": "number"
+          },
+          "position": {
+            "type": "number"
+          }
+        }
+      },
+      "default": []
+    },
+    "sitemaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "last_submitted": {
+            "type": "string"
+          },
+          "last_downloaded": {
+            "type": "string"
+          },
+          "is_pending": {
+            "type": "boolean"
+          },
+          "is_sitemaps_index": {
+            "type": "boolean"
+          },
+          "submitted": {
+            "type": "number"
+          },
+          "indexed": {
+            "type": "number"
+          },
+          "errors": {
+            "type": "number"
+          },
+          "warnings": {
+            "type": "number"
+          }
+        }
+      },
+      "default": []
+    },
+    "site_type": {
+      "type": "string",
+      "description": "sc-domain or url-prefix"
+    },
+    "raw_site_url": {
+      "type": "string",
+      "description": "The exact siteUrl identifier used by the GSC API"
+    },
+    "synced_at": {
+      "type": "string"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "site_url",
+    "report_date"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
