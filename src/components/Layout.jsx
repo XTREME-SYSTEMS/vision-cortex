@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, ShieldAlert, Sparkles, ListChecks, ScanLine, Factory, Target, Dna, Gauge, History, Trophy, Globe, Cpu } from 'lucide-react';
+import { LayoutDashboard, Bot, MessagesSquare, Activity, Radar, Telescope, Users, EyeOff, LineChart, ListTodo, MessageCircle, Menu, BookOpen, FileCode, Workflow, FlaskConical, Rocket, Megaphone, ShieldCheck, ShieldAlert, Sparkles, ListChecks, ScanLine, Factory, Target, Dna, Gauge, History, Trophy, Globe, Cpu, Brain } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
@@ -31,6 +31,7 @@ const nav = [
   { to: '/site-monitor', label: 'Site Monitor', icon: Globe },
   { to: '/xtreme-ai', label: 'Xtreme AI', icon: Cpu },
   { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
+  { to: '/xtreme-perfection', label: 'Xtreme Perfection', icon: Brain },
   { to: '/agents', label: 'Agents', icon: Bot },
   { to: '/chat', label: 'War Room', icon: MessagesSquare },
   { to: '/intel', label: 'Intel', icon: Telescope },
