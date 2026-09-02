@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   Cpu, Loader2, Rocket, ShieldCheck, AlertTriangle, CheckCircle2,
-  ExternalLink, Activity, Sparkles, Gauge, Lock, Search, Eye, FileText, Zap,
+  ExternalLink, Activity, Sparkles, Gauge, Lock, Search, Eye, FileText, Zap, Microscope,
 } from 'lucide-react';
+import DeepAuditReport from '@/components/xtreme/DeepAuditReport';
 
 const STATUS_STYLE = {
   healthy: 'text-emerald-500',
@@ -78,12 +79,22 @@ export default function XtremeAI() {
   const [cycleResult, setCycleResult] = useState(null);
   const [convening, setConvening] = useState(false);
   const [council, setCouncil] = useState(null);
+  const [deepAuditing, setDeepAuditing] = useState(false);
+  const [deepReport, setDeepReport] = useState(null);
+  const [latestReports, setLatestReports] = useState({});
 
   const load = async () => {
     const rows = await base44.entities.MonitoredSite.list('-audit_score', 50);
     setSites(rows || []);
     const q = await base44.entities.BuildQueue.filter({ stage: 'building' }, '-created_date', 10);
     setQueue(q || []);
+    // Load the latest deep audit report per site
+    const reports = await base44.entities.SystemPerfectionReport.list('-created_date', 50);
+    const map = {};
+    for (const r of reports || []) {
+      if (r.site_id && !map[r.site_id]) map[r.site_id] = r;
+    }
+    setLatestReports(map);
   };
 
   useEffect(() => { load(); }, []);
@@ -112,6 +123,33 @@ export default function XtremeAI() {
       setCouncil({ error: e.message || 'Council audit failed' });
     } finally {
       setConvening(false);
+    }
+  };
+
+  const [deepProgress, setDeepProgress] = useState(null);
+  const runDeepAudit = async (siteId) => {
+    setDeepAuditing(true);
+    setDeepReport(null);
+    try {
+      if (siteId === 'all') {
+        const targets = sites || [];
+        for (let i = 0; i < targets.length; i++) {
+          setDeepProgress({ site: targets[i].name, i: i + 1, total: targets.length });
+          try {
+            await base44.functions.invoke('deepSystemAudit', { site_id: targets[i].id });
+          } catch (e) { /* continue to next site */ }
+        }
+        setDeepProgress(null);
+        setDeepReport({ done: true });
+      } else {
+        const res = await base44.functions.invoke('deepSystemAudit', { site_id: siteId });
+        setDeepReport(res);
+      }
+      await load();
+    } catch (e) {
+      setDeepReport({ error: e.message || 'Deep audit failed' });
+    } finally {
+      setDeepAuditing(false);
     }
   };
 
@@ -158,11 +196,41 @@ export default function XtremeAI() {
           {cycling ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
           {cycling ? 'Running perfection cycle…' : 'Run Full Perfection Cycle (All Sites)'}
         </Button>
-        <Button onClick={conveneCouncil} disabled={cycling || convening} variant="outline" className="rounded-full">
+        <Button onClick={conveneCouncil} disabled={cycling || convening || deepAuditing} variant="outline" className="rounded-full">
           {convening ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           {convening ? 'Council deliberating…' : 'Convene Council Audit'}
         </Button>
+        <Button onClick={() => runDeepAudit('all')} disabled={cycling || convening || deepAuditing} variant="outline" className="rounded-full">
+          {deepAuditing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Microscope className="w-4 h-4" />}
+          {deepAuditing ? 'Deep auditing…' : 'Deep System Audit (All)'}
+        </Button>
       </div>
+
+      {deepAuditing && (
+        <Card className="p-4 border-border/60">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            {deepProgress ? `Deep auditing ${deepProgress.site} (${deepProgress.i}/${deepProgress.total})…` : 'Running deep end-to-end audit with Cloud Browser research + perfection prompt generation…'}
+          </div>
+        </Card>
+      )}
+
+      {deepReport?.error && (
+        <Card className="p-4 border-destructive/30 bg-destructive/5"><p className="text-sm text-destructive">{deepReport.error}</p></Card>
+      )}
+
+      {/* Deep audit reports */}
+      {sites.filter((s) => latestReports[s.id]).length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Microscope className="w-4 h-4" />
+            <h2 className="font-display text-xl tracking-tight">Deep Audit Reports</h2>
+          </div>
+          {sites.filter((s) => latestReports[s.id]).map((s) => (
+            <DeepAuditReport key={s.id} report={latestReports[s.id]} />
+          ))}
+        </div>
+      )}
 
       {/* Council verdict */}
       {council && !council.error && (

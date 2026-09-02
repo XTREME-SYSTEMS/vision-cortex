@@ -1,0 +1,41 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "MonitoredSite"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "autonomous_deep_system_audit",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "deep_audit": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "deepSystemAudit",
+            "args": {
+              "site_id": "${ .trigger.entity_id }",
+              "autonomous": true
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run deep system audit",
+            "description": "Cloud Browser research + perfection prompts"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Autonomous Deep System Audit",
+  "description": "When any new system is added to the Site Monitor, autonomously run a full end-to-end deep audit: Cloud Browser research + 5-dimension scoring + perfection prompts to reach 100%."
+}

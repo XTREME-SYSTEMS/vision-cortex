@@ -1,0 +1,162 @@
+{
+  "name": "SystemPerfectionReport",
+  "type": "object",
+  "properties": {
+    "site_id": {
+      "type": "string",
+      "description": "Ref to MonitoredSite.id"
+    },
+    "site_url": {
+      "type": "string"
+    },
+    "site_name": {
+      "type": "string"
+    },
+    "system_type": {
+      "type": "string",
+      "description": "Classified system type (e.g. 'local-service lead-gen', 'SaaS marketing site')"
+    },
+    "system_description": {
+      "type": "string",
+      "description": "What the system does, its purpose and target audience"
+    },
+    "tech_stack": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Detected/researched technology stack"
+    },
+    "benchmark_system": {
+      "type": "string",
+      "description": "The #1 proven system that exemplifies this system type at its best"
+    },
+    "competitor_benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "string"
+          },
+          "strength": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "scores": {
+      "type": "object",
+      "properties": {
+        "performance": {
+          "type": "number"
+        },
+        "seo": {
+          "type": "number"
+        },
+        "security": {
+          "type": "number"
+        },
+        "accessibility": {
+          "type": "number"
+        },
+        "content": {
+          "type": "number"
+        }
+      },
+      "default": {}
+    },
+    "overall_score": {
+      "type": "number",
+      "default": 0
+    },
+    "dimension_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "type": "string"
+          },
+          "current_score": {
+            "type": "number"
+          },
+          "target_score": {
+            "type": "number"
+          },
+          "gap": {
+            "type": "string"
+          },
+          "root_cause": {
+            "type": "string"
+          },
+          "perfection_prompt": {
+            "type": "string",
+            "description": "The exact prompt to execute to bring this dimension to 100%"
+          }
+        }
+      },
+      "default": []
+    },
+    "perfection_prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dimension": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "overall_summary": {
+      "type": "string",
+      "description": "Full unambiguous summary of the system, its state, and the path to 100%"
+    },
+    "launch_readiness_verdict": {
+      "type": "string",
+      "enum": [
+        "launch_ready",
+        "near_ready",
+        "not_ready",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "site_id",
+    "site_url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
