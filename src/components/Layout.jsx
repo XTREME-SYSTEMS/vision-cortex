@@ -30,6 +30,7 @@ const nav = [
   { to: '/audit', label: 'Audit', icon: ShieldCheck },
   { to: '/site-monitor', label: 'Site Monitor', icon: Globe },
   { to: '/xtreme-ai', label: 'Xtreme AI', icon: Cpu },
+  { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
   { to: '/agents', label: 'Agents', icon: Bot },
   { to: '/chat', label: 'War Room', icon: MessagesSquare },
   { to: '/intel', label: 'Intel', icon: Telescope },

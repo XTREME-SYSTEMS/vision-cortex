@@ -1,0 +1,367 @@
+{
+  "name": "MasterBlueprint",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string",
+      "default": "epoxy_flooring_polished_concrete"
+    },
+    "target_company": {
+      "type": "string",
+      "description": "Company the blueprint is built for"
+    },
+    "executive_summary": {
+      "type": "string"
+    },
+    "deep_audit_refactor": {
+      "type": "object",
+      "properties": {
+        "current_score": {
+          "type": "number"
+        },
+        "refactor_strategy": {
+          "type": "string"
+        },
+        "architecture_vision": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "system_factory_architecture": {
+      "type": "object",
+      "properties": {
+        "deterministic_shell": {
+          "type": "string"
+        },
+        "core_modules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deployment_pipeline": {
+          "type": "string"
+        },
+        "scalability_plan": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "digital_bid_system": {
+      "type": "object",
+      "properties": {
+        "image_upload_flow": {
+          "type": "string"
+        },
+        "floor_visualizer_spec": {
+          "type": "string"
+        },
+        "automated_pricing_engine": {
+          "type": "string"
+        },
+        "bid_delivery_workflow": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "lead_generation_system": {
+      "type": "object",
+      "properties": {
+        "residential": {
+          "type": "string"
+        },
+        "commercial": {
+          "type": "string"
+        },
+        "government": {
+          "type": "string"
+        },
+        "delivery_routing": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "seo_aeo_system": {
+      "type": "object",
+      "properties": {
+        "programmatic_seo": {
+          "type": "string"
+        },
+        "aeo_strategy": {
+          "type": "string"
+        },
+        "local_seo_stack": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "ai_agent_system": {
+      "type": "object",
+      "properties": {
+        "agent_roster": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "mission": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "orchestration": {
+          "type": "string"
+        },
+        "autonomous_loops": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "social_media_system": {
+      "type": "object",
+      "properties": {
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "content_engine": {
+          "type": "string"
+        },
+        "scheduling_automation": {
+          "type": "string"
+        },
+        "engagement_system": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "rebranding_plan": {
+      "type": "object",
+      "properties": {
+        "brand_identity": {
+          "type": "string"
+        },
+        "positioning": {
+          "type": "string"
+        },
+        "visual_system": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "financial_intelligence": {
+      "type": "object",
+      "properties": {
+        "industry_market_size": {
+          "type": "string"
+        },
+        "competitor_analysis": {
+          "type": "string"
+        },
+        "revenue_projections": {
+          "type": "string"
+        },
+        "unit_economics": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "tone_enhancement_system": {
+      "type": "object",
+      "properties": {
+        "industry_voice": {
+          "type": "string"
+        },
+        "company_voice": {
+          "type": "string"
+        },
+        "content_guidelines": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "business_plan": {
+      "type": "object",
+      "properties": {
+        "mission": {
+          "type": "string"
+        },
+        "market_opportunity": {
+          "type": "string"
+        },
+        "go_to_market": {
+          "type": "string"
+        },
+        "competitive_moat": {
+          "type": "string"
+        },
+        "team_structure": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "financial_plan": {
+      "type": "object",
+      "properties": {
+        "startup_costs": {
+          "type": "string"
+        },
+        "monthly_operating_costs": {
+          "type": "string"
+        },
+        "revenue_model": {
+          "type": "string"
+        },
+        "break_even_analysis": {
+          "type": "string"
+        },
+        "year_1_projections": {
+          "type": "string"
+        },
+        "year_3_projections": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "pricing_plans": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string"
+          },
+          "one_time_price": {
+            "type": "string"
+          },
+          "monthly_price": {
+            "type": "string"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "target_customer": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "mass_production_plan": {
+      "type": "object",
+      "properties": {
+        "site_count_target": {
+          "type": "number"
+        },
+        "geographic_strategy": {
+          "type": "string"
+        },
+        "xps_xpress_store_alignment": {
+          "type": "string"
+        },
+        "deployment_cadence": {
+          "type": "string"
+        },
+        "lead_to_store_funnel": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "generator_app_optimization": {
+      "type": "object",
+      "properties": {
+        "current_state": {
+          "type": "string"
+        },
+        "target_state": {
+          "type": "string"
+        },
+        "ux_improvements": {
+          "type": "string"
+        },
+        "automation_level": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "implementation_roadmap": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "phase": {
+            "type": "string"
+          },
+          "timeline": {
+            "type": "string"
+          },
+          "deliverables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "milestone": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "overall_summary": {
+      "type": "string"
+    },
+    "generated_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
