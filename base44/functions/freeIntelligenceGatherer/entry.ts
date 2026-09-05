@@ -38,70 +38,71 @@ FORMAT YOUR RESPONSE IN MARKDOWN:
 ## Sources
 [List sources used]`;
 
-// --- FREE WEB SEARCH via DuckDuckGo HTML ---
+// --- FREE WEB SEARCH via DuckDuckGo JSON API (reliable from servers) ---
 async function searchWeb(query, maxResults = 5) {
   try {
-    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
     const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; VisionCortexBot/1.0)' },
     });
     if (!res.ok) return [];
-    const html = await res.text();
+    const data = await res.json();
 
     const results = [];
-    const links = [];
-    const snippets = [];
 
-    // Extract result links with actual URLs (decoded from uddg param)
-    const linkRegex = /class="result__a"[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g;
-    let match;
-    while ((match = linkRegex.exec(html)) !== null) {
-      let href = match[1];
-      const uddgMatch = href.match(/uddg=([^&]+)/);
-      if (uddgMatch) href = decodeURIComponent(uddgMatch[1]);
-      const title = match[2].replace(/<[^>]+>/g, '').trim();
-      if (href.startsWith('http')) links.push({ url: href, title });
+    // Abstract (main instant answer)
+    if (data.AbstractText) {
+      results.push({
+        url: data.AbstractURL || '',
+        title: data.Heading || query,
+        snippet: data.AbstractText,
+      });
     }
 
-    // Extract snippets
-    const snippetRegex = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
-    while ((match = snippetRegex.exec(html)) !== null) {
-      snippets.push(match[1].replace(/<[^>]+>/g, '').trim());
+    // Related topics
+    if (data.RelatedTopics) {
+      for (const topic of data.RelatedTopics) {
+        if (topic.Text && topic.FirstURL) {
+          results.push({
+            url: topic.FirstURL,
+            title: topic.Text.split(' - ')[0]?.slice(0, 100) || topic.Text.slice(0, 100),
+            snippet: topic.Text,
+          });
+        }
+        if (results.length >= maxResults) break;
+      }
     }
 
-    for (let i = 0; i < Math.min(links.length, snippets.length, maxResults); i++) {
-      results.push({ url: links[i].url, title: links[i].title, snippet: snippets[i] });
-    }
     return results;
   } catch (e) {
     return [];
   }
 }
 
-// --- FREE WIKIPEDIA KNOWLEDGE ---
+// --- FREE WIKIPEDIA KNOWLEDGE (query API — reliable from servers) ---
 async function searchWikipedia(query, maxResults = 3) {
   try {
-    const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=${maxResults}&format=json&origin=*`;
+    const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=${maxResults}`;
     const res = await fetch(searchUrl);
     if (!res.ok) return [];
     const data = await res.json();
 
     const results = [];
-    if (data && data[1]) {
-      for (const title of data[1].slice(0, maxResults)) {
-        try {
-          const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-          const summaryRes = await fetch(summaryUrl);
-          if (summaryRes.ok) {
-            const summaryData = await summaryRes.json();
-            results.push({
-              title,
-              extract: summaryData.extract || '',
-              url: summaryData.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`,
-            });
-          }
-        } catch {}
-      }
+    const searchItems = data?.query?.search || [];
+    for (const item of searchItems.slice(0, maxResults)) {
+      try {
+        const title = item.title;
+        const summaryUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+        const summaryRes = await fetch(summaryUrl);
+        if (summaryRes.ok) {
+          const summaryData = await summaryRes.json();
+          results.push({
+            title,
+            extract: summaryData.extract || '',
+            url: summaryData.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`,
+          });
+        }
+      } catch {}
     }
     return results;
   } catch (e) {
@@ -140,7 +141,10 @@ async function fetchUrlContent(url) {
 // --- FREE LLM via Groq (Llama 3.3 70B) ---
 async function synthesizeWithGroq(prompt) {
   const apiKey = Deno.env.get('GROQ_API_KEY');
-  if (!apiKey) return null;
+  if (!apiKey) {
+    console.error('GROQ_API_KEY not set');
+    return null;
+  }
 
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -150,7 +154,7 @@ async function synthesizeWithGroq(prompt) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'openai/gpt-oss-120b',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: prompt },
@@ -159,32 +163,15 @@ async function synthesizeWithGroq(prompt) {
         temperature: 0.7,
       }),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Groq API error:', res.status, errText.slice(0, 300));
+      return null;
+    }
     const data = await res.json();
     return data.choices?.[0]?.message?.content || null;
   } catch (e) {
-    return null;
-  }
-}
-
-// --- FREE LLM via Google Gemini (1.5 Flash) ---
-async function synthesizeWithGemini(prompt) {
-  const apiKey = Deno.env.get('GEMINI_API_KEY');
-  if (!apiKey) return null;
-
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${SYSTEM_PROMPT}\n\n${prompt}` }] }],
-        generationConfig: { maxOutputTokens: 8000, temperature: 0.7 },
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch (e) {
+    console.error('Groq exception:', e.message);
     return null;
   }
 }
@@ -272,12 +259,6 @@ Synthesize a comprehensive, deeply detailed, multi-perspective answer using this
     answer = await synthesizeWithGroq(prompt);
     if (answer) method = 'groq_free';
 
-    // Try Gemini (free)
-    if (!answer) {
-      answer = await synthesizeWithGemini(prompt);
-      if (answer) method = 'gemini_free';
-    }
-
     // Fall back to Base44 InvokeLLM with web search (costs credits)
     if (!answer) {
       try {
@@ -305,7 +286,6 @@ Synthesize a comprehensive, deeply detailed, multi-perspective answer using this
     try {
       const summaryPrompt = `Summarize in 2-3 sentences:\n\n${answer.slice(0, 6000)}`;
       let summaryResult = await synthesizeWithGroq(summaryPrompt);
-      if (!summaryResult) summaryResult = await synthesizeWithGemini(summaryPrompt);
       summary = summaryResult || answer.slice(0, 200);
     } catch {
       summary = answer.slice(0, 200);
