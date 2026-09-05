@@ -1,0 +1,130 @@
+{
+  "name": "KnowledgeQuest",
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The research topic or question to investigate"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "wealth",
+        "ai_engineering",
+        "epoxy_concrete",
+        "business_strategy",
+        "data_intelligence",
+        "autonomous_systems",
+        "prompt_engineering",
+        "niche_identification",
+        "future_ai",
+        "capabilities",
+        "free_resources",
+        "learning_strategy",
+        "crypto",
+        "other"
+      ],
+      "default": "other"
+    },
+    "question": {
+      "type": "string",
+      "description": "The specific question variant or sub-focus"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "researching",
+        "complete",
+        "failed",
+        "validating"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "number",
+      "default": 3,
+      "description": "1 = highest, 5 = lowest"
+    },
+    "depth": {
+      "type": "string",
+      "enum": [
+        "overview",
+        "detailed",
+        "deep",
+        "exhaustive"
+      ],
+      "default": "deep"
+    },
+    "answer": {
+      "type": "string",
+      "description": "The full researched and validated answer (markdown)"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Short summary of the answer"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "URLs and references found during research"
+    },
+    "perspectives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Multiple expert viewpoints on the topic"
+    },
+    "validated": {
+      "type": "boolean",
+      "default": false
+    },
+    "validation_notes": {
+      "type": "string"
+    },
+    "word_count": {
+      "type": "number",
+      "default": 0
+    },
+    "researched_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": true
+    },
+    "archetype": {
+      "type": "string",
+      "default": "obsessive_intelligence_seeker"
+    }
+  },
+  "required": [
+    "topic"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
