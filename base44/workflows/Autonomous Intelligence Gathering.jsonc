@@ -1,6 +1,4 @@
 {
-  "name": "Autonomous Intelligence Gathering",
-  "description": "Autonomously researches the next pending knowledge quest every 2 hours using web search and AI \u2014 the obsessive intelligence seeker archetype",
   "trigger": {
     "condition": null,
     "config": {
@@ -10,7 +8,7 @@
       "cron_expression": null,
       "one_time_date": null,
       "timezone": "UTC",
-      "interval_value": 2,
+      "interval_value": 1,
       "interval_unit": "hours",
       "interval_anchor": "2026-09-05T10:00:00Z",
       "ends_type": "never",
@@ -18,6 +16,8 @@
       "ends_after_count": null
     }
   },
+  "description": "Autonomously researches the next pending knowledge quest every hour using FREE APIs (DuckDuckGo, Wikipedia, Groq/Gemini) \u2014 the obsessive intelligence seeker archetype operating at zero cost",
+  "name": "Autonomous Intelligence Gathering",
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -30,15 +30,15 @@
         "gather": {
           "call": "invoke_backend_function",
           "with": {
-            "function_name": "intelligenceGatherer",
+            "function_name": "freeIntelligenceGatherer",
             "args": {
               "mode": "next_pending"
             }
           },
           "then": "end",
           "x-base44": {
-            "title": "Gather intelligence",
-            "description": "Research next pending quest"
+            "title": "Gather intelligence (free)",
+            "description": "Research next pending quest using free APIs"
           }
         }
       }

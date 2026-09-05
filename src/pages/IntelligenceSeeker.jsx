@@ -33,6 +33,7 @@ export default function IntelligenceSeeker() {
   const [researching, setResearching] = useState(false);
   const [gatheringAll, setGatheringAll] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
+  const [freeMode, setFreeMode] = useState(true);
   const [newTopic, setNewTopic] = useState('');
   const [newCategory, setNewCategory] = useState('other');
   const [newQuestion, setNewQuestion] = useState('');
@@ -53,7 +54,7 @@ export default function IntelligenceSeeker() {
   const research = async (quest) => {
     setResearching(true);
     try {
-      await base44.functions.invoke('intelligenceGatherer', { quest_id: quest.id });
+      await base44.functions.invoke(freeMode ? 'freeIntelligenceGatherer' : 'intelligenceGatherer', { quest_id: quest.id });
       await load();
     } catch (e) {
       alert('Research failed: ' + e.message);
@@ -68,7 +69,7 @@ export default function IntelligenceSeeker() {
     setGatheringAll(true);
     for (const q of pending) {
       try {
-        await base44.functions.invoke('intelligenceGatherer', { quest_id: q.id });
+        await base44.functions.invoke(freeMode ? 'freeIntelligenceGatherer' : 'intelligenceGatherer', { quest_id: q.id });
         await load();
       } catch (e) { /* continue to next */ }
     }
@@ -116,6 +117,19 @@ export default function IntelligenceSeeker() {
             <p className="text-xs text-muted-foreground">Obsessive intelligence gathering archetype — researches, validates, and distributes knowledge</p>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setFreeMode(!freeMode)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors border',
+                freeMode
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                  : 'bg-muted text-muted-foreground border-border/60'
+              )}
+              title={freeMode ? 'Free mode: uses DuckDuckGo + Wikipedia + Groq/Gemini (free APIs, zero credits)' : 'Premium mode: uses Base44 InvokeLLM with web search (costs credits)'}
+            >
+              <span className={cn('w-1.5 h-1.5 rounded-full', freeMode ? 'bg-emerald-500' : 'bg-muted-foreground')} />
+              {freeMode ? 'Free Mode' : 'Premium'}
+            </button>
             <Button size="sm" variant="outline" onClick={() => setShowAdd(!showAdd)} className="h-8">
               <Plus className="w-3.5 h-3.5" /> Add Quest
             </Button>
