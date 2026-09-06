@@ -5,6 +5,7 @@ import { Loader2, RefreshCw, Rocket, ShieldCheck, Gauge, Server, Database, Layer
 import AccountCard from '@/components/management/AccountCard';
 import DataLifecycleBar from '@/components/management/DataLifecycleBar';
 import AppCard from '@/components/management/AppCard';
+import OnboardAppForm from '@/components/management/OnboardAppForm';
 
 export default function AppManagement() {
   const [report, setReport] = useState(null);
@@ -68,6 +69,8 @@ export default function AppManagement() {
       {error && (
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
       )}
+
+      <OnboardAppForm onOnboarded={runAudit} />
 
       {loading && !report ? (
         <div className="flex items-center justify-center py-20 text-muted-foreground">
