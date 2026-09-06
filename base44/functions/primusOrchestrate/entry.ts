@@ -175,10 +175,10 @@ export default async function (req) {
 
     await base44.asServiceRole.entities.AgentLog.create({
       agent_name: 'PRIMUS',
-      action: 'orchestration',
-      summary: 'Delegated to: ' + ((plan.delegate_to || []).join(', ') || 'none (handled directly)') + '. Validator: ' + validation.verdict,
-      details: JSON.stringify({ plan: plan.plan, validation: validation.verdict, agent_count: agentOutputs.length }),
-      status: 'completed',
+      category: 'orchestration',
+      level: 'success',
+      message: 'Delegated to: ' + ((plan.delegate_to || []).join(', ') || 'none (handled directly)') + '. Validator: ' + validation.verdict,
+      detail: JSON.stringify({ plan: plan.plan, validation: validation.verdict, agent_count: agentOutputs.length }),
     });
 
     return Response.json({
