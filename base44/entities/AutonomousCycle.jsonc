@@ -1,0 +1,142 @@
+{
+  "name": "AutonomousCycle",
+  "type": "object",
+  "properties": {
+    "cycle_id": {
+      "type": "string",
+      "description": "CYCLE-<timestamp> unique identifier"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "complete",
+        "failed"
+      ],
+      "default": "running"
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "forensic_audit",
+        "self_reflection",
+        "architect",
+        "implement",
+        "validate",
+        "harden",
+        "optimize",
+        "push",
+        "complete"
+      ],
+      "default": "forensic_audit"
+    },
+    "items_audited": {
+      "type": "number",
+      "default": 0
+    },
+    "items_identified": {
+      "type": "number",
+      "default": 0
+    },
+    "items_architected": {
+      "type": "number",
+      "default": 0
+    },
+    "items_implemented": {
+      "type": "number",
+      "default": 0
+    },
+    "items_validated": {
+      "type": "number",
+      "default": 0
+    },
+    "items_hardened": {
+      "type": "number",
+      "default": 0
+    },
+    "items_optimized": {
+      "type": "number",
+      "default": 0
+    },
+    "items_pushed": {
+      "type": "number",
+      "default": 0
+    },
+    "health_before": {
+      "type": "number",
+      "default": 0
+    },
+    "health_after": {
+      "type": "number",
+      "default": 0
+    },
+    "reflection": {
+      "type": "string",
+      "description": "Groq self-reflection forensic summary"
+    },
+    "priorities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "fix": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "cycle_id"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "name": "ArchitecturalDocument",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "implementation_plan",
+        "code_spec",
+        "architecture_doc",
+        "fix_plan",
+        "hardening_plan",
+        "optimization_plan"
+      ],
+      "default": "implementation_plan"
+    },
+    "target_system": {
+      "type": "string",
+      "description": "Which system/component this targets"
+    },
+    "content": {
+      "type": "string",
+      "description": "The architecture/design document (markdown)"
+    },
+    "implementation_code": {
+      "type": "string",
+      "description": "Generated production-ready code"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "architected",
+        "implemented",
+        "validated",
+        "hardened",
+        "optimized",
+        "pushed",
+        "failed"
+      ],
+      "default": "draft"
+    },
+    "cycle_id": {
+      "type": "string",
+      "description": "Ref to AutonomousCycle.cycle_id"
+    },
+    "priority": {
+      "type": "number",
+      "default": 3
+    },
+    "validation_score": {
+      "type": "number",
+      "default": 0
+    },
+    "validation_failures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "fix_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "hardening_notes": {
+      "type": "string"
+    },
+    "optimization_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "doc_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
