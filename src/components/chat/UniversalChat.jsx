@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Send, Loader2, Bot, User, AlertCircle, FlaskConical, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Send, Loader2, Bot, User, AlertCircle, FlaskConical, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function UniversalChat({ activeAgents }) {
@@ -10,6 +10,16 @@ export default function UniversalChat({ activeAgents }) {
   const [simulating, setSimulating] = useState(false);
   const [showValidation, setShowValidation] = useState(true);
   const scrollRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [attachedFiles, setAttachedFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
+  const suggestions = [
+    'Analyze my current portfolio',
+    'Find new business opportunities',
+    'Run a system health audit',
+    'What should I focus on today?',
+  ];
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -20,12 +30,14 @@ export default function UniversalChat({ activeAgents }) {
     const text = input.trim();
     setMessages((m) => [...m, { author: 'You', author_type: 'user', content: text }]);
     setInput('');
+    setAttachedFiles([]);
     setSending(true);
     try {
       const res = await base44.functions.invoke('primusOrchestrate', {
         message: text,
         history: messages.slice(-8),
         agent_names: activeAgents,
+        file_urls: attachedFiles.length > 0 ? attachedFiles.map(f => f.url) : undefined,
       });
       const data = res.data || res;
       if (data.error) throw new Error(data.error);
@@ -93,6 +105,28 @@ export default function UniversalChat({ activeAgents }) {
     };
     return map[v.verdict] || map.APPROVED;
   };
+
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        uploaded.push({ name: file.name, url: file_url, size: file.size });
+      }
+      setAttachedFiles(prev => [...prev, ...uploaded]);
+    } catch (err) {
+      setMessages(m => [...m, { author: 'System', author_type: 'agent', content: 'Upload failed: ' + (err.message || 'error') }]);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (idx) => setAttachedFiles(prev => prev.filter((_, i) => i !== idx));
+  const applySuggestion = (s) => setInput(s);
 
   return (
     <div className="h-full flex flex-col bg-background">
@@ -170,7 +204,42 @@ export default function UniversalChat({ activeAgents }) {
         )}
       </div>
       <div className="px-4 py-2.5 border-t border-border/60">
+        {messages.length === 0 && (
+          <div className="flex flex-wrap gap-1.5 max-w-3xl mx-auto mb-2.5 justify-center">
+            {suggestions.map((s) => (
+              <button
+                key={s}
+                onClick={() => applySuggestion(s)}
+                className="text-[11px] px-2.5 py-1 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground hover:text-foreground border border-border/40 transition-colors flex items-center gap-1"
+              >
+                <Lightbulb className="w-2.5 h-2.5" /> {s}
+              </button>
+            ))}
+          </div>
+        )}
+        {attachedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 max-w-3xl mx-auto mb-2">
+            {attachedFiles.map((f, i) => (
+              <div key={i} className="flex items-center gap-1.5 text-[11px] bg-muted rounded-lg px-2 py-1 border border-border/40">
+                <Paperclip className="w-2.5 h-2.5 text-muted-foreground" />
+                <span className="truncate max-w-32">{f.name}</span>
+                <button onClick={() => removeFile(i)} className="hover:text-destructive transition-colors">
+                  <X className="w-2.5 h-2.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
         <div className="flex items-end gap-2 max-w-3xl mx-auto">
+          <input ref={fileInputRef} type="file" multiple onChange={handleFileUpload} className="hidden" />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Attach files"
+            className="rounded-xl bg-muted text-foreground border border-border/40 p-2.5 disabled:opacity-40 hover:bg-muted/70 transition-colors shrink-0"
+          >
+            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+          </button>
           <button
             onClick={simulate}
             disabled={simulating || sending || (!input.trim() && !messages.some((m) => m.author_type === 'user'))}

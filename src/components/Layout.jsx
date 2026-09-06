@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
-import SystemDnaBar from '@/components/SystemDnaBar';
+import VersionHistory from '@/components/VersionHistory';
 import SidebarActions from '@/components/sidebar/SidebarActions';
 import NavGroup from '@/components/sidebar/NavGroup';
 import AgentsCard from '@/components/sidebar/AgentsCard';
@@ -189,7 +189,7 @@ export default function Layout() {
           <OwnerBell />
           <ThemeToggle />
         </div>
-        <SystemDnaBar />
+        <VersionHistory />
 
         <div className="flex-1 min-h-0 overflow-hidden">
           {showAgentsCard ? (
