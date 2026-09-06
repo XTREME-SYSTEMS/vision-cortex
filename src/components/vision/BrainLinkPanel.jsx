@@ -72,7 +72,7 @@ export default function BrainLinkPanel() {
           <ArrowLeft className="w-4 h-4" />
         </div>
         <div className="flex items-center gap-2">
-          <Brain className={cn('w-5 h-5', brainConnected ? 'text-emerald-500' : 'text-amber-500')} />
+          <Brain className={cn('w-5 h-5', brainConnected ? 'text-emerald-500' : brainKeyMismatch ? 'text-rose-500' : 'text-amber-500')} />
           <div>
             <div className="text-xs font-medium">V-1 · Brain</div>
             <div className="text-[10px] text-muted-foreground">thevisioncortex.com</div>
