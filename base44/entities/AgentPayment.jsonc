@@ -1,0 +1,70 @@
+{
+  "name": "AgentPayment",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string",
+      "description": "Agent receiving payment"
+    },
+    "amount": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount in CORTEX tokens"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "salary",
+        "bonus",
+        "reward",
+        "penalty",
+        "dividend"
+      ],
+      "default": "salary"
+    },
+    "memo": {
+      "type": "string",
+      "default": ""
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Agent wallet address"
+    },
+    "validated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the Validator agent approved this payment"
+    },
+    "validator_notes": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "agent_name",
+    "amount",
+    "payment_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

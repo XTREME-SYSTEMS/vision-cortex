@@ -56,6 +56,7 @@ import FolderDetail from '@/pages/FolderDetail';
 import OAuthConsent from '@/pages/OAuthConsent';
 import AppManagement from '@/pages/AppManagement';
 import CommandCenter from '@/pages/CommandCenter';
+import Vault from '@/pages/Vault';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -131,6 +132,7 @@ const AuthenticatedApp = () => {
           <Route path="/folder/:id" element={<FolderDetail />} />
           <Route path="/management" element={<AppManagement />} />
           <Route path="/command" element={<CommandCenter />} />
+          <Route path="/vault" element={<Vault />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

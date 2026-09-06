@@ -1,0 +1,69 @@
+{
+  "name": "CryptoWallet",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Friendly label for the wallet"
+    },
+    "address": {
+      "type": "string",
+      "description": "Public wallet address"
+    },
+    "wallet_type": {
+      "type": "string",
+      "enum": [
+        "ethereum",
+        "bitcoin",
+        "solana",
+        "shadow",
+        "cortex_token"
+      ],
+      "default": "ethereum"
+    },
+    "balance": {
+      "type": "number",
+      "default": 0
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Agent name or purpose this wallet belongs to"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_paper": {
+      "type": "boolean",
+      "default": true,
+      "description": "True if this is a simulated/paper wallet"
+    }
+  },
+  "required": [
+    "label",
+    "address",
+    "wallet_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

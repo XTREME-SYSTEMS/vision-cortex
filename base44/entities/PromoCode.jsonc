@@ -1,0 +1,76 @@
+{
+  "name": "PromoCode",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "The promo code string"
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    },
+    "discount_type": {
+      "type": "string",
+      "enum": [
+        "percentage",
+        "fixed",
+        "trial"
+      ],
+      "default": "percentage"
+    },
+    "discount_value": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage (0-100) or fixed amount in cents"
+    },
+    "max_uses": {
+      "type": "number",
+      "default": 0,
+      "description": "0 = unlimited"
+    },
+    "uses_count": {
+      "type": "number",
+      "default": 0
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "assigned_to": {
+      "type": "string",
+      "default": "",
+      "description": "Product or campaign this code is for"
+    }
+  },
+  "required": [
+    "code",
+    "discount_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ import {
   Workflow, Rocket, Megaphone, Globe,
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
-  EyeOff, Server,
+  EyeOff, Server, Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -99,6 +99,7 @@ const adminNav = {
     icon: EyeOff,
     items: [
       { to: '/command', label: 'Command Center', icon: Radar },
+      { to: '/vault', label: 'Vault', icon: Lock },
       { to: '/management', label: 'App Management', icon: Server },
       { to: '/factory', label: 'Factory', icon: Factory },
       { to: '/autonomous', label: 'Autonomous', icon: Bot },
