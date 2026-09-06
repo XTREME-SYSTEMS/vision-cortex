@@ -91,6 +91,17 @@
   }
 }
 
+/* Hide scrollbars globally — scrolling still works via mouse wheel / trackpad / pointer */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
