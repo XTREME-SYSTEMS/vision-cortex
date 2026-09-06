@@ -38,18 +38,18 @@ export default function SidebarActions() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1">
+    <div className="grid grid-cols-4 gap-1.5">
       {actions.map((a) => (
         <button
           key={a.id}
           onClick={() => handleClick(a)}
           title={a.label}
-          className="w-7 h-7 rounded-md grid place-items-center hover:bg-muted transition-colors"
+          className="w-10 h-10 rounded-lg grid place-items-center hover:bg-muted transition-colors"
         >
           {loading === a.id ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           ) : (
-            <a.icon className={cn('w-3.5 h-3.5', a.color)} />
+            <a.icon className={cn('w-5 h-5', a.color)} />
           )}
         </button>
       ))}
