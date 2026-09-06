@@ -15,6 +15,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
 import SystemDnaBar from '@/components/SystemDnaBar';
+import SidebarActions from '@/components/sidebar/SidebarActions';
 import NavGroup from '@/components/sidebar/NavGroup';
 import AgentsCard from '@/components/sidebar/AgentsCard';
 import UniversalChat from '@/components/chat/UniversalChat';
@@ -176,18 +177,18 @@ export default function Layout() {
           <ProjectFolders />
         </nav>
 
-        {/* Footer */}
-        <div className="px-2 py-2 border-t border-border/60 flex items-center gap-1">
-          <OwnerBell />
-          <div className="ml-auto flex items-center gap-1">
-            <InstallButton className="hidden" />
-            <ThemeToggle />
-          </div>
+        {/* Footer — special action buttons */}
+        <div className="px-2 py-2 border-t border-border/60">
+          <SidebarActions />
         </div>
       </aside>
 
       {/* Main content — chat primary (ChatGPT-style), pages open in center */}
       <main className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-end gap-1 px-3 py-1 border-b border-border/60 bg-background">
+          <OwnerBell />
+          <ThemeToggle />
+        </div>
         <SystemDnaBar />
 
         <div className="flex-1 min-h-0 overflow-hidden">
