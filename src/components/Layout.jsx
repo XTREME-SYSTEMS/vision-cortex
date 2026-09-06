@@ -109,7 +109,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAgentsCard, setShowAgentsCard] = useState(false);
-  const [activeAgents, setActiveAgents] = useState(['PRIMUS']);
+  const [activeAgents, setActiveAgents] = useState(['Prime Eden Skye']);
 
   useEffect(() => {
     base44.auth.me().then((u) => setIsAdmin(u?.role === 'admin')).catch(() => {});
@@ -141,6 +141,7 @@ export default function Layout() {
               <Radar className="w-4 h-4" />
             </span>
             <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
+            <span className="text-[9px] font-mono text-muted-foreground/60 tracking-wider">V-1</span>
           </Link>
         </div>
 

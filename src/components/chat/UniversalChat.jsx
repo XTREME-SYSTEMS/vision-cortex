@@ -37,18 +37,18 @@ export default function UniversalChat({ activeAgents }) {
         }
       }
       // Primus unified reply
-      newMsgs.push({ author: 'PRIMUS', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true });
+      newMsgs.push({ author: 'Prime Eden Skye', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true });
       // Validation verdict
       if (data.validation) {
         newMsgs.push({ author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true });
       }
       // Approval request
       if (data.delegation?.needs_approval) {
-        newMsgs.push({ author: 'PRIMUS', author_type: 'agent', content: '⏸ Awaiting your approval to execute. ' + (data.delegation.approval_reason || ''), approval: true });
+        newMsgs.push({ author: 'Prime Eden Skye', author_type: 'agent', content: '⏸ Awaiting your approval to execute. ' + (data.delegation.approval_reason || ''), approval: true });
       }
       setMessages((m) => [...m, ...newMsgs]);
     } catch (e) {
-      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach PRIMUS') }]);
+      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach Prime Eden Skye') }]);
     } finally {
       setSending(false);
     }
@@ -76,7 +76,7 @@ export default function UniversalChat({ activeAgents }) {
         'Risks: ' + ((sim.key_risks || []).join('; ')) + '\n' +
         'Opportunities: ' + ((sim.opportunities || []).join('; ')) + '\n\n' +
         'Recommendation: ' + (sim.recommendation || 'N/A');
-      setMessages((m) => [...m, { author: 'PRIMUS', author_type: 'agent', content: simText, accent: 'chart-3', simulation: true }]);
+      setMessages((m) => [...m, { author: 'Prime Eden Skye', author_type: 'agent', content: simText, accent: 'chart-3', simulation: true }]);
     } catch (e) {
       setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Simulation error: ' + (e.message || 'failed') }]);
     } finally {
@@ -102,7 +102,7 @@ export default function UniversalChat({ activeAgents }) {
             <div className="w-12 h-12 rounded-full bg-foreground text-background grid place-items-center mb-3">
               <Bot className="w-6 h-6" />
             </div>
-            <p className="text-sm font-medium text-foreground">PRIMUS is online.</p>
+            <p className="text-sm font-medium text-foreground">Prime Eden Skye is online.</p>
             <p className="text-xs mt-1 max-w-xs">Your primary orchestrator. It delegates to the right agents, validates every decision, and asks before executing anything.</p>
             <p className="text-[10px] mt-2 text-muted-foreground/70">Type a message or press Simulate to model a topic.</p>
           </div>
@@ -157,7 +157,7 @@ export default function UniversalChat({ activeAgents }) {
             <div className="w-7 h-7 rounded-full bg-foreground text-background grid place-items-center shrink-0">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
             </div>
-            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">PRIMUS is orchestrating…</div>
+            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Prime Eden Skye is orchestrating…</div>
           </div>
         )}
         {simulating && (
@@ -188,7 +188,7 @@ export default function UniversalChat({ activeAgents }) {
                 send();
               }
             }}
-            placeholder="Message PRIMUS…"
+            placeholder="Message Prime Eden Skye…"
             rows={1}
             className="flex-1 resize-none bg-muted rounded-xl px-3.5 py-2.5 text-sm outline-none max-h-28 min-h-[40px] focus:ring-1 focus:ring-ring"
           />
@@ -202,7 +202,7 @@ export default function UniversalChat({ activeAgents }) {
         </div>
         <div className="flex items-center justify-center gap-3 mt-1.5">
           <p className="text-[10px] text-muted-foreground">
-            PRIMUS orchestrates · {activeAgents.length > 0 ? 'delegation hints: ' + activeAgents.join(' · ') : 'auto-delegate'}
+            Prime Eden Skye orchestrates · {activeAgents.length > 0 ? 'delegation hints: ' + activeAgents.join(' · ') : 'auto-delegate'}
           </p>
           <button
             onClick={() => setShowValidation((s) => !s)}
