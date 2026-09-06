@@ -18,7 +18,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'openai/gpt-oss-120b';
 const MAX_PRIORITIES = 3;
 
-async function groq(prompt: string, maxTokens = 3000): Promise<string | null> {
+async function groq(prompt: string, maxTokens = 1500): Promise<string | null> {
   const key = secrets.get('GROQ_API_KEY');
   if (!key) throw new Error('GROQ_API_KEY not set');
   const res = await fetch(GROQ_URL, {
@@ -65,6 +65,20 @@ export default async function(req: any) {
     const cycleId = `CYCLE-${Date.now()}`;
     const startedAt = new Date().toISOString();
 
+    // Guard: skip if a cycle is already running or completed within the last 90 minutes
+    const recentCycles = await sr.AutonomousCycle.list('-started_at', 1).catch(() => []);
+    const lastCycle = recentCycles?.[0];
+    if (lastCycle) {
+      const ageMin = (Date.now() - new Date(lastCycle.started_at).getTime()) / 60000;
+      if (lastCycle.status === 'running' || (lastCycle.status === 'complete' && ageMin < 90)) {
+        return Response.json({
+          skipped: true,
+          reason: lastCycle.status === 'running' ? 'Cycle already running' : `Last cycle ${Math.round(ageMin)}m ago — skipping`,
+          last_cycle_id: lastCycle.cycle_id,
+        });
+      }
+    }
+
     // Create cycle record
     const cycle = await sr.AutonomousCycle.create({
       cycle_id: cycleId,
@@ -103,12 +117,13 @@ export default async function(req: any) {
 
     report.items_audited = gaps.length + enhancements.length + systems.length + dnaGaps.length;
 
+    // Compact snapshot — limit each section to keep prompt under Groq token limits
     const forensicSnapshot = {
-      gaps: gaps.map((g: any) => ({ number: g.number, title: g.title, category: g.category, severity: g.severity, status: g.status, recommendation: (g.recommendation || '').slice(0, 200) })),
-      pending_enhancements: enhancements.map((e: any) => ({ number: e.number, title: e.title, category: e.category, priority: e.priority, source: e.source, downfall: (e.downfall || '').slice(0, 200), recommended: (e.recommended_enhancement || '').slice(0, 200) })),
-      systems: systems.map((s: any) => ({ name: s.name, category: s.category, score: s.current_score || 0, target: s.north_star_score || 100, health: s.health_status, security: s.security_health, gaps: s.critical_gaps_count, failed: s.failed_tests_count, lifecycle: s.lifecycle_state })),
-      dna_gaps: dnaGaps.map((g: any) => ({ system: g.system_id, target: (g.target_state || '').slice(0, 150), current: (g.current_state || '').slice(0, 150), severity: g.severity })),
-      agents: agents.map((a: any) => ({ name: a.name, role: a.role, status: a.status, health: a.health, tasks: a.tasks_completed })),
+      gaps_summary: { count: gaps.length, open: gaps.filter((g: any) => g.status === 'open').length, top: gaps.filter((g: any) => g.status !== 'validated').slice(0, 8).map((g: any) => ({ t: g.title, s: g.severity, c: g.category })) },
+      enhancements_summary: { count: enhancements.length, top: enhancements.slice(0, 8).map((e: any) => ({ t: e.title, c: e.category, p: e.priority, d: (e.downfall || '').slice(0, 80) })) },
+      systems_summary: { count: systems.length, below_80: systems.filter((s: any) => (s.current_score || 0) < 80).length, top: systems.filter((s: any) => (s.current_score || 0) < 80).slice(0, 6).map((s: any) => ({ n: s.name, sc: s.current_score || 0, h: s.health_status, g: s.critical_gaps_count })) },
+      dna_gaps_summary: { count: dnaGaps.length, top: dnaGaps.slice(0, 5).map((g: any) => ({ s: g.system_id, t: (g.target_state || '').slice(0, 80), sv: g.severity })) },
+      agents_summary: { count: agents.length, active: agents.filter((a: any) => a.status === 'active').length },
     };
 
     const healthBefore = systems.length ? Math.round(systems.reduce((a: number, s: any) => a + (s.current_score || 0), 0) / systems.length) : 0;
@@ -123,15 +138,13 @@ export default async function(req: any) {
     let priorities: any[] = [];
     let forensicSummary = '';
     try {
-      const reflectionRes = await groq(`Perform a deep forensic analysis of the Vision Cortex system. Identify the TOP ${MAX_PRIORITIES} highest-impact priorities that need fixing.
+      const reflectionRes = await groq(`Analyze this Vision Cortex system snapshot. Identify the TOP ${MAX_PRIORITIES} priorities needing fixes.
 
-FORENSIC SNAPSHOT:
-${JSON.stringify(forensicSnapshot, null, 2)}
+${JSON.stringify(forensicSnapshot)}
 
-For each priority provide: title, target (system/component), issue (specific evidence-based), fix (specific actionable), severity (critical|high|medium), phase (fix|heal|harden|optimize), implementation_approach (brief), affected_files (array).
+For each: title, target, issue (1 sentence), fix (1 sentence), severity, phase (fix|heal|harden|optimize), implementation_approach (brief), affected_files (array).
 
-Output ONLY JSON:
-{"forensic_summary":"one paragraph","priorities":[{"title":"","target":"","issue":"","fix":"","severity":"","phase":"","implementation_approach":"","affected_files":[]}]}`);
+Output ONLY JSON: {"forensic_summary":"one sentence","priorities":[{"title":"","target":"","issue":"","fix":"","severity":"","phase":"","implementation_approach":"","affected_files":[]}]}`, 1500);
 
       const reflection = tryParseJSON(reflectionRes) || { priorities: [] };
       forensicSummary = reflection.forensic_summary || '';
@@ -167,20 +180,13 @@ Output ONLY JSON:
 
     const archDocs: any[] = [];
     try {
-      const archRes = await groq(`You are the autonomous code architect + implementer. For EACH priority below, design the implementation and generate production-ready code.
+      const archRes = await groq(`For each priority, generate architecture + implementation code.
 
-PRIORITIES:
-${JSON.stringify(priorities.map((p: any, i: number) => ({ i, title: p.title, target: p.target, issue: p.issue, fix: p.fix, approach: p.implementation_approach, files: p.affected_files })), null, 2)}
+${JSON.stringify(priorities.map((p: any, i: number) => ({ i, title: p.title, target: p.target, fix: p.fix, approach: p.implementation_approach })) )}
 
-For each priority, generate:
-- architecture_doc: brief design document
-- implementation_code: complete production-ready code (Base44 backend function entry.ts, shared module, or React component — use real Base44 SDK patterns: base44.entities, base44.asServiceRole.integrations.Core, createClientFromRequest)
-- validation_criteria: array of specific testable criteria
-- hardening_notes: security hardening recommendations
-- optimization_notes: performance optimization recommendations
+For each: architecture_doc (2 sentences), implementation_code (complete Base44 backend function or component — use createClientFromRequest, base44.entities, base44.asServiceRole), validation_criteria (array), hardening_notes (1 sentence), optimization_notes (1 sentence).
 
-Output ONLY JSON:
-{"items":[{"index":0,"architecture_doc":"","implementation_code":"","validation_criteria":[],"hardening_notes":"","optimization_notes":""}]}`);
+Output ONLY JSON: {"items":[{"index":0,"architecture_doc":"","implementation_code":"","validation_criteria":[],"hardening_notes":"","optimization_notes":""}]}`, 2500);
 
       const archData = tryParseJSON(archRes) || { items: [] };
       const items = archData.items || [];
@@ -218,14 +224,11 @@ Output ONLY JSON:
     await sr.AutonomousCycle.update(cycle.id, { phase: 'validate' });
 
     try {
-      const valRes = await groq(`You are a strict validator. For EACH implementation below, score 0-100. If not 100%, list failures and provide fixed_code.
+      const valRes = await groq(`Validate each implementation. Score 0-100. If <100, list failures + fixed_code.
 
-IMPLEMENTATIONS:
-${JSON.stringify(archDocs.map((a, i) => ({ index: i, title: a.priority.title, fix: a.priority.fix, criteria: a.arch.validation_criteria || [], code: (a.arch.implementation_code || '').slice(0, 2000) })), null, 2)}
+${JSON.stringify(archDocs.map((a, i) => ({ i, t: a.priority.title, f: a.priority.fix, c: a.arch.validation_criteria || [], code: (a.arch.implementation_code || '').slice(0, 1200) })))}
 
-For each, output: index, score, passed (boolean), failures (array), fixed_code (if score < 100).
-Output ONLY JSON:
-{"results":[{"index":0,"score":0,"passed":false,"failures":[],"fixed_code":""}]}`);
+Output ONLY JSON: {"results":[{"index":0,"score":0,"passed":false,"failures":[],"fixed_code":""}]}`, 2000);
 
       const valData = tryParseJSON(valRes) || { results: [] };
       const results = valData.results || [];
@@ -268,14 +271,12 @@ Output ONLY JSON:
       }
 
       if (validatedDocs.length > 0) {
-        const hoRes = await groq(`You are the security hardening + performance optimization engine. For EACH validated implementation, add security hardening and performance optimizations.
+        const hoRes = await groq(`Harden + optimize each implementation.
 
-IMPLEMENTATIONS:
-${JSON.stringify(validatedDocs.map((v, i) => ({ index: i, title: v.priority.title, code: (v.updated.implementation_code || '').slice(0, 2000), hardening_notes: v.updated.hardening_notes || '', optimization_notes: v.updated.optimization_notes || '' })), null, 2)}
+${JSON.stringify(validatedDocs.map((v, i) => ({ i, t: v.priority.title, code: (v.updated.implementation_code || '').slice(0, 1200) })))}
 
-For each, output: index, hardened_code (with security applied), optimized_code (with perf applied), hardening_summary, optimization_summary.
-Output ONLY JSON:
-{"results":[{"index":0,"hardened_code":"","optimized_code":"","hardening_summary":"","optimization_summary":""}]}`);
+For each: hardened_code, optimized_code, hardening_summary (1 sentence), optimization_summary (1 sentence).
+Output ONLY JSON: {"results":[{"index":0,"hardened_code":"","optimized_code":"","hardening_summary":"","optimization_summary":""}]}`, 2000);
 
         const hoData = tryParseJSON(hoRes) || { results: [] };
         const hoResults = hoData.results || [];

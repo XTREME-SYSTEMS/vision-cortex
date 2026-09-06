@@ -78,6 +78,7 @@ const navGroups = [
       { to: '/xtreme-ai', label: 'Xtreme AI', icon: Cpu },
       { to: '/clone-factory', label: 'Clone Factory', icon: Factory },
       { to: '/zero-credit', label: 'Zero-Credit Engine', icon: Zap },
+      { to: '/autonomous-loop', label: 'Autonomous Loop', icon: Brain },
       { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
       { to: '/xtreme-perfection', label: 'Xtreme Perfection', icon: Brain },
     ],

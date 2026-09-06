@@ -60,6 +60,7 @@ import Vault from '@/pages/Vault';
 import Vision from '@/pages/Vision';
 import CloneFactory from '@/pages/CloneFactory';
 import ZeroCreditEngine from '@/pages/ZeroCreditEngine';
+import AutonomousLoop from '@/pages/AutonomousLoop';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -139,6 +140,7 @@ const AuthenticatedApp = () => {
           <Route path="/vision" element={<Vision />} />
           <Route path="/clone-factory" element={<CloneFactory />} />
           <Route path="/zero-credit" element={<ZeroCreditEngine />} />
+          <Route path="/autonomous-loop" element={<AutonomousLoop />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
