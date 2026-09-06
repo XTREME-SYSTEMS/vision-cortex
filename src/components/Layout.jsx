@@ -29,6 +29,7 @@ const navGroups = [
     icon: LayoutDashboard,
     defaultOpen: true,
     items: [
+      { to: '/vision', label: 'Vision', icon: Radar },
       { to: '/', label: 'Opportunities', icon: LayoutDashboard },
       { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },
       { to: '/lifelab', label: 'Life Lab', icon: FlaskConical },
