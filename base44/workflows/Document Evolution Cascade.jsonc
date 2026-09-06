@@ -1,0 +1,38 @@
+{
+  "name": "Document Evolution Cascade",
+  "description": "When a CoreDocument is updated, automatically triggers the evolution cascade to update all dependent documents via the Codex Keeper agent. This keeps the entire system live and up-to-date \u2014 if vision changes, blueprint changes, SOP changes, and all docs change programmatically.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "CoreDocument",
+      "events": [
+        "update"
+      ]
+    },
+    "condition": "${ .trigger.changed_fields | index(\"content\") != null }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "document_evolution_cascade",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "trigger_evolution": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "evolveDocument",
+            "args": {
+              "source_document_id": "${ .trigger.data.document_id }",
+              "trigger": "entity_trigger",
+              "change_description": "Automatic cascade triggered by CoreDocument content update"
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  }
+}

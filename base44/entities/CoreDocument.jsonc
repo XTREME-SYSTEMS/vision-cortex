@@ -1,0 +1,145 @@
+{
+  "name": "CoreDocument",
+  "type": "object",
+  "properties": {
+    "document_id": {
+      "type": "string",
+      "description": "Unique slug identifier (e.g. vision.core, governance.constitution)"
+    },
+    "title": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "vision",
+        "mission",
+        "blueprint",
+        "sop",
+        "governance",
+        "legal",
+        "corporate",
+        "architecture",
+        "agent_charter",
+        "memory_schema",
+        "comms_protocol",
+        "intelligence_protocol",
+        "security_protocol",
+        "financial",
+        "technical_standard",
+        "knowledge_base",
+        "company_info"
+      ],
+      "description": "The type of document"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "vision_mission",
+        "blueprint",
+        "operations",
+        "governance",
+        "corporate_structure",
+        "company_info",
+        "legal_compliance",
+        "agent_charters",
+        "memory",
+        "communication",
+        "intelligence",
+        "security",
+        "financial",
+        "technical",
+        "architecture",
+        "knowledge"
+      ],
+      "description": "Top AI company category this document belongs to"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full document content (markdown)"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "parent_id": {
+      "type": "string",
+      "description": "Previous version document_id"
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "document_id list this document depends on \u2014 changes here trigger cascade"
+    },
+    "dependents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "document_id list that depends on this document \u2014 auto-updated when this changes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "deprecated",
+        "evolving"
+      ],
+      "default": "draft"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "mandatory",
+        "standard",
+        "reference"
+      ],
+      "default": "standard"
+    },
+    "last_evolved_at": {
+      "type": "string"
+    },
+    "last_evolved_by": {
+      "type": "string"
+    },
+    "evolution_count": {
+      "type": "number",
+      "default": 0
+    },
+    "validation_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-1 consistency validation score"
+    }
+  },
+  "required": [
+    "document_id",
+    "title",
+    "document_type",
+    "category"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

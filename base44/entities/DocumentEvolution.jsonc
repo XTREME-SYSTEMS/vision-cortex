@@ -1,0 +1,119 @@
+{
+  "name": "DocumentEvolution",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "EVT-<timestamp> unique identifier"
+    },
+    "source_document_id": {
+      "type": "string"
+    },
+    "source_document_title": {
+      "type": "string"
+    },
+    "change_type": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "deprecated",
+        "cascade"
+      ],
+      "default": "updated"
+    },
+    "change_description": {
+      "type": "string"
+    },
+    "cascaded_documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "old_version": {
+            "type": "string"
+          },
+          "new_version": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "cascaded_count": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+        "validated"
+      ],
+      "default": "pending"
+    },
+    "validation_score": {
+      "type": "number",
+      "default": 0
+    },
+    "agent_name": {
+      "type": "string",
+      "default": "codex_keeper"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "entity_trigger",
+        "agent",
+        "cron",
+        "cascade"
+      ],
+      "default": "manual"
+    },
+    "error": {
+      "type": "string"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "source_document_id",
+    "change_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ import DeepSpecRegistry from '@/components/blueprint/DeepSpecRegistry';
 import DeepRunMonitor from '@/components/blueprint/DeepRunMonitor';
 import SystemCodex from '@/components/blueprint/SystemCodex';
 import BootstrapArchitecture from '@/components/blueprint/BootstrapArchitecture';
+import DocumentEvolutionMonitor from '@/components/blueprint/DocumentEvolutionMonitor';
 
 const MANDATORY_GUIDELINES = [
   { icon: Target, title: '100% Perfection', desc: 'Every cycle must reach aggregate_score 1.00. is_approved is true ONLY at parity. No exceptions.', color: 'text-violet-500' },
@@ -182,6 +183,18 @@ export default function Blueprint() {
           <h2 className="font-display text-lg">System Codex — The Entire System as DEEP State Machines</h2>
         </div>
         <SystemCodex />
+      </section>
+
+      {/* Document Evolution System */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <GitBranch className="w-4 h-4 text-violet-500" />
+          <h2 className="font-display text-lg">Document Evolution System — The Living Foundation</h2>
+          <span className="flex items-center gap-1 text-[10px] text-violet-500 font-medium ml-auto">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" /> Codex Keeper Active
+          </span>
+        </div>
+        <DocumentEvolutionMonitor />
       </section>
 
       {/* Live Monitoring */}
