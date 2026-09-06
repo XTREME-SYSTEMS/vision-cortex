@@ -89,7 +89,7 @@ export default function ZeroCreditEngine() {
             <Zap className="w-3 h-3" /> Zero-Credit
           </span>
           <span className="px-2 py-1 rounded-full bg-muted text-muted-foreground font-mono">
-            {status?.groq_model || 'llama-3.3-70b-versatile'}
+            {status?.groq_model || 'openai/gpt-oss-120b'}
           </span>
         </div>
       </div>

@@ -14,7 +14,7 @@ OPERATIONAL CODES:
 1. INFRASTRUCTURE PARADIGM
    - Background orchestration routes through Vercel Cron triggers (every 5 min).
    - All state, queues, and telemetry live in Supabase relational tables.
-   - All text generation / competitive parsing runs through Groq (llama-3.3-70b-versatile).
+   - All text generation / competitive parsing runs through Groq (openai/gpt-oss-120b, free tier).
    - No Base44 Core.InvokeLLM calls. No Base44 entity calls inside the cycle.
 
 2. INGESTION MATRIX
