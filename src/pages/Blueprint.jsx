@@ -5,6 +5,7 @@ import DeepProtocol from '@/components/blueprint/DeepProtocol';
 import Governance from '@/components/blueprint/Governance';
 import DeepSpecRegistry from '@/components/blueprint/DeepSpecRegistry';
 import DeepRunMonitor from '@/components/blueprint/DeepRunMonitor';
+import SystemCodex from '@/components/blueprint/SystemCodex';
 
 const MANDATORY_GUIDELINES = [
   { icon: Target, title: '100% Perfection', desc: 'Every cycle must reach aggregate_score 1.00. is_approved is true ONLY at parity. No exceptions.', color: 'text-violet-500' },
@@ -162,6 +163,15 @@ export default function Blueprint() {
             ))}
           </ul>
         </div>
+      </section>
+
+      {/* System Codex — all operations as DEEP state machines */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <Cpu className="w-4 h-4 text-violet-500" />
+          <h2 className="font-display text-lg">System Codex — The Entire System as DEEP State Machines</h2>
+        </div>
+        <SystemCodex />
       </section>
 
       {/* Live Monitoring */}
