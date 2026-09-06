@@ -5,6 +5,11 @@ import { cn } from '@/lib/utils';
 import SwarmTimeline from '@/components/vision/SwarmTimeline';
 import AgentProgressGrid from '@/components/vision/AgentProgressGrid';
 
+const toBullets = (text) => {
+  if (!text) return [];
+  return text.split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter(Boolean);
+};
+
 export default function Vision() {
   const [plan, setPlan] = useState(null);
   const [agents, setAgents] = useState([]);
@@ -40,9 +45,14 @@ export default function Vision() {
             {plan?.status || 'planning'} · {plan?.current_phase || ''}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-          {plan?.vision || 'No vision recorded yet.'}
-        </p>
+        <ul className="space-y-1.5">
+          {(plan?.vision ? toBullets(plan.vision) : ['No vision recorded yet.']).map((b, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 mt-1.5 shrink-0" />
+              <span className="flex-1">{b}</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* System Plan & Strategy */}
@@ -51,9 +61,14 @@ export default function Vision() {
           <Target className="w-4 h-4" />
           <h2 className="font-display text-lg">System Plan & Strategy</h2>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap mb-4">
-          {plan?.protocol || plan?.architecture || 'No protocol recorded.'}
-        </p>
+        <ol className="space-y-1.5 mb-4">
+          {(plan?.protocol || plan?.architecture ? toBullets(plan.protocol || plan.architecture) : ['No protocol recorded.']).map((b, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground leading-relaxed">
+              <span className="text-[10px] font-mono font-semibold text-muted-foreground/60 mt-0.5 shrink-0">{String(i + 1).padStart(2, '0')}</span>
+              <span className="flex-1">{b}</span>
+            </li>
+          ))}
+        </ol>
         {plan?.missions?.length > 0 && (
           <div className="space-y-2">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Missions</p>
