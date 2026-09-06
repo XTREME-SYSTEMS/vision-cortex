@@ -1,0 +1,87 @@
+{
+  "name": "BrainCommand",
+  "type": "object",
+  "properties": {
+    "command_type": {
+      "type": "string",
+      "enum": [
+        "create_job",
+        "scrape_url",
+        "add_seed",
+        "run_cycle",
+        "run_monetization",
+        "follow_money",
+        "update_strategy"
+      ],
+      "description": "Type of command from the Brain"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "prompt": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "vertical": {
+          "type": "string"
+        },
+        "strategy": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "result": {
+      "type": "string",
+      "description": "Outcome of processing this command"
+    },
+    "processed_at": {
+      "type": "string"
+    },
+    "received_at": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "command_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

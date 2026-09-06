@@ -1,0 +1,70 @@
+{
+  "name": "BrainSyncLog",
+  "type": "object",
+  "properties": {
+    "direction": {
+      "type": "string",
+      "enum": [
+        "eyes_to_brain",
+        "brain_to_eyes"
+      ],
+      "description": "Which direction this sync operation flowed"
+    },
+    "operation": {
+      "type": "string",
+      "description": "What was synced (e.g. intel_push, command_received, command_processed)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "items_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of items synced in this batch"
+    },
+    "details": {
+      "type": "string",
+      "description": "Summary or error message from the sync"
+    },
+    "brain_url": {
+      "type": "string",
+      "description": "The Brain endpoint that was called"
+    },
+    "response_code": {
+      "type": "number",
+      "description": "HTTP status code from the Brain"
+    },
+    "batch_id": {
+      "type": "string",
+      "description": "Unique ID for this sync batch"
+    }
+  },
+  "required": [
+    "direction",
+    "operation"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

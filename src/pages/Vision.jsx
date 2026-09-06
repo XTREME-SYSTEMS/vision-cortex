@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Radar, Target, Activity, Clock, Zap } from 'lucide-react';
+import { Radar, Target, Activity, Clock, Zap, Brain } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SwarmTimeline from '@/components/vision/SwarmTimeline';
 import AgentProgressGrid from '@/components/vision/AgentProgressGrid';
+import BrainLinkPanel from '@/components/vision/BrainLinkPanel';
 
 const toBullets = (text) => {
   if (!text) return [];
@@ -105,6 +106,15 @@ export default function Vision() {
           </span>
         </div>
         <AgentProgressGrid agents={agents} />
+      </section>
+
+      {/* Brain Link — bi-directional sync with V-1 Brain + Cloud Browser engine */}
+      <section className="border border-border/60 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Brain className="w-4 h-4" />
+          <h2 className="font-display text-lg">Brain Link · Cloud Browser Sync</h2>
+        </div>
+        <BrainLinkPanel />
       </section>
 
       {/* Next Actions */}
