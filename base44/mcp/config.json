@@ -1,0 +1,141 @@
+{
+  "auth": "oauth",
+  "tools": {
+    "functions": [
+      {
+        "name": "orchestrate",
+        "title": "Orchestrate via Prime Eden Skye",
+        "description": "Send a message to Prime Eden Skye (PRIMUS), the primary orchestrator of Vision Cortex V-1. It decides whether to handle directly or delegate to specialist agents, synthesizes a unified response, and runs it through the Validator. Use this as the main entry point for any decision, analysis, or action request to the brain.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string", "description": "The message or request to orchestrate" },
+            "history": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "author": { "type": "string" },
+                  "author_type": { "type": "string" },
+                  "content": { "type": "string" }
+                }
+              },
+              "description": "Recent conversation history for context"
+            },
+            "agent_names": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Specific agents to delegate to (optional)"
+            }
+          },
+          "required": ["message"]
+        },
+        "handler": "primusOrchestrate",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "simulate",
+        "title": "Run Multi-Scenario Simulation",
+        "description": "Run a predictive multi-scenario simulation (best, base, worst case) on any topic with probabilities, financial impact, timeline, risks, opportunities, and a recommendation.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "topic": { "type": "string", "description": "The topic or decision to simulate" },
+            "context": { "type": "string", "description": "Additional context for the simulation (optional)" }
+          },
+          "required": ["topic"]
+        },
+        "handler": "simulateTopic",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "analyze_portfolio",
+        "title": "Analyze System Portfolio",
+        "description": "Run a deep system analysis across the entire Vision Cortex portfolio — scans entities, agents, gaps, simulations, and life plans, then identifies the top enhancement opportunities with web-searched technical protocols. No input required.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "handler": "systemAnalyst",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "sweep_opportunities",
+        "title": "Sweep for Opportunities",
+        "description": "Search the internet for people requesting tech services (websites, apps, AI, automation, scraping) across Craigslist, Reddit, LinkedIn, Upwork, and forums. Returns new opportunities with contact info and relevance scores.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "max_queries": { "type": "number", "description": "Number of search queries to run, 1-8, defaults to 5" },
+            "query_offset": { "type": "number", "description": "Offset for rotating through search queries, defaults to 0" }
+          }
+        },
+        "handler": "opportunitySweep",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "extract_intel",
+        "title": "Extract Intel from URL",
+        "description": "Scrape a URL via the cloud browser and extract structured intelligence signals into the IntelFeed. Returns headlines, summaries, key takeaways, correlations, and impact scores.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "description": "The URL to scrape and analyze" },
+            "prompt": { "type": "string", "description": "Custom extraction prompt, optional — uses default if omitted" },
+            "category": { "type": "string", "description": "Category label for the intel, optional" }
+          },
+          "required": ["url"]
+        },
+        "handler": "cloudBrowserIntel",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "covert_browse",
+        "title": "Covert Browse URL",
+        "description": "Covertly browse a URL via the cloud browser — traceless, nothing persisted. Returns raw page text or an LLM-structured extraction based on a custom prompt.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string", "description": "The URL to browse covertly" },
+            "prompt": { "type": "string", "description": "Optional LLM extraction prompt — if omitted with extract=false, returns raw page text" },
+            "extract": { "type": "boolean", "description": "If true, run LLM extraction with the prompt; if false or omitted, return raw text" }
+          },
+          "required": ["url"]
+        },
+        "handler": "shadowBrowse",
+        "annotations": { "read_only_hint": true, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "dispatch_build",
+        "title": "Dispatch Idea to Builder",
+        "description": "Dispatch an approved Idea from Vision Cortex (the brain) to the Xtreme AI v2 builder (the hands). The builder creates an AutoBuild record and runs the full pipeline: architecture, data model, UI, code, deploy.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "idea_id": { "type": "string", "description": "The ID of the approved Idea to dispatch" },
+            "auto_advance": { "type": "boolean", "description": "Whether the builder should auto-advance through pipeline steps, defaults to true" },
+            "product_type": { "type": "string", "description": "Type of product to build", "enum": ["marketing_site", "web_app", "ecommerce", "platform"] }
+          },
+          "required": ["idea_id"]
+        },
+        "handler": "dispatchToBuilder",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "gather_intelligence",
+        "title": "Gather Intelligence on Topic",
+        "description": "Run free-tier autonomous intelligence research on a KnowledgeQuest using DuckDuckGo search, Wikipedia, and web page fetching, then synthesize via Groq LLM. Updates the quest with a full researched answer, sources, and perspectives.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "quest_id": { "type": "string", "description": "The ID of the KnowledgeQuest to research" },
+            "mode": { "type": "string", "description": "Set to 'next_pending' to auto-pick the next pending quest by priority" }
+          },
+          "description": "Pass either quest_id or mode=next_pending"
+        },
+        "handler": "freeIntelligenceGatherer",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      }
+    ]
+  }
+}
