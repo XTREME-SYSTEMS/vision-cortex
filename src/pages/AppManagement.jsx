@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, Rocket, ShieldCheck, Gauge, Server, Database, Layers } from 'lucide-react';
@@ -8,13 +8,29 @@ import AppCard from '@/components/management/AppCard';
 import OnboardAppForm from '@/components/management/OnboardAppForm';
 
 export default function AppManagement() {
+  const [apps, setApps] = useState([]);
+  const [appsLoading, setAppsLoading] = useState(false);
   const [report, setReport] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [auditLoading, setAuditLoading] = useState(false);
   const [error, setError] = useState('');
   const [masterRunning, setMasterRunning] = useState(false);
 
+  // Fast: load managed apps list directly
+  const loadApps = useCallback(async () => {
+    setAppsLoading(true);
+    try {
+      const list = await base44.entities.MonitoredSite.list('-updated_date', 50);
+      setApps(list || []);
+    } catch (e) {
+      setError(e.message || 'Failed to load apps');
+    } finally {
+      setAppsLoading(false);
+    }
+  }, []);
+
+  // Slow: full system audit (accounts + lifecycle)
   const runAudit = useCallback(async () => {
-    setLoading(true);
+    setAuditLoading(true);
     setError('');
     try {
       const res = await base44.functions.invoke('appManagementSync', {});
@@ -22,7 +38,7 @@ export default function AppManagement() {
     } catch (e) {
       setError(e.message || 'Audit failed');
     } finally {
-      setLoading(false);
+      setAuditLoading(false);
     }
   }, []);
 
@@ -30,15 +46,19 @@ export default function AppManagement() {
     setMasterRunning(true);
     try {
       await base44.functions.invoke('masterAutonomousCycle', {});
-      await runAudit();
+      await Promise.all([runAudit(), loadApps()]);
     } catch (e) {
       setError(e.message || 'Master loop failed');
     } finally {
       setMasterRunning(false);
     }
-  }, [runAudit]);
+  }, [runAudit, loadApps]);
 
-  React.useEffect(() => { runAudit(); }, [runAudit]);
+  // On mount: load apps fast, kick off audit in background
+  useEffect(() => {
+    loadApps();
+    runAudit();
+  }, [loadApps, runAudit]);
 
   const verdictColor = report?.verdict === 'GO' ? 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30'
     : report?.verdict === 'CAUTION' ? 'text-amber-500 bg-amber-500/10 border-amber-500/30'
@@ -55,8 +75,8 @@ export default function AppManagement() {
           <p className="text-sm text-muted-foreground">Command center for all connected apps, accounts & data lifecycle</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={runAudit} disabled={loading}>
-            {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
+          <Button variant="outline" size="sm" onClick={runAudit} disabled={auditLoading}>
+            {auditLoading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-1.5" />}
             Run Audit
           </Button>
           <Button size="sm" onClick={triggerMasterLoop} disabled={masterRunning}>
@@ -70,11 +90,33 @@ export default function AppManagement() {
         <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">{error}</div>
       )}
 
-      <OnboardAppForm onOnboarded={runAudit} />
+      {/* Onboard form — always visible, always usable */}
+      <OnboardAppForm onOnboarded={loadApps} />
 
-      {loading && !report ? (
-        <div className="flex items-center justify-center py-20 text-muted-foreground">
-          <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Running full system audit...
+      {/* Managed Apps — loads instantly, refreshes immediately after onboarding */}
+      <div>
+        <h2 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
+          <Layers className="w-4 h-4" /> Managed Apps
+          <span className="text-[11px] text-muted-foreground font-normal">({apps.length})</span>
+          {appsLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />}
+        </h2>
+        {apps.length === 0 && !appsLoading ? (
+          <div className="text-sm text-muted-foreground py-8 text-center rounded-xl border border-dashed border-border/60">
+            No apps yet. Onboard your first app above.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {apps.map((app) => (
+              <AppCard key={app.id} app={app} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Full audit results — loads in background, shows when ready */}
+      {auditLoading && !report ? (
+        <div className="flex items-center justify-center py-12 text-muted-foreground">
+          <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Running full system audit (accounts + data lifecycle)...
         </div>
       ) : report && report.lifecycle ? (
         <>
@@ -141,18 +183,6 @@ export default function AppManagement() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {report.lifecycle.map((d) => (
                 <DataLifecycleBar key={d.dimension} dimension={d} />
-              ))}
-            </div>
-          </div>
-
-          {/* Managed Apps */}
-          <div>
-            <h2 className="text-sm font-semibold mb-2.5 flex items-center gap-2">
-              <Layers className="w-4 h-4" /> Managed Apps
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {report.managed_apps.map((app) => (
-                <AppCard key={app.id} app={app} />
               ))}
             </div>
           </div>
