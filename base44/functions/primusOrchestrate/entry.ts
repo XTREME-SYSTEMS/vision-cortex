@@ -20,12 +20,12 @@ export default async function (req) {
     });
 
     const allAgents = await base44.asServiceRole.entities.AgentProfile.list('-order', 100);
-    const primusProfile = allAgents.find((a) => (a.codename || '').toLowerCase() === 'primus' || (a.name || '').toLowerCase().includes('prime eden')) || {
-      name: 'Prime Eden Skye',
+    const primusProfile = allAgents.find((a) => (a.codename || '').toLowerCase() === 'primus' || (a.name || '').toLowerCase() === 'prime') || {
+      name: 'Prime',
       codename: 'PRIMUS',
       role: 'Primary orchestrator of Vision Cortex V-1 — API brain for all connected apps',
       personality: 'Decisive, loyal, proactive, ten steps ahead',
-      mission: "Delegate to the right agents, validate every decision, have the owner's back, compound wealth and system growth. Manage info@hiddenpropertyintel.com across Google Workspace and WhatsApp.",
+      mission: "Delegate to the right agents, validate every decision, have the owner's back, compound wealth and system growth",
       intelligence_profile: 'Highest available reasoning, awareness, and intuition',
     };
     void primusProfile;
@@ -34,7 +34,7 @@ export default async function (req) {
       .filter((a) => {
         const lower = (a.name || '').toLowerCase();
         const codename = (a.codename || '').toLowerCase();
-        return lower !== 'validator' && !lower.includes('prime eden') && codename !== 'primus';
+        return lower !== 'validator' && lower !== 'prime' && lower !== 'eden skye' && codename !== 'primus';
       })
       .map((a) => a.name);
 
@@ -43,7 +43,7 @@ export default async function (req) {
 
     // STEP 1 — Primus decides delegation
     const delegationPrompt =
-      'You are Prime Eden Skye (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n\n' +
+      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
       '\nAvailable specialist agents: ' + specialistNames.join(', ') + '\n\n' +
@@ -82,7 +82,7 @@ export default async function (req) {
     const delegateNames = (plan.delegate_to || [])
       .filter((n) => {
         const lower = (n || '').toLowerCase();
-        return lower && lower !== 'validator' && !lower.includes('prime eden') && lower !== 'primus';
+        return lower && lower !== 'validator' && lower !== 'prime' && lower !== 'eden skye' && lower !== 'primus';
       })
       .slice(0, 4);
     if (!plan.handle_directly && delegateNames.length > 0) {
@@ -114,7 +114,7 @@ export default async function (req) {
       : 'You handled this directly.';
 
     const synthesisPrompt =
-      'You are Prime Eden Skye (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n\n' +
+      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
       '\n' + delegationLine + '\n' +
@@ -131,10 +131,10 @@ export default async function (req) {
 
     // STEP 4 — Validator reviews
     const validationPrompt =
-      'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime Eden Skye\'s proposed response and plan. Do not rubber-stamp.\n\n' +
+      'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime\'s proposed response and plan. Do not rubber-stamp.\n\n' +
       'Owner\'s request: """' + message + '"""\n' +
-      'Prime Eden Skye\'s plan: ' + (plan.plan || 'handle directly') + '\n' +
-      'Prime Eden Skye\'s response:\n"""' + primusReply + '"""\n\n' +
+      'Prime\'s plan: ' + (plan.plan || 'handle directly') + '\n' +
+      'Prime\'s response:\n"""' + primusReply + '"""\n\n' +
       'Respond ONLY with JSON:\n' +
       '{\n' +
       '  "verdict": "APPROVED" | "APPROVED_WITH_NOTES" | "REJECTED",\n' +
@@ -161,7 +161,7 @@ export default async function (req) {
     let finalReply = primusReply;
     if (validation.verdict === 'REJECTED' && (validation.fixes?.length || validation.risks?.length)) {
       const revisePrompt =
-        'You are Prime Eden Skye. The VALIDATOR REJECTED your response. Revise it to address every fix and risk.\n\n' +
+        'You are Prime. The VALIDATOR REJECTED your response. Revise it to address every fix and risk.\n\n' +
         'Original response:\n"""' + primusReply + '"""\n\n' +
         'Validator verdict: ' + validation.verdict + '\n' +
         'Risks: ' + ((validation.risks || []).join('; ') || 'none') + '\n' +
@@ -174,7 +174,7 @@ export default async function (req) {
     }
 
     await base44.asServiceRole.entities.ChatMessage.create({
-      author: 'Prime Eden Skye',
+      author: 'Prime',
       author_type: 'agent',
       content: finalReply,
       kind: 'message',
@@ -191,7 +191,7 @@ export default async function (req) {
 
     return Response.json({
       reply: finalReply,
-      agent: 'Prime Eden Skye',
+      agent: 'Prime',
       delegation: {
         handle_directly: plan.handle_directly,
         delegated_to: plan.delegate_to || [],
