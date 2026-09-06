@@ -109,7 +109,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAgentsCard, setShowAgentsCard] = useState(false);
-  const [activeAgents, setActiveAgents] = useState([]);
+  const [activeAgents, setActiveAgents] = useState(['PRIMUS']);
 
   useEffect(() => {
     base44.auth.me().then((u) => setIsAdmin(u?.role === 'admin')).catch(() => {});
