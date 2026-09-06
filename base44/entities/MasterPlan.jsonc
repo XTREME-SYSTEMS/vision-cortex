@@ -1,0 +1,117 @@
+{
+  "name": "MasterPlan",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "vision": {
+      "type": "string",
+      "description": "The grand vision statement"
+    },
+    "protocol": {
+      "type": "string",
+      "description": "The full operating protocol \u2014 the constitution"
+    },
+    "architecture": {
+      "type": "string",
+      "description": "System architecture: 4-layer (Discover \u2192 Understand \u2192 Predict \u2192 Act), data plane, execution plane, build plane, control plane"
+    },
+    "competitive_benchmarks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "strength": {
+            "type": "string"
+          },
+          "pricing": {
+            "type": "string"
+          },
+          "what_xtreme_can_do_better": {
+            "type": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    "missions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "in_progress",
+              "complete",
+              "blocked"
+            ],
+            "default": "pending"
+          }
+        }
+      },
+      "default": []
+    },
+    "current_phase": {
+      "type": "string",
+      "default": "planning",
+      "description": "planning \u2192 executing \u2192 monitoring \u2192 evolving"
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planning",
+        "executing",
+        "monitoring",
+        "evolving"
+      ],
+      "default": "planning"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
