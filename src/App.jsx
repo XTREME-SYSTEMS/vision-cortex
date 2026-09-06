@@ -52,6 +52,7 @@ import XtremeAI from '@/pages/XtremeAI';
 import XtremeFactory from '@/pages/XtremeFactory';
 import XtremePerfection from '@/pages/XtremePerfection';
 import IntelligenceSeeker from '@/pages/IntelligenceSeeker';
+import FolderDetail from '@/pages/FolderDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -123,6 +124,7 @@ const AuthenticatedApp = () => {
           <Route path="/xtreme-factory" element={<XtremeFactory />} />
           <Route path="/xtreme-perfection" element={<XtremePerfection />} />
           <Route path="/intelligence" element={<IntelligenceSeeker />} />
+          <Route path="/folder/:id" element={<FolderDetail />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

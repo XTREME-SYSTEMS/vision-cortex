@@ -18,6 +18,7 @@ import SystemDnaBar from '@/components/SystemDnaBar';
 import NavGroup from '@/components/sidebar/NavGroup';
 import AgentsCard from '@/components/sidebar/AgentsCard';
 import UniversalChat from '@/components/chat/UniversalChat';
+import ProjectFolders from '@/components/sidebar/ProjectFolders';
 import { base44 } from '@/api/base44Client';
 
 const navGroups = [
@@ -128,6 +129,7 @@ export default function Layout() {
   };
 
   const isHome = pathname === '/' && !showAgentsCard;
+  const pageTitle = pathname.startsWith('/folder/') ? 'Project Folder' : pathname.replace('/', '').replace(/-/g, ' ');
 
   return (
     <div className="h-screen flex overflow-hidden bg-background text-foreground">
@@ -167,6 +169,7 @@ export default function Layout() {
             <NavGroup key={g.label} {...g} />
           ))}
           {isAdmin && <NavGroup {...adminNav} />}
+          <ProjectFolders />
         </nav>
 
         {/* Footer */}
@@ -179,46 +182,46 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main content + chat */}
+      {/* Main content — chat primary (ChatGPT-style), pages open in center */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <SystemDnaBar />
 
-        {/* Content card — top 2/3 */}
-        <div className="flex-[2] min-h-0 overflow-hidden p-3 sm:p-4">
-          <div className="h-full rounded-xl border border-border/60 bg-card shadow-sm flex flex-col overflow-hidden">
-            {/* Card header */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30">
-              <button
-                onClick={goHome}
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Back
-              </button>
-              <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium truncate px-2">
-                {showAgentsCard ? 'Agent Selection' : isHome ? 'Home' : pathname.replace('/', '')}
-              </span>
-              <button
-                onClick={goHome}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            {/* Card body */}
-            <div className="flex-1 overflow-y-auto">
-              {showAgentsCard ? (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          {showAgentsCard ? (
+            <div className="h-full flex flex-col">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30 shrink-0">
+                <button onClick={goHome} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <ChevronLeft className="w-4 h-4" /> Back
+                </button>
+                <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">Agent Selection</span>
+                <button onClick={goHome} className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
                 <AgentsCard activeAgents={activeAgents} onToggleAgent={toggleAgent} onClose={goHome} />
-              ) : (
-                <Outlet />
-              )}
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Chat — bottom 1/3 */}
-        <div className="flex-[1] min-h-0 border-t border-border/60">
-          <UniversalChat activeAgents={activeAgents} />
+          ) : isHome ? (
+            <UniversalChat activeAgents={activeAgents} />
+          ) : (
+            <div className="h-full flex flex-col">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30 shrink-0">
+                <button onClick={goHome} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  <ChevronLeft className="w-4 h-4" /> Back
+                </button>
+                <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium truncate px-2 capitalize">
+                  {pageTitle}
+                </span>
+                <button onClick={goHome} className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto">
+                <Outlet />
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

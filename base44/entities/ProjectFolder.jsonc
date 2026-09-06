@@ -1,0 +1,48 @@
+{
+  "name": "ProjectFolder",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Project folder name"
+    },
+    "description": {
+      "type": "string",
+      "default": "",
+      "description": "What this project folder is about"
+    },
+    "color": {
+      "type": "string",
+      "default": "blue",
+      "enum": [
+        "blue",
+        "green",
+        "purple",
+        "amber",
+        "rose",
+        "slate"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
