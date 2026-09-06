@@ -1,0 +1,194 @@
+{
+  "name": "DeepRun",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique run identifier (RUN-<timestamp>)"
+    },
+    "spec_id": {
+      "type": "string",
+      "description": "The DeepSpec.spec_id that was executed"
+    },
+    "spec_version": {
+      "type": "string",
+      "description": "Version of the spec at execution time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "passed",
+        "failed",
+        "repairable",
+        "critical"
+      ],
+      "default": "running"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": [
+        "vision",
+        "strategy",
+        "document",
+        "implement",
+        "build",
+        "validate"
+      ],
+      "default": "validate"
+    },
+    "states_executed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "state_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "skipped"
+            ]
+          },
+          "score": {
+            "type": "number"
+          },
+          "duration_ms": {
+            "type": "number"
+          },
+          "output": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Ordered results of each state machine state"
+    },
+    "llm_slot_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slot_name": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "validated": {
+            "type": "boolean"
+          },
+          "score": {
+            "type": "number"
+          },
+          "tokens_used": {
+            "type": "number"
+          },
+          "used_fallback": {
+            "type": "boolean"
+          }
+        }
+      },
+      "default": []
+    },
+    "aggregate_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0,
+      "description": "Weighted score 0-1 across all states and slots"
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "True ONLY when aggregate_score === 1.00 (the parity gate)"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "REPAIRABLE",
+        "CRITICAL"
+      ],
+      "default": "REPAIRABLE"
+    },
+    "failed_states": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "cost_credits_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Total integration credits consumed by this run"
+    },
+    "cost_within_budget": {
+      "type": "boolean",
+      "default": true
+    },
+    "triggered_by": {
+      "type": "string",
+      "enum": [
+        "cron",
+        "manual",
+        "agent",
+        "webhook",
+        "self_heal"
+      ],
+      "default": "cron"
+    },
+    "replayable": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this run can be deterministically reproduced"
+    },
+    "input_hash": {
+      "type": "string",
+      "description": "Hash of the input state \u2014 same hash + same spec version = same result"
+    },
+    "started_at": {
+      "type": "string"
+    },
+    "completed_at": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "run_id",
+    "spec_id"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

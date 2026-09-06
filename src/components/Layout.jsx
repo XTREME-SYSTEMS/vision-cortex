@@ -29,6 +29,7 @@ const navGroups = [
     icon: LayoutDashboard,
     defaultOpen: true,
     items: [
+      { to: '/blueprint', label: 'Blueprint', icon: BookOpen },
       { to: '/vision', label: 'Vision', icon: Radar },
       { to: '/', label: 'Opportunities', icon: LayoutDashboard },
       { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },

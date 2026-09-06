@@ -1,0 +1,202 @@
+{
+  "name": "DeepSpec",
+  "type": "object",
+  "properties": {
+    "spec_id": {
+      "type": "string",
+      "description": "Unique machine-readable identifier (e.g. deep.system_audit.v1)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable title of the state machine"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Semver version of this spec"
+    },
+    "spec_type": {
+      "type": "string",
+      "enum": [
+        "vision",
+        "strategy",
+        "document",
+        "implement",
+        "build",
+        "validate",
+        "audit",
+        "enrich",
+        "clean",
+        "normalize",
+        "monetize",
+        "market",
+        "scrape",
+        "discover",
+        "acquire",
+        "sell",
+        "heal",
+        "optimize",
+        "evolve"
+      ],
+      "default": "vision",
+      "description": "Which stage of the evolving document lifecycle this spec covers"
+    },
+    "parent_spec_id": {
+      "type": "string",
+      "description": "The spec this evolves from (vision \u2192 strategy \u2192 document \u2192 implement \u2192 build \u2192 validate)"
+    },
+    "lifecycle_stage": {
+      "type": "string",
+      "enum": [
+        "vision",
+        "strategy",
+        "document",
+        "implement",
+        "build",
+        "validate"
+      ],
+      "default": "vision",
+      "description": "Current stage in the 6-stage evolving document lifecycle"
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entry_condition": {
+            "type": "string"
+          },
+          "transition": {
+            "type": "string"
+          },
+          "gate": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Ordered finite state machine states"
+    },
+    "llm_slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "state_id": {
+            "type": "string"
+          },
+          "input_schema": {
+            "type": "object"
+          },
+          "output_schema": {
+            "type": "object"
+          },
+          "model": {
+            "type": "string"
+          },
+          "token_budget": {
+            "type": "number"
+          }
+        }
+      },
+      "default": [],
+      "description": "Declared LLM slots \u2014 the only places an LLM may run, with strict schemas"
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "state_id": {
+            "type": "string"
+          },
+          "min_score": {
+            "type": "number"
+          },
+          "on_fail": {
+            "type": "string",
+            "enum": [
+              "retry",
+              "escalate",
+              "abort"
+            ],
+            "default": "retry"
+          },
+          "max_retries": {
+            "type": "number",
+            "default": 3
+          }
+        }
+      },
+      "default": [],
+      "description": "Validation gates \u2014 deterministic pass/fail thresholds"
+    },
+    "score_target": {
+      "type": "number",
+      "default": 1.0,
+      "description": "The perfection target (1.00 = 100% parity gate)"
+    },
+    "cost_budget_credits": {
+      "type": "number",
+      "default": 0,
+      "description": "Max integration credits this spec may consume per run"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "deprecated",
+        "failed"
+      ],
+      "default": "draft"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full machine-readable spec as JSON string (the compiled SOP)"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this state machine does and why it exists"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "spec_id",
+    "title",
+    "spec_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
