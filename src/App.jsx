@@ -58,6 +58,7 @@ import AppManagement from '@/pages/AppManagement';
 import CommandCenter from '@/pages/CommandCenter';
 import Vault from '@/pages/Vault';
 import Vision from '@/pages/Vision';
+import CloneFactory from '@/pages/CloneFactory';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -135,6 +136,7 @@ const AuthenticatedApp = () => {
           <Route path="/command" element={<CommandCenter />} />
           <Route path="/vault" element={<Vault />} />
           <Route path="/vision" element={<Vision />} />
+          <Route path="/clone-factory" element={<CloneFactory />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
