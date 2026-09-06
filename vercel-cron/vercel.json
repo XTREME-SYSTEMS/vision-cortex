@@ -3,6 +3,10 @@
     {
       "path": "/api/heartbeat",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/swarm-discover",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
