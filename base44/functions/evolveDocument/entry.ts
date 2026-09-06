@@ -7,7 +7,7 @@ import { secrets } from 'base44:runtime';
 // The Codex Keeper agent is responsible for invoking this.
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'openai/gpt-oss-120b';
+const GROQ_MODELS = ['openai/gpt-oss-120b'];
 
 async function groqEvolve(sourceDoc, dependentDoc) {
   const key = secrets.get('GROQ_API_KEY');
@@ -30,23 +30,35 @@ INSTRUCTIONS:
 4. If the source change does not affect this document, return the content unchanged
 5. Output ONLY the complete updated document content in markdown — no explanations, no preamble`;
 
-  const res = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        { role: 'system', content: 'You are the Codex Keeper — guardian of the Vision Cortex document ecosystem. You ensure all system documents remain consistent when any document changes. You output only updated document content in markdown, never explanations.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1,
-      max_tokens: 4000
-    })
-  });
+  // Try primary model, fall back to secondary on rate limit
+  for (const model of GROQ_MODELS) {
+    try {
+      const res = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: 'You are the Codex Keeper — guardian of the Vision Cortex document ecosystem. You ensure all system documents remain consistent when any document changes. You output only updated document content in markdown, never explanations.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.1,
+          max_tokens: 4000
+        })
+      });
 
-  if (!res.ok) { const err = await res.text(); throw new Error(`Groq error: ${err}`); }
-  const data = await res.json();
-  return data.choices[0].message.content;
+      if (!res.ok) {
+        const err = await res.text();
+        if (err.includes('rate_limit') && model !== GROQ_MODELS[GROQ_MODELS.length - 1]) continue;
+        throw new Error(`Groq error: ${err}`);
+      }
+      const data = await res.json();
+      return data.choices[0].message.content;
+    } catch (e) {
+      if (model === GROQ_MODELS[GROQ_MODELS.length - 1]) throw e;
+    }
+  }
+  throw new Error('All Groq models failed');
 }
 
 async function groqValidate(documents) {
@@ -80,6 +92,9 @@ Return JSON: {"validation_score": 0.0-1.0, "inconsistencies": ["issue1", "issue2
   const data = await res.json();
   return JSON.parse(data.choices[0].message.content);
 }
+
+// Use primary model for validate (lower token usage)
+const GROQ_MODEL = GROQ_MODELS[0];
 
 function bumpVersion(version) {
   const parts = (version || '1.0.0').split('.').map(Number);
@@ -232,7 +247,7 @@ export default async function(req) {
       cascaded_count: cascaded.length,
       validation_score: validationScore,
       zero_credit: true,
-      groq_model: GROQ_MODEL
+      groq_models: GROQ_MODELS
     });
   } catch (error) {
     return Response.json({ error: error.message, zero_credit: true, timestamp: new Date().toISOString() }, { status: 500 });

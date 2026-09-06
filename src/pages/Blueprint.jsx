@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { BookOpen, Radar, Layers, Shield, Brain, Zap, Target, Activity, Eye, Cpu, RefreshCw } from 'lucide-react';
+import { BookOpen, Radar, Layers, Shield, Brain, Zap, Target, Activity, Eye, Cpu, RefreshCw, GitBranch } from 'lucide-react';
 import DeepProtocol from '@/components/blueprint/DeepProtocol';
 import Governance from '@/components/blueprint/Governance';
 import DeepSpecRegistry from '@/components/blueprint/DeepSpecRegistry';

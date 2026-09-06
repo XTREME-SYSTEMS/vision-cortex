@@ -22,12 +22,31 @@
     },
     {
       "function_name": "bootstrapCoreDocuments",
-      "description": "Bootstrap all 16 core documents for the Vision Cortex foundation \u2014 call when documents are missing or need to be re-seeded"
+      "description": "Bootstrap all 16 core documents for the Vision Cortex foundation"
     },
     {
       "function_name": "evolveDocument",
-      "description": "Trigger document evolution cascade from a source document, or validate the entire ecosystem with mode=validate"
+      "description": "Trigger document evolution cascade from a source document, or validate the ecosystem"
     }
   ],
+  "context_files": [],
+  "app_user_connector_configs": [],
+  "selected_skill_names": [],
+  "selected_workspace_skill_ids": [],
+  "model": "automatic",
+  "whatsapp_greeting": null,
+  "telegram_greeting": null,
+  "line_greeting": null,
+  "memory_config": {
+    "enabled": true,
+    "scope": "both",
+    "include_other_conversation_context": false,
+    "instructions": null
+  },
+  "voice_config": {
+    "voice_id": null
+  },
+  "emails_settings": null,
+  "allow_anonymous_access": false,
   "name": "codex_keeper"
 }
