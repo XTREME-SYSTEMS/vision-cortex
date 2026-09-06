@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // Vercel cron calls this every 10 minutes — it triggers the Vision Cortex autonomous heartbeat
-  const HEARTBEAT_URL = process.env.VISION_CORTEX_HEARTBEAT_URL || 'https://visioncortex.base44.app/functions/autonomousHeartbeat';
+  const HEARTBEAT_URL = process.env.VISION_CORTEX_HEARTBEAT_URL || 'https://visioncortex.base44.app/functions/masterAutonomousCycle';
   const CRON_TOKEN = process.env.VISION_CORTEX_WEBHOOK_KEY;
 
   if (!CRON_TOKEN) {
