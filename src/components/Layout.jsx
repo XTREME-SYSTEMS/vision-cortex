@@ -8,7 +8,7 @@ import {
   Workflow, Rocket, Megaphone, Globe,
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
-  EyeOff,
+  EyeOff, Server,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -95,14 +95,15 @@ const navGroups = [
 ];
 
 const adminNav = {
-  label: 'Admin',
-  icon: EyeOff,
-  items: [
-    { to: '/factory', label: 'Factory', icon: Factory },
-    { to: '/autonomous', label: 'Autonomous', icon: Bot },
-    { to: '/shadow', label: 'Shadow', icon: EyeOff },
-  ],
-};
+    label: 'Admin',
+    icon: EyeOff,
+    items: [
+      { to: '/management', label: 'App Management', icon: Server },
+      { to: '/factory', label: 'Factory', icon: Factory },
+      { to: '/autonomous', label: 'Autonomous', icon: Bot },
+      { to: '/shadow', label: 'Shadow', icon: EyeOff },
+    ],
+  };
 
 export default function Layout() {
   const { pathname } = useLocation();

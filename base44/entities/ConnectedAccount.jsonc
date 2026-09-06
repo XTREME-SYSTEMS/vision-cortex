@@ -1,0 +1,96 @@
+{
+  "name": "ConnectedAccount",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Friendly label for the account"
+    },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "vercel",
+        "supabase",
+        "railway",
+        "groq",
+        "google_drive",
+        "google_search_console",
+        "google_calendar",
+        "stripe",
+        "cloud_browser",
+        "base44",
+        "xtreme_builder"
+      ],
+      "description": "Which external service this account connects to"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "degraded",
+        "disconnected",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "health_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 connectivity health"
+    },
+    "last_check": {
+      "type": "string"
+    },
+    "last_error": {
+      "type": "string",
+      "default": ""
+    },
+    "details": {
+      "type": "object",
+      "properties": {
+        "plan": {
+          "type": "string"
+        },
+        "usage": {
+          "type": "string"
+        },
+        "limits": {
+          "type": "string"
+        },
+        "projects": {
+          "type": "number"
+        },
+        "email": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "auto_managed": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "account_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -54,6 +54,7 @@ import XtremePerfection from '@/pages/XtremePerfection';
 import IntelligenceSeeker from '@/pages/IntelligenceSeeker';
 import FolderDetail from '@/pages/FolderDetail';
 import OAuthConsent from '@/pages/OAuthConsent';
+import AppManagement from '@/pages/AppManagement';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -127,6 +128,7 @@ const AuthenticatedApp = () => {
           <Route path="/xtreme-perfection" element={<XtremePerfection />} />
           <Route path="/intelligence" element={<IntelligenceSeeker />} />
           <Route path="/folder/:id" element={<FolderDetail />} />
+          <Route path="/management" element={<AppManagement />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
