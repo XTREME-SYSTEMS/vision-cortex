@@ -135,6 +135,36 @@
         },
         "handler": "freeIntelligenceGatherer",
         "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
+      },
+      {
+        "name": "run_master_cycle",
+        "title": "Run Master Autonomous Cycle",
+        "description": "Trigger the full 6-phase autonomous loop across ALL managed systems: audit (live-fetch all sites + read internal systems), analyze (identify top priorities), fix (create enhancement tickets), heal (update scores + create healing actions), harden (security recommendations), optimize (push toward 100). Runs on free Groq LLM. No input required.",
+        "input_schema": {
+          "type": "object",
+          "properties": {}
+        },
+        "handler": "masterAutonomousCycle",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": true }
+      },
+      {
+        "name": "system_sync",
+        "title": "Bi-Directional System Sync",
+        "description": "Bi-directional sync endpoint for connected systems. Actions: 'status' (get all system/site health scores), 'instructions' (pull pending enhancement tickets for a specific system), 'report' (mark an enhancement as implemented/failed), 'register' (register a new site to be monitored), 'heartbeat' (ping). Other apps use this to stay in sync with Vision Cortex — pull their instructions, report implementations, and check their scores.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action": { "type": "string", "enum": ["status", "instructions", "report", "register", "heartbeat"], "description": "The sync action to perform" },
+            "system_name": { "type": "string", "description": "For 'instructions' action: the name of your system to pull pending enhancements for" },
+            "enhancement_id": { "type": "string", "description": "For 'report' action: the ID of the enhancement to update" },
+            "status": { "type": "string", "enum": ["implemented", "validating", "failed", "blocked"], "description": "For 'report' action: the new status" },
+            "notes": { "type": "string", "description": "For 'report' action: implementation notes or failure reason" },
+            "site_data": { "type": "object", "description": "For 'register' action: { name, url, github_repo }" }
+          },
+          "required": ["action"]
+        },
+        "handler": "systemSync",
+        "annotations": { "read_only_hint": false, "destructive_hint": false, "idempotent_hint": false }
       }
     ]
   }
