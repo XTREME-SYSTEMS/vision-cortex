@@ -15,6 +15,7 @@ import OpportunityFeed from '@/components/dashboard/OpportunityFeed';
 import AutonomousActions from '@/components/dashboard/AutonomousActions';
 import KanbanBoard from '@/components/dashboard/KanbanBoard';
 import AutoRunStatus from '@/components/dashboard/AutoRunStatus';
+import SwarmProgressTimeline from '@/components/dashboard/SwarmProgressTimeline';
 import GoogleCalendarEmbed from '@/components/GoogleCalendarEmbed';
 
 export default function Dashboard() {
@@ -61,6 +62,8 @@ export default function Dashboard() {
       </div>
 
       <AutoRunStatus />
+
+      <SwarmProgressTimeline />
 
       <DestinyLoop />
       <DriftAlerts />
