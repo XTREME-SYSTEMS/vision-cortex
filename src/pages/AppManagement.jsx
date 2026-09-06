@@ -73,7 +73,7 @@ export default function AppManagement() {
         <div className="flex items-center justify-center py-20 text-muted-foreground">
           <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Running full system audit...
         </div>
-      ) : report ? (
+      ) : report && report.lifecycle ? (
         <>
           {/* Verdict banner */}
           <div className={`rounded-xl border p-4 flex items-center justify-between ${verdictColor}`}>
@@ -86,7 +86,7 @@ export default function AppManagement() {
             </div>
             <div className="text-right">
               <div className="text-lg font-bold">{report.verdict}</div>
-              <div className="text-xs opacity-80">{report.lifecycle.filter(d => d.status === 'healthy').length} healthy / {report.lifecycle.length} dimensions</div>
+              <div className="text-xs opacity-80">{(report.lifecycle || []).filter(d => d.status === 'healthy').length} healthy / {(report.lifecycle || []).length} dimensions</div>
             </div>
           </div>
 
