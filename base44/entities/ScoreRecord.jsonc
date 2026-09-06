@@ -1,0 +1,102 @@
+{
+  "name": "ScoreRecord",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Pipeline run identifier (e.g. RUN-1693...)"
+    },
+    "target_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The original target site being cloned"
+    },
+    "clone_url": {
+      "type": "string",
+      "description": "Deployed clone URL"
+    },
+    "visual_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0
+    },
+    "functional_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0
+    },
+    "aggregate_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0
+    },
+    "is_approved": {
+      "type": "boolean",
+      "default": false,
+      "description": "True only when aggregate_score === 1.00 (parity gate)"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "PASS",
+        "REPAIRABLE",
+        "CRITICAL"
+      ],
+      "default": "REPAIRABLE"
+    },
+    "failed_nodes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "missing_routes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "recommended_fix_action": {
+      "type": "string",
+      "enum": [
+        "NONE",
+        "INJECT_MOCK_FALLBACK",
+        "TRIGGER_ENGINE_RECOMPILE"
+      ],
+      "default": "NONE"
+    },
+    "stage_reached": {
+      "type": "number",
+      "default": 0,
+      "description": "Highest pipeline stage reached (1-5)"
+    }
+  },
+  "required": [
+    "run_id",
+    "target_url",
+    "aggregate_score"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

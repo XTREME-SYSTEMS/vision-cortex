@@ -1,0 +1,97 @@
+{
+  "name": "SystemGap",
+  "type": "object",
+  "properties": {
+    "gap_type": {
+      "type": "string",
+      "enum": [
+        "TRADEMARK",
+        "COPYRIGHT",
+        "LOGO",
+        "ASSET_REFERENCE",
+        "BRAND_COLOR",
+        "TYPOGRAPHY"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "warning",
+        "info"
+      ],
+      "default": "warning"
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "selector": {
+      "type": "string",
+      "description": "CSS selector where the gap was detected"
+    },
+    "matched_value": {
+      "type": "string",
+      "description": "The original trademark/copyright/logo text found"
+    },
+    "replacement_value": {
+      "type": "string",
+      "description": "The rebranded replacement value"
+    },
+    "scan_mode": {
+      "type": "string",
+      "enum": [
+        "TRADEMARK_SCAN",
+        "COPYRIGHT_ISOLATION",
+        "LOGO_VECTOR_EXTRACTION"
+      ],
+      "default": "TRADEMARK_SCAN"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "detected",
+        "queued",
+        "replaced",
+        "ignored"
+      ],
+      "default": "detected"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "stage_1_exact_clone",
+        "stage_2_compliance_and_rebrand_scan",
+        "stage_3_interactive_rebrand_gate",
+        "stage_4_optimization_injection",
+        "stage_5_ecosystem_egress"
+      ],
+      "default": "stage_2_compliance_and_rebrand_scan"
+    },
+    "run_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "gap_type",
+    "source_url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

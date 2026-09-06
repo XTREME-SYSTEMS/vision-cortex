@@ -1,0 +1,72 @@
+{
+  "name": "SitemapIngestion",
+  "type": "object",
+  "properties": {
+    "domain": {
+      "type": "string",
+      "description": "The domain being indexed (e.g. my-clone.com)"
+    },
+    "sitemap_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL of the submitted XML sitemap"
+    },
+    "property_url": {
+      "type": "string",
+      "description": "Search Console property identifier (sc-domain: or https://)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SUBMITTED",
+        "VERIFIED",
+        "FAILED"
+      ],
+      "default": "SUBMITTED"
+    },
+    "ownership_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "dns_record_inserted": {
+      "type": "boolean",
+      "default": false
+    },
+    "dns_provider": {
+      "type": "string",
+      "enum": [
+        "CLOUDFLARE",
+        "VERCEL",
+        "ROUTE53",
+        "NONE"
+      ],
+      "default": "NONE"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Pipeline run that triggered this ingestion"
+    }
+  },
+  "required": [
+    "domain",
+    "sitemap_url"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
