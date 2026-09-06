@@ -98,6 +98,7 @@ const adminNav = {
     label: 'Admin',
     icon: EyeOff,
     items: [
+      { to: '/command', label: 'Command Center', icon: Radar },
       { to: '/management', label: 'App Management', icon: Server },
       { to: '/factory', label: 'Factory', icon: Factory },
       { to: '/autonomous', label: 'Autonomous', icon: Bot },
