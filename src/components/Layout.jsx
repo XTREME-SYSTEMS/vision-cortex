@@ -15,6 +15,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
 import StatusCenter from '@/components/StatusCenter';
+import AgentRow from '@/components/AgentRow';
 import SidebarActions from '@/components/sidebar/SidebarActions';
 import NavGroup from '@/components/sidebar/NavGroup';
 import AgentsCard from '@/components/sidebar/AgentsCard';
@@ -190,6 +191,7 @@ export default function Layout() {
           <ThemeToggle />
         </div>
         <StatusCenter />
+        <AgentRow activeAgents={activeAgents} onToggleAgent={toggleAgent} />
 
         <div className="flex-1 min-h-0 overflow-hidden">
           {showAgentsCard ? (
