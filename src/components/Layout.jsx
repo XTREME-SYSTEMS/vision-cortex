@@ -8,7 +8,7 @@ import {
   Workflow, Rocket, Megaphone, Globe,
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
-  EyeOff, Server, Lock,
+  EyeOff, Server, Lock, Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -77,6 +77,7 @@ const navGroups = [
     items: [
       { to: '/xtreme-ai', label: 'Xtreme AI', icon: Cpu },
       { to: '/clone-factory', label: 'Clone Factory', icon: Factory },
+      { to: '/zero-credit', label: 'Zero-Credit Engine', icon: Zap },
       { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
       { to: '/xtreme-perfection', label: 'Xtreme Perfection', icon: Brain },
     ],

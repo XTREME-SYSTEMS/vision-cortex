@@ -59,6 +59,7 @@ import CommandCenter from '@/pages/CommandCenter';
 import Vault from '@/pages/Vault';
 import Vision from '@/pages/Vision';
 import CloneFactory from '@/pages/CloneFactory';
+import ZeroCreditEngine from '@/pages/ZeroCreditEngine';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -137,6 +138,7 @@ const AuthenticatedApp = () => {
           <Route path="/vault" element={<Vault />} />
           <Route path="/vision" element={<Vision />} />
           <Route path="/clone-factory" element={<CloneFactory />} />
+          <Route path="/zero-credit" element={<ZeroCreditEngine />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
