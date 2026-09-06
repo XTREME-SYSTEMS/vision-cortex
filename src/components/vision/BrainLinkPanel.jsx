@@ -52,6 +52,7 @@ export default function BrainLinkPanel() {
   };
 
   const brainConnected = brainStatus?.status === 'connected';
+  const brainKeyMismatch = brainStatus?.status === 'key_mismatch';
   const engineHealthy = engineStatus?.status === 'healthy';
 
   return (
@@ -108,25 +109,33 @@ export default function BrainLinkPanel() {
         </div>
 
         {/* Brain Connection */}
-        <div className={cn('rounded-lg border p-3', brainConnected ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-amber-500/30 bg-amber-500/5')}>
+        <div className={cn('rounded-lg border p-3',
+          brainConnected ? 'border-emerald-500/30 bg-emerald-500/5'
+          : brainKeyMismatch ? 'border-rose-500/30 bg-rose-500/5'
+          : 'border-amber-500/30 bg-amber-500/5')}>
           <div className="flex items-center gap-2 mb-1.5">
             <Brain className="w-4 h-4" />
             <span className="text-xs font-medium">Brain Connection</span>
             {brainConnected
               ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-auto" />
-              : <AlertCircle className="w-3.5 h-3.5 text-amber-500 ml-auto" />}
+              : <AlertCircle className="w-3.5 h-3.5 text-rose-500 ml-auto" />}
           </div>
           <div className="text-[11px] text-muted-foreground">
             {brainStatus?.brain_url || 'Not configured'}
           </div>
-          <div className={cn('text-[10px] mt-1', brainConnected ? 'text-emerald-600' : 'text-amber-600')}>
+          <div className={cn('text-[10px] mt-1',
+            brainConnected ? 'text-emerald-600'
+            : brainKeyMismatch ? 'text-rose-600'
+            : 'text-amber-600')}>
             {brainConnected
               ? 'Connected · keys match'
-              : brainStatus?.checks?.brain_reachable
-                ? 'Reachable but keys may not match'
-                : brainStatus?.checks?.brain_url_set
-                  ? 'Not reachable — Brain offline or brainHealth missing'
-                  : 'Not configured'}
+              : brainKeyMismatch
+                ? 'Reachable but API key rejected (401) — keys must match Brain'
+                : brainStatus?.checks?.brain_reachable
+                  ? 'Reachable but keys may not match'
+                  : brainStatus?.checks?.brain_url_set
+                    ? 'Not reachable — Brain offline'
+                    : 'Not configured'}
           </div>
         </div>
       </div>

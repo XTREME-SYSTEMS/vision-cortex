@@ -34,25 +34,10 @@ export default async function(req) {
       });
     }
 
-    // Test 1: Brain health endpoint
-    try {
-      const res = await fetch(`${brainUrl}/functions/brainHealth`, {
-        headers: { 'x-eyes-api-key': brainKey },
-        signal: AbortSignal.timeout(10000),
-      });
-      checks.brain_reachable = res.ok;
-      checks.brain_health_found = res.ok;
-      if (res.status === 401) {
-        checks.keys_match = false;
-        checks.brain_reachable = true; // reachable but wrong key
-      } else if (res.ok) {
-        checks.keys_match = true;
-      }
-    } catch (e) {
-      checks.brain_reachable = false;
-    }
-
-    // Test 2: syncFromEyes endpoint (should return 401 without proper key, 400 with key but no body)
+    // Test 1: Probe syncFromEyes — this is the actual sync endpoint on the Brain.
+    // A 401 means wrong key (reachable but keys don't match).
+    // A 200/400 means the key was accepted (keys match) — 400 just means bad payload.
+    // A 404 means the function doesn't exist on the Brain.
     try {
       const res = await fetch(`${brainUrl}/functions/syncFromEyes`, {
         method: 'POST',
@@ -64,20 +49,31 @@ export default async function(req) {
         signal: AbortSignal.timeout(10000),
       });
       checks.sync_from_eyes_found = res.status !== 404;
+      checks.brain_reachable = res.status !== 404;
+      if (res.status === 401) {
+        checks.keys_match = false;
+      } else if (res.status === 200 || res.status === 400 || res.status === 422) {
+        checks.keys_match = true;
+      }
     } catch {
       checks.sync_from_eyes_found = false;
+      checks.brain_reachable = false;
     }
 
-    const allGood = checks.brain_url_set && checks.brain_api_key_set && checks.brain_reachable && checks.keys_match;
+    let status = 'issues';
+    let message = '';
+    if (checks.brain_url_set && checks.brain_api_key_set && checks.brain_reachable && checks.keys_match) {
+      status = 'connected';
+      message = 'Brain is reachable and keys match — bi-directional sync is ready';
+    } else if (checks.brain_reachable && !checks.keys_match) {
+      status = 'key_mismatch';
+      message = 'Brain is reachable but the API key is rejected (401). Ensure VISION_CORTEX_BRAIN_API_KEY matches the Brain\'s inbound key.';
+    } else if (!checks.brain_reachable) {
+      status = 'unreachable';
+      message = 'Brain is not reachable — check VISION_CORTEX_BRAIN_URL or Brain app status';
+    }
 
-    return Response.json({
-      status: allGood ? 'connected' : 'issues',
-      checks,
-      brain_url: brainUrl,
-      message: allGood
-        ? 'Brain is reachable and keys match — bi-directional sync is ready'
-        : 'See checks for issues — Brain may need brainHealth function or keys may not match',
-    });
+    return Response.json({ status, checks, brain_url: brainUrl, message });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
