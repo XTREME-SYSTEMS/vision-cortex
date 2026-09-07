@@ -65,6 +65,7 @@ import Blueprint from '@/pages/Blueprint';
 import Company from '@/pages/Company';
 import SystemRegistry from '@/pages/SystemRegistry';
 import Swarms from '@/pages/Swarms';
+import PreflightSensory from '@/pages/PreflightSensory';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -149,6 +150,7 @@ const AuthenticatedApp = () => {
           <Route path="/company" element={<Company />} />
           <Route path="/registry" element={<SystemRegistry />} />
           <Route path="/swarms" element={<Swarms />} />
+          <Route path="/preflight" element={<PreflightSensory />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
