@@ -66,6 +66,7 @@ import Company from '@/pages/Company';
 import SystemRegistry from '@/pages/SystemRegistry';
 import Swarms from '@/pages/Swarms';
 import PreflightSensory from '@/pages/PreflightSensory';
+import CloudBrowserPipeline from '@/pages/CloudBrowserPipeline';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -151,6 +152,7 @@ const AuthenticatedApp = () => {
           <Route path="/registry" element={<SystemRegistry />} />
           <Route path="/swarms" element={<Swarms />} />
           <Route path="/preflight" element={<PreflightSensory />} />
+          <Route path="/scrape" element={<CloudBrowserPipeline />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
