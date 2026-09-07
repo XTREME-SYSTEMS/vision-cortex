@@ -42,7 +42,7 @@ export default function Company() {
     setActionLoading(true);
     try {
       const res = await base44.functions.invoke('companyOrchestrator', { action });
-      if (action === 'bootstrap' || action === 'trigger' || action === 'schedule_calendar') {
+      if (action === 'bootstrap' || action === 'trigger' || action === 'schedule_calendar' || action === 'sync_tasks') {
         await load();
       }
       return res;

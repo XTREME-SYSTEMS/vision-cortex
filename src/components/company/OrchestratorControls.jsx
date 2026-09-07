@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Rocket, Zap, Calendar, MessageSquare, Loader2, Play, RefreshCw } from 'lucide-react';
+import { Rocket, Zap, Calendar, MessageSquare, Loader2, Play, RefreshCw, ListChecks } from 'lucide-react';
 
 export default function OrchestratorControls({ onAction, loading }) {
   const [result, setResult] = useState(null);
@@ -39,6 +39,15 @@ export default function OrchestratorControls({ onAction, loading }) {
         >
           {loading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Calendar className="w-3.5 h-3.5 mr-1.5" />}
           Schedule in Calendar
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handle('sync_tasks')}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ListChecks className="w-3.5 h-3.5 mr-1.5" />}
+          Sync to Google Tasks
         </Button>
         <Button
           size="sm"

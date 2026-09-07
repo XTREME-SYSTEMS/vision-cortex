@@ -493,6 +493,109 @@ export default async function(req) {
       return Response.json({ ok: true, action: 'schedule_calendar', scheduled, total: schedules.length });
     }
 
+    // ── SYNC_TASKS: Push all scheduled agent tasks to Google Tasks ──
+    if (action === 'sync_tasks') {
+      const allScheduled = await sr.AgentSchedule.filter({ status: 'scheduled' }, '-created_date', 100).catch(() => []);
+      const schedules = allScheduled.filter(s => !s.google_task_id);
+      if (schedules.length === 0) {
+        return Response.json({ ok: true, action: 'sync_tasks', synced: 0, message: 'No unsynced scheduled tasks found.' });
+      }
+
+      let tasksConn = null;
+      try {
+        tasksConn = await base44.asServiceRole.connectors.getConnection('googletasks');
+      } catch {
+        return Response.json({ error: 'Google Tasks not connected. Authorize the googletasks connector first.' }, { status: 400 });
+      }
+      const accessToken = tasksConn.accessToken;
+
+      // Find or create a "Vision Cortex Agents" task list
+      let taskListId = '';
+      let quotaError = false;
+      try {
+        const listsRes = await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists', {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (listsRes.ok) {
+          const listsData = await listsRes.json();
+          const existing = listsData.items?.find(l => l.title === 'Vision Cortex Agents');
+          if (existing) taskListId = existing.id;
+        } else if (listsRes.status === 429) {
+          quotaError = true;
+        }
+      } catch {}
+
+      if (!taskListId && !quotaError) {
+        try {
+          const createListRes = await fetch('https://tasks.googleapis.com/tasks/v1/users/@me/lists', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: 'Vision Cortex Agents' })
+          });
+          if (createListRes.ok) {
+            const newList = await createListRes.json();
+            taskListId = newList.id;
+          } else if (createListRes.status === 429) {
+            quotaError = true;
+          }
+        } catch {}
+      }
+
+      if (quotaError) {
+        return Response.json({
+          ok: false,
+          action: 'sync_tasks',
+          error: 'Google Tasks API daily quota exceeded. The quota resets every 24 hours — try again later today or tomorrow.',
+          pending_tasks: schedules.length
+        }, { status: 429 });
+      }
+
+      if (!taskListId) {
+        return Response.json({ error: 'Failed to create or find Google Tasks list' }, { status: 500 });
+      }
+
+      // Save the task list ID on the first task for reuse
+      let synced = 0;
+      let failed = 0;
+      for (const task of schedules.slice(0, 40)) {
+        try {
+          const dueDate = task.scheduled_end || task.scheduled_start;
+          const taskBody = {
+            title: `[${task.agent_name}] ${task.task_title}`,
+            notes: `${task.task_description || ''}\n\nPhase: ${task.playbook_phase}\nCategory: ${task.task_category}\nSystem: ${task.system_target || 'vision_cortex'}\nPayment: ${task.payment_amount} INF`,
+            due: dueDate ? new Date(dueDate).toISOString() : undefined,
+            status: 'needsAction'
+          };
+          const createRes = await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${taskListId}/tasks`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(taskBody)
+          });
+          if (createRes.ok) {
+            const created = await createRes.json();
+            await sr.AgentSchedule.update(task.id, {
+              google_task_id: created.id,
+              task_list_id: taskListId
+            });
+            synced++;
+          } else {
+            failed++;
+          }
+        } catch {
+          failed++;
+        }
+      }
+
+      return Response.json({
+        ok: true,
+        action: 'sync_tasks',
+        synced,
+        failed,
+        task_list_id: taskListId,
+        total_pending: schedules.length
+      });
+    }
+
     // ── WHATSAPP: Send proactive notification ──
     if (action === 'whatsapp') {
       const { message, phone } = body;
