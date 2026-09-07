@@ -22,31 +22,33 @@ export default async function (req) {
     const contextBlock = context ? '\nConversation context:\n"""' + context + '"""\n' : '';
 
     const prompt =
-      'You are PRIMUS running the Vision Cortex Simulation Engine. The owner wants to simulate a topic under discussion. Produce a rigorous, multi-scenario simulation.\n\n' +
-      'Topic to simulate: """' + topic + '"""\n' +
+      'You are PRIMUS running the Vision Cortex Decision Engine. The owner wants to simulate a topic and get a decisive recommendation.\n\n' +
+      'Topic: """' + topic + '"""\n' +
       contextBlock +
-      '\nProduce a simulation as a single JSON object:\n' +
+      '\nThe Vision Cortex system core values: autonomous growth, compound wealth, system integrity, proactive action, and decisive execution.\n\n' +
+      'Generate 3 genuinely different action plans for this topic. Score each by realistic probability of success. Pick the one with the highest probability. Check if it aligns with the system core. Do not debate or second-guess — pick and commit.\n\n' +
+      'Produce a JSON object:\n' +
       '{\n' +
       '  "topic": "<the topic>",\n' +
-      '  "summary": "2-3 sentence overview of what this simulation models",\n' +
-      '  "key_variables": ["the 3-6 variables that most influence the outcome"],\n' +
-      '  "scenarios": [\n' +
-      '    { "name": "Best Case", "probability": <0-1>, "outcome": "...", "financial_impact": "...", "timeline": "...", "triggers": ["..."] },\n' +
-      '    { "name": "Base Case", "probability": <0-1>, "outcome": "...", "financial_impact": "...", "timeline": "...", "triggers": ["..."] },\n' +
-      '    { "name": "Worst Case", "probability": <0-1>, "outcome": "...", "financial_impact": "...", "timeline": "...", "triggers": ["..."] }\n' +
+      '  "summary": "2-3 sentence overview",\n' +
+      '  "options": [\n' +
+      '    { "name": "...", "approach": "...", "success_probability": <0-1>, "financial_impact": "...", "timeline": "...", "risks": ["..."] },\n' +
+      '    { "name": "...", "approach": "...", "success_probability": <0-1>, "financial_impact": "...", "timeline": "...", "risks": ["..."] },\n' +
+      '    { "name": "...", "approach": "...", "success_probability": <0-1>, "financial_impact": "...", "timeline": "...", "risks": ["..."] }\n' +
       '  ],\n' +
-      '  "expected_value": "weighted expected outcome — one line",\n' +
-      '  "key_risks": ["top 3 risks"],\n' +
-      '  "opportunities": ["top 3 upside opportunities"],\n' +
-      '  "recommendation": "what the owner should DO based on this simulation — actionable, specific",\n' +
-      '  "confidence": <0-1>,\n' +
-      '  "next_simulations": ["2-3 related topics worth simulating next"]\n' +
+      '  "chosen_option": "<name of the option with highest success probability>",\n' +
+      '  "chosen_rationale": "why this option was selected — one or two sentences",\n' +
+      '  "core_alignment": "how this aligns with the Vision Cortex system core — one sentence",\n' +
+      '  "aligned": true|false,\n' +
+      '  "recommendation": "what the owner should DO — actionable, specific, decisive",\n' +
+      '  "confidence": <0-1>\n' +
       '}\n\n' +
       'Rules:\n' +
-      '- Probabilities must sum to 1.0 across the three scenarios.\n' +
-      '- Be concrete and specific to the topic. No generic filler.\n' +
-      '- Financial impact: estimate in USD or % when applicable; use "N/A" only when truly not applicable.\n' +
-      '- Confidence reflects real uncertainty. Do not inflate.\n' +
+      '- Generate 3 genuinely different approaches, not variations of the same idea.\n' +
+      '- Score each by realistic probability of success. Do not inflate.\n' +
+      '- Pick the option with the highest probability. Do not second-guess or debate.\n' +
+      '- If the chosen option does not align with the system core, set aligned=false and suggest the next best in the recommendation.\n' +
+      '- Be decisive. No circular reasoning. Pick and commit.\n' +
       '- American English, zero ambiguity.';
 
     const res = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -56,42 +58,42 @@ export default async function (req) {
         properties: {
           topic: { type: 'string' },
           summary: { type: 'string' },
-          key_variables: { type: 'array', items: { type: 'string' } },
-          scenarios: {
+          options: {
             type: 'array',
             items: {
               type: 'object',
               properties: {
                 name: { type: 'string' },
-                probability: { type: 'number' },
-                outcome: { type: 'string' },
+                approach: { type: 'string' },
+                success_probability: { type: 'number' },
                 financial_impact: { type: 'string' },
                 timeline: { type: 'string' },
-                triggers: { type: 'array', items: { type: 'string' } },
+                risks: { type: 'array', items: { type: 'string' } },
               },
             },
           },
-          expected_value: { type: 'string' },
-          key_risks: { type: 'array', items: { type: 'string' } },
-          opportunities: { type: 'array', items: { type: 'string' } },
+          chosen_option: { type: 'string' },
+          chosen_rationale: { type: 'string' },
+          core_alignment: { type: 'string' },
+          aligned: { type: 'boolean' },
           recommendation: { type: 'string' },
           confidence: { type: 'number' },
-          next_simulations: { type: 'array', items: { type: 'string' } },
         },
       },
     });
 
     const simulation = res || {};
-    const scenarios = simulation.scenarios || [];
+    const options = simulation.options || [];
     const simText =
-      '📊 SIMULATION: ' + (simulation.topic || topic) + '\n\n' +
+      '📊 DECISION SIMULATION: ' + (simulation.topic || topic) + '\n\n' +
       (simulation.summary || '') + '\n\n' +
-      'SCENARIOS:\n' +
-      scenarios.map((s) => '• ' + s.name + ' (' + Math.round((s.probability || 0) * 100) + '%): ' + s.outcome + ' | Impact: ' + (s.financial_impact || 'N/A') + ' | Timeline: ' + (s.timeline || 'N/A')).join('\n') +
-      '\n\nExpected value: ' + (simulation.expected_value || 'N/A') +
+      '3 OPTIONS EVALUATED:\n' +
+      options.map((o) => '• ' + o.name + ' (' + Math.round((o.success_probability || 0) * 100) + '% success): ' + o.approach + ' | Impact: ' + (o.financial_impact || 'N/A') + ' | Timeline: ' + (o.timeline || 'N/A')).join('\n') +
+      '\n\n✅ CHOSEN: ' + (simulation.chosen_option || 'N/A') +
+      '\nRationale: ' + (simulation.chosen_rationale || 'N/A') +
+      '\nCore alignment: ' + (simulation.core_alignment || 'N/A') +
+      (simulation.aligned === false ? ' ⚠️ Not fully aligned — see recommendation' : ' ✓ Aligned') +
       '\nConfidence: ' + Math.round((simulation.confidence || 0) * 100) + '%\n\n' +
-      'Risks: ' + ((simulation.key_risks || []).join('; ')) + '\n' +
-      'Opportunities: ' + ((simulation.opportunities || []).join('; ')) + '\n\n' +
       'Recommendation: ' + (simulation.recommendation || 'N/A');
 
     await base44.asServiceRole.entities.ChatMessage.create({

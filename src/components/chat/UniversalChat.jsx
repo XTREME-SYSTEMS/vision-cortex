@@ -8,7 +8,7 @@ export default function UniversalChat({ activeAgents }) {
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [simulating, setSimulating] = useState(false);
-  const [showValidation, setShowValidation] = useState(true);
+  const [validating, setValidating] = useState(false);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const [attachedFiles, setAttachedFiles] = useState([]);
@@ -50,10 +50,6 @@ export default function UniversalChat({ activeAgents }) {
       }
       // Primus unified reply
       newMsgs.push({ author: 'Prime', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true });
-      // Validation verdict
-      if (data.validation) {
-        newMsgs.push({ author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true });
-      }
       // Approval request
       if (data.delegation?.needs_approval) {
         newMsgs.push({ author: 'Prime', author_type: 'agent', content: '⏸ Awaiting your approval to execute. ' + (data.delegation.approval_reason || ''), approval: true });
@@ -93,6 +89,24 @@ export default function UniversalChat({ activeAgents }) {
       setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Simulation error: ' + (e.message || 'failed') }]);
     } finally {
       setSimulating(false);
+    }
+  };
+
+  const validate = async () => {
+    const hasPrime = messages.some((m) => m.author === 'Prime' && !m.validation);
+    if (!hasPrime || validating) return;
+    setValidating(true);
+    try {
+      const res = await base44.functions.invoke('primusOrchestrate', { action: 'validate' });
+      const data = res.data || res;
+      if (data.error) throw new Error(data.error);
+      if (data.validation) {
+        setMessages((m) => [...m, { author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true }]);
+      }
+    } catch (e) {
+      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Validation error: ' + (e.message || 'failed') }]);
+    } finally {
+      setValidating(false);
     }
   };
 
@@ -137,14 +151,14 @@ export default function UniversalChat({ activeAgents }) {
               <Bot className="w-6 h-6" />
             </div>
             <p className="text-sm font-medium text-foreground">Prime is online.</p>
-            <p className="text-xs mt-1 max-w-xs">Your primary orchestrator. It delegates to the right agents, validates every decision, and asks before executing anything.</p>
-            <p className="text-[10px] mt-2 text-muted-foreground/70">Type a message or press Simulate to model a topic.</p>
+            <p className="text-xs mt-1 max-w-xs">Your primary orchestrator. It delegates to the right agents and asks before executing anything.</p>
+            <p className="text-[10px] mt-2 text-muted-foreground/70">Type a message. Use the validate or simulate buttons when you want deeper analysis.</p>
           </div>
         )}
         {messages.map((m, i) => {
           if (m.validation) {
             const v = validationVerdict(m.content);
-            if (!v || !showValidation) return null;
+            if (!v) return null;
             const VIcon = v.icon;
             return (
               <div key={i} className="flex gap-2.5 justify-start">
@@ -199,7 +213,15 @@ export default function UniversalChat({ activeAgents }) {
             <div className="w-7 h-7 rounded-full bg-chart-3/20 grid place-items-center shrink-0">
               <Loader2 className="w-3.5 h-3.5 animate-spin text-chart-3" />
             </div>
-            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Running multi-scenario simulation…</div>
+            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Evaluating 3 options, picking best…</div>
+          </div>
+        )}
+        {validating && (
+          <div className="flex gap-2.5">
+            <div className="w-7 h-7 rounded-full bg-emerald-500/20 grid place-items-center shrink-0">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-500" />
+            </div>
+            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Validating last response…</div>
           </div>
         )}
       </div>
@@ -241,9 +263,17 @@ export default function UniversalChat({ activeAgents }) {
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
           </button>
           <button
+            onClick={validate}
+            disabled={validating || sending || !messages.some((m) => m.author === 'Prime' && !m.validation)}
+            title="Validate the last Prime response"
+            className="rounded-xl bg-emerald-500/15 text-foreground border border-emerald-500/30 p-2.5 disabled:opacity-40 hover:bg-emerald-500/25 transition-colors shrink-0"
+          >
+            {validating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+          </button>
+          <button
             onClick={simulate}
             disabled={simulating || sending || (!input.trim() && !messages.some((m) => m.author_type === 'user'))}
-            title="Simulate the current topic"
+            title="Simulate: evaluate 3 options and pick the best"
             className="rounded-xl bg-chart-3/15 text-foreground border border-chart-3/30 p-2.5 disabled:opacity-40 hover:bg-chart-3/25 transition-colors shrink-0"
           >
             {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
@@ -273,12 +303,6 @@ export default function UniversalChat({ activeAgents }) {
           <p className="text-[10px] text-muted-foreground">
             Prime orchestrates · {activeAgents.length > 0 ? 'delegation hints: ' + activeAgents.join(' · ') : 'auto-delegate'}
           </p>
-          <button
-            onClick={() => setShowValidation((s) => !s)}
-            className={cn('text-[10px] flex items-center gap-1', showValidation ? 'text-foreground' : 'text-muted-foreground/50')}
-          >
-            <ShieldCheck className="w-3 h-3" /> {showValidation ? 'Validator on' : 'Validator off'}
-          </button>
         </div>
       </div>
     </div>

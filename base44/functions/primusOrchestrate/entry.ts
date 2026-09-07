@@ -7,8 +7,52 @@ export default async function (req) {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
+    const action = (body?.action || 'chat').trim();
     const message = (body?.message || '').trim();
     const history = Array.isArray(body?.history) ? body.history.slice(-12) : [];
+
+    // On-demand validation — triggered by the Validate button, not on every message
+    if (action === 'validate') {
+      const recentMessages = await base44.asServiceRole.entities.ChatMessage.list('-created_date', 10);
+      const lastPrime = recentMessages.find((m) => m.author_type === 'agent' && (m.author === 'Prime' || m.author === 'PRIMUS'));
+      if (!lastPrime) return Response.json({ error: 'No Prime response to validate' }, { status: 400 });
+
+      const validationPrompt =
+        'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime\'s response below. Do not rubber-stamp.\n\n' +
+        'Prime\'s response:\n"""' + lastPrime.content + '"""\n\n' +
+        'Respond ONLY with JSON:\n' +
+        '{\n' +
+        '  "verdict": "APPROVED" | "APPROVED_WITH_NOTES" | "REJECTED",\n' +
+        '  "risks": ["..."],\n' +
+        '  "fixes": ["..."],\n' +
+        '  "reasoning": "one or two sentences"\n' +
+        '}';
+
+      const validationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: validationPrompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            verdict: { type: 'string' },
+            risks: { type: 'array', items: { type: 'string' } },
+            fixes: { type: 'array', items: { type: 'string' } },
+            reasoning: { type: 'string' },
+          },
+        },
+      });
+
+      const validation = validationRes || { verdict: 'APPROVED', risks: [], fixes: [], reasoning: 'No issues detected' };
+
+      await base44.asServiceRole.entities.AgentLog.create({
+        agent_name: 'VALIDATOR',
+        category: 'validation',
+        level: 'success',
+        message: 'On-demand validation: ' + validation.verdict,
+        detail: JSON.stringify({ verdict: validation.verdict, risks: validation.risks }),
+      });
+
+      return Response.json({ validation });
+    }
 
     if (!message) return Response.json({ error: 'Message required' }, { status: 400 });
 
@@ -129,54 +173,10 @@ export default async function (req) {
     const synthRes = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt: synthesisPrompt });
     const primusReply = typeof synthRes === 'string' ? synthRes : synthRes?.response || String(synthRes || '');
 
-    // STEP 4 — Validator reviews
-    const validationPrompt =
-      'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime\'s proposed response and plan. Do not rubber-stamp.\n\n' +
-      'Owner\'s request: """' + message + '"""\n' +
-      'Prime\'s plan: ' + (plan.plan || 'handle directly') + '\n' +
-      'Prime\'s response:\n"""' + primusReply + '"""\n\n' +
-      'Respond ONLY with JSON:\n' +
-      '{\n' +
-      '  "verdict": "APPROVED" | "APPROVED_WITH_NOTES" | "REJECTED",\n' +
-      '  "risks": ["..."],\n' +
-      '  "fixes": ["..."],\n' +
-      '  "reasoning": "one or two sentences"\n' +
-      '}';
-
-    const validationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt: validationPrompt,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          verdict: { type: 'string' },
-          risks: { type: 'array', items: { type: 'string' } },
-          fixes: { type: 'array', items: { type: 'string' } },
-          reasoning: { type: 'string' },
-        },
-      },
-    });
-    const validation = validationRes || { verdict: 'APPROVED', risks: [], fixes: [], reasoning: 'No issues detected' };
-
-    // STEP 5 — if Validator rejected, Primus revises
-    let finalReply = primusReply;
-    if (validation.verdict === 'REJECTED' && (validation.fixes?.length || validation.risks?.length)) {
-      const revisePrompt =
-        'You are Prime. The VALIDATOR REJECTED your response. Revise it to address every fix and risk.\n\n' +
-        'Original response:\n"""' + primusReply + '"""\n\n' +
-        'Validator verdict: ' + validation.verdict + '\n' +
-        'Risks: ' + ((validation.risks || []).join('; ') || 'none') + '\n' +
-        'Required fixes: ' + ((validation.fixes || []).join('; ') || 'none') + '\n' +
-        'Reasoning: ' + (validation.reasoning || '') + '\n\n' +
-        'Owner\'s original request: """' + message + '"""\n\n' +
-        'Return the revised, corrected response only. Address every fix. If a fix cannot be addressed, say so explicitly.';
-      const revisedRes = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt: revisePrompt });
-      finalReply = (typeof revisedRes === 'string' ? revisedRes : revisedRes?.response || String(revisedRes || '')).trim();
-    }
-
     await base44.asServiceRole.entities.ChatMessage.create({
       author: 'Prime',
       author_type: 'agent',
-      content: finalReply,
+      content: primusReply,
       kind: 'message',
       accent: 'foreground',
     });
@@ -185,12 +185,12 @@ export default async function (req) {
       agent_name: 'PRIMUS',
       category: 'orchestration',
       level: 'success',
-      message: 'Delegated to: ' + ((plan.delegate_to || []).join(', ') || 'none (handled directly)') + '. Validator: ' + validation.verdict,
-      detail: JSON.stringify({ plan: plan.plan, validation: validation.verdict, agent_count: agentOutputs.length }),
+      message: 'Delegated to: ' + ((plan.delegate_to || []).join(', ') || 'none (handled directly)'),
+      detail: JSON.stringify({ plan: plan.plan, agent_count: agentOutputs.length }),
     });
 
     return Response.json({
-      reply: finalReply,
+      reply: primusReply,
       agent: 'Prime',
       delegation: {
         handle_directly: plan.handle_directly,
@@ -200,12 +200,6 @@ export default async function (req) {
         approval_reason: plan.approval_reason || '',
       },
       agent_outputs: agentOutputs.map((o) => ({ agent: o.agent, message: o.text, accent: o.accent })),
-      validation: {
-        verdict: validation.verdict,
-        risks: validation.risks || [],
-        fixes: validation.fixes || [],
-        reasoning: validation.reasoning || '',
-      },
     });
   } catch (error) {
     return Response.json({ error: error.message || 'Orchestration failed' }, { status: 500 });
