@@ -10,6 +10,7 @@ import {
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
   EyeOff, Server, Lock, Zap, Building2, Network,
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
@@ -270,52 +271,67 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Mobile menu drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-[60]">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[80%] bg-sidebar border-r border-border/60 flex flex-col">
-            <div className="px-3 py-3 border-b border-border/60 flex items-center justify-between">
-              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
-                <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
-                  <Radar className="w-4 h-4" />
-                </span>
-                <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
-              </Link>
-              <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="px-2 pt-2 pb-2 border-b border-border/60">
-              <button
-                onClick={() => { setShowAgentsCard(true); setMobileMenuOpen(false); }}
-                className={cn(
-                  'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
-                  showAgentsCard ? 'bg-foreground text-background' : 'hover:bg-muted text-foreground'
-                )}
-              >
-                <Bot className="w-4 h-4" />
-                <span className="flex-1 text-left">Chat Agents</span>
-                {activeAgents.length > 0 && (
-                  <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', showAgentsCard ? 'bg-background/20' : 'bg-foreground text-background')}>
-                    {activeAgents.length}
+      {/* Mobile menu drop-down */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="md:hidden fixed inset-0 z-[60]">
+            <motion.div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setMobileMenuOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+            <motion.div
+              className="absolute left-0 right-0 top-0 bg-sidebar border-b border-border/60 flex flex-col max-h-[85vh]"
+              initial={{ y: '-100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '-100%' }}
+              transition={{ type: 'tween', duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="px-3 py-3 border-b border-border/60 flex items-center justify-between">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
+                  <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
+                    <Radar className="w-4 h-4" />
                   </span>
-                )}
-              </button>
-            </div>
-            <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 no-scrollbar">
-              {navGroups.map((g) => (
-                <NavGroup key={g.label} {...g} />
-              ))}
-              {isAdmin && <NavGroup {...adminNav} />}
-              <ProjectFolders />
-            </nav>
-            <div className="px-2 py-2 border-t border-border/60">
-              <SidebarActions />
-            </div>
+                  <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
+                </Link>
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="px-2 pt-2 pb-2 border-b border-border/60">
+                <button
+                  onClick={() => { setShowAgentsCard(true); setMobileMenuOpen(false); }}
+                  className={cn(
+                    'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
+                    showAgentsCard ? 'bg-foreground text-background' : 'hover:bg-muted text-foreground'
+                  )}
+                >
+                  <Bot className="w-4 h-4" />
+                  <span className="flex-1 text-left">Chat Agents</span>
+                  {activeAgents.length > 0 && (
+                    <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', showAgentsCard ? 'bg-background/20' : 'bg-foreground text-background')}>
+                      {activeAgents.length}
+                    </span>
+                  )}
+                </button>
+              </div>
+              <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 no-scrollbar">
+                {navGroups.map((g) => (
+                  <NavGroup key={g.label} {...g} />
+                ))}
+                {isAdmin && <NavGroup {...adminNav} />}
+                <ProjectFolders />
+              </nav>
+              <div className="px-2 py-2 border-t border-border/60">
+                <SidebarActions />
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }
