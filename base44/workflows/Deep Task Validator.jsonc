@@ -1,0 +1,47 @@
+{
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "deep_task_validator",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "validate": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "deepTaskValidator",
+            "args": {
+              "action": "validate_pending"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Validate completed tasks",
+            "description": "Find completed tasks and validate them using the DEEP scoring system"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/10 * * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Deep Task Validator",
+  "description": "Runs every 10 minutes \u2014 validates completed tasks using the DEEP system, scores them 0-1, and checks them off or sends them back for repair."
+}
