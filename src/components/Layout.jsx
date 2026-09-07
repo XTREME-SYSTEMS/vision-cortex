@@ -31,6 +31,7 @@ const navGroups = [
     items: [
       { to: '/blueprint', label: 'Blueprint', icon: BookOpen },
       { to: '/company', label: 'The Company', icon: Building2 },
+      { to: '/sim', label: 'Ops Floor', icon: Activity },
       { to: '/swarms', label: 'Swarms', icon: Network },
       { to: '/preflight', label: 'Pre-Flight', icon: Activity },
       { to: '/registry', label: 'System Registry', icon: ListChecks },
