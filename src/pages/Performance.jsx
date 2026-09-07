@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Activity, CheckCircle2, AlertTriangle, Radio, Loader2, Heart, TrendingUp, Zap } from 'lucide-react';
+import StrategyStatus from '@/components/performance/StrategyStatus';
+import AuditSuccessRates from '@/components/performance/AuditSuccessRates';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const SYSTEM_LABEL = {
@@ -211,6 +213,9 @@ export default function Performance() {
           )}
         </div>
       </Card>
+
+      <StrategyStatus />
+      <AuditSuccessRates />
     </div>
   );
 }

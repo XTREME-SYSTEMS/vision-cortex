@@ -6,6 +6,7 @@ import {
   Zap, AlertCircle, RefreshCw, Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import SwarmCockpit from '@/components/swarms/SwarmCockpit';
 
 const CATEGORY_META = {
   audit: { icon: ShieldCheck, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'Audit' },
@@ -176,6 +177,9 @@ export default function Swarms() {
           color="text-fuchsia-400"
         />
       </div>
+
+      {/* Swarm Cockpit — cluster view */}
+      <SwarmCockpit agents={agentPerf} activeTasks={activeTasks} />
 
       {/* Swarm Map — agents grouped by work category */}
       <div>

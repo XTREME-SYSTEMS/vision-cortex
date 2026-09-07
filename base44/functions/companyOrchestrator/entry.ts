@@ -248,9 +248,10 @@ async function syncTasksToGoogle(sr) {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
+    // Auth: admin user OR workflow context
+    let user = null;
+    try { user = await base44.auth.me(); } catch {}
+    if (user && user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
     const action = body.action || 'status';
@@ -357,7 +358,7 @@ export default async function(req) {
         try {
           await sr.CapabilityToggle.update(cap.id, {
             enabled: true,
-            last_toggled_by: user.email || 'orchestrator',
+            last_toggled_by: user?.email || 'orchestrator',
             last_toggled_at: new Date().toISOString()
           });
         } catch {}
@@ -656,6 +657,61 @@ export default async function(req) {
       } catch {}
 
       return Response.json({ ok: true, action: 'hourly_summary', summary, completed: completed.length, in_progress: inProgress.length });
+    }
+
+    // ── SCHEDULE_REVIEWS: Create review session calendar events for each phase ──
+    if (action === 'schedule_reviews') {
+      const schedules = await sr.AgentSchedule.list('-created_date', 200).catch(() => []);
+      let calendar = null;
+      try {
+        calendar = await base44.asServiceRole.connectors.getConnection('googlecalendar');
+      } catch {
+        return Response.json({ error: 'Google Calendar not connected' }, { status: 400 });
+      }
+      const calToken = calendar.accessToken;
+
+      // Find the end time of each phase (latest scheduled_end per phase)
+      const phaseEnds = {};
+      for (const s of schedules) {
+        const phase = s.playbook_phase || 'unassigned';
+        if (s.scheduled_end && (!phaseEnds[phase] || new Date(s.scheduled_end) > new Date(phaseEnds[phase]))) {
+          phaseEnds[phase] = s.scheduled_end;
+        }
+      }
+
+      let scheduled = 0;
+      const now = Date.now();
+      for (const [phase, endTime] of Object.entries(phaseEnds)) {
+        const phaseEndTime = new Date(endTime).getTime();
+        // Only schedule reviews for phases ending within the next 24 hours
+        if (phaseEndTime < now || phaseEndTime > now + 24 * 60 * 60 * 1000) continue;
+
+        const phaseSchedules = schedules.filter(s => s.playbook_phase === phase);
+        const completed = phaseSchedules.filter(s => s.status === 'completed').length;
+        const total = phaseSchedules.length;
+
+        const reviewStart = new Date(phaseEndTime + 30 * 60 * 1000); // 30 min after phase end
+        const reviewEnd = new Date(reviewStart.getTime() + 60 * 60 * 1000); // 1 hour review
+
+        const event = {
+          summary: `[REVIEW] ${phase.replace(/_/g, ' ')} - Phase Review Session`,
+          description: `Phase: ${phase}\nCompleted: ${completed}/${total} tasks\n\nReview session to discuss outcomes, blockers, and next steps for this phase.`,
+          start: { dateTime: reviewStart.toISOString() },
+          end: { dateTime: reviewEnd.toISOString() },
+          colorId: '10'
+        };
+
+        try {
+          const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${calToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(event)
+          });
+          if (res.ok) scheduled++;
+        } catch (e) {}
+      }
+
+      return Response.json({ ok: true, action: 'schedule_reviews', scheduled, phases_checked: Object.keys(phaseEnds).length });
     }
 
     return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });

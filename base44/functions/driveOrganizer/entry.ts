@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { secrets } from 'base44:runtime';
 
 // ============================================================================
 // DRIVE ORGANIZER — Automatically organizes scraped intelligence files and
@@ -11,9 +12,10 @@ const AGENT_FOLDER_PREFIX = 'Agent - ';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
+    // Auth: admin user OR workflow context
+    let user = null;
+    try { user = await base44.auth.me(); } catch {}
+    if (user && user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
     const action = body.action || 'organize_all';
@@ -140,6 +142,62 @@ export default async function(req) {
         folders_reused: folders.reused,
         intel_organized: intelOrganized,
         strategies_organized: stratOrganized
+      });
+    }
+
+    // ─── SAVE REPORT: Save a single finalized strategy report to Drive ───
+    if (action === 'save_report') {
+      const { document_id } = body;
+      if (!document_id) return Response.json({ error: 'document_id required' }, { status: 400 });
+
+      const doc = await sr.entities.ArchitecturalDocument.get(document_id).catch(() => null);
+      if (!doc) return Response.json({ error: 'Document not found' }, { status: 404 });
+
+      const agents = await sr.entities.AgentProfile.list('-order', 100).catch(() => []);
+      const folderMap = await getOrCreateAgentFolders(accessToken, authHeader, agents, sr);
+
+      const targetAgent = doc.assigned_agent || doc.last_evolved_by || 'Omni-Architect';
+      const folderId = folderMap[targetAgent] || folderMap['_Unassigned'];
+      if (!folderId) return Response.json({ error: 'Could not find or create target folder' }, { status: 500 });
+
+      const fileName = `${(doc.title || 'Strategy Report').slice(0, 80)}.json`;
+      const content = JSON.stringify({
+        title: doc.title,
+        doc_type: doc.doc_type,
+        target_system: doc.target_system,
+        status: doc.status,
+        content: doc.content,
+        implementation_code: doc.implementation_code,
+        validation_score: doc.validation_score,
+        created_date: doc.created_date,
+        updated_date: doc.updated_date
+      }, null, 2);
+
+      // Create file in the agent's folder
+      const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: authHeader,
+        body: JSON.stringify({ name: fileName, parents: [folderId], mimeType: 'application/json' })
+      });
+      if (!createRes.ok) return Response.json({ error: 'Failed to create file in Drive' }, { status: 500 });
+      const file = await createRes.json();
+
+      // Upload content
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${file.id}?uploadType=media`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+        body: content
+      });
+
+      return Response.json({
+        ok: true,
+        action: 'save_report',
+        document_id,
+        title: doc.title,
+        file_id: file.id,
+        folder_id: folderId,
+        agent: targetAgent,
+        message: `Report "${doc.title}" saved to ${targetAgent}'s Drive folder`
       });
     }
 

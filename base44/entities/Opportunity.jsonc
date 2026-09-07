@@ -116,9 +116,20 @@
         "researched",
         "responded",
         "followed_up",
-        "closed"
+        "closed",
+        "validated",
+        "rejected"
       ],
       "default": "new"
+    },
+    "validation_confidence": {
+      "type": "number",
+      "default": 0,
+      "description": "Confidence score 0-1 from the validation loop"
+    },
+    "validation_reasoning": {
+      "type": "string",
+      "description": "LLM reasoning from the validation loop"
     },
     "score": {
       "type": "number",

@@ -1,0 +1,41 @@
+{
+  "name": "Strategy Report to Drive",
+  "description": "When a strategy report is finalized (validated), automatically creates a folder in Google Drive and saves the report",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "ArchitecturalDocument",
+      "events": [
+        "update"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"validated\" and .trigger.old_data.status != \"validated\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "strategy_report_to_drive",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "save_report": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "driveOrganizer",
+            "args": {
+              "action": "save_report",
+              "document_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Save report to Drive",
+            "description": "Create folder and save finalized report"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Opportunity Validation Loop",
+  "description": "Automatically validates new opportunities against the master vision and rewards logic before marking them as approved",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "Opportunity",
+      "events": [
+        "create"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"new\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "opportunity_validation",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "validate": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "validateOpportunity",
+            "args": {
+              "action": "validate_one",
+              "opportunity_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Validate opportunity",
+            "description": "Cross-reference against vision and rewards"
+          }
+        }
+      }
+    ]
+  }
+}
