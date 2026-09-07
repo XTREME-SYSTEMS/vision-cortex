@@ -160,6 +160,15 @@ export default async function(req) {
       const folderId = folderMap[targetAgent] || folderMap['_Unassigned'];
       if (!folderId) return Response.json({ error: 'Could not find or create target folder' }, { status: 500 });
 
+      // Create standardized sub-folder structure
+      const SUB_FOLDERS = ['01_Research', '02_Strategy', '03_Implementation', '04_Results', '05_Archive'];
+      const subFolderMap = {};
+      for (const subName of SUB_FOLDERS) {
+        subFolderMap[subName] = await findOrCreateFolder(accessToken, authHeader, subName, folderId);
+      }
+
+      // Save the report in "02_Strategy" sub-folder
+      const strategyFolderId = subFolderMap['02_Strategy'] || folderId;
       const fileName = `${(doc.title || 'Strategy Report').slice(0, 80)}.json`;
       const content = JSON.stringify({
         title: doc.title,
@@ -173,21 +182,70 @@ export default async function(req) {
         updated_date: doc.updated_date
       }, null, 2);
 
-      // Create file in the agent's folder
       const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
         method: 'POST',
         headers: authHeader,
-        body: JSON.stringify({ name: fileName, parents: [folderId], mimeType: 'application/json' })
+        body: JSON.stringify({ name: fileName, parents: [strategyFolderId], mimeType: 'application/json' })
       });
       if (!createRes.ok) return Response.json({ error: 'Failed to create file in Drive' }, { status: 500 });
       const file = await createRes.json();
 
-      // Upload content
       await fetch(`https://www.googleapis.com/upload/drive/v3/files/${file.id}?uploadType=media`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
         body: content
       });
+
+      // Create or update project tracker file in the agent's root folder
+      const trackerName = 'project_tracker.json';
+      const trackerQuery = `name='${trackerName}' and '${folderId}' in parents and trashed=false`;
+      const trackerSearch = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(trackerQuery)}&fields=files(id,name)`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+      });
+      let trackerId = null;
+      if (trackerSearch.ok) {
+        const trackerData = await trackerSearch.json();
+        if (trackerData.files?.length > 0) trackerId = trackerData.files[0].id;
+      }
+
+      const trackerContent = JSON.stringify({
+        project_title: doc.title || 'Strategy Project',
+        agent: targetAgent,
+        target_system: doc.target_system || 'vision_cortex',
+        status: doc.status,
+        created_date: doc.created_date,
+        last_updated: new Date().toISOString(),
+        sub_folders: SUB_FOLDERS,
+        phases: {
+          research: { status: 'pending', folder: subFolderMap['01_Research'] },
+          strategy: { status: 'complete', folder: subFolderMap['02_Strategy'], report_file: file.id },
+          implementation: { status: 'pending', folder: subFolderMap['03_Implementation'] },
+          results: { status: 'pending', folder: subFolderMap['04_Results'] },
+          archive: { status: 'pending', folder: subFolderMap['05_Archive'] },
+        }
+      }, null, 2);
+
+      if (trackerId) {
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${trackerId}?uploadType=media`, {
+          method: 'PATCH',
+          headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: trackerContent
+        });
+      } else {
+        const trackerRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: authHeader,
+          body: JSON.stringify({ name: trackerName, parents: [folderId], mimeType: 'application/json' })
+        });
+        if (trackerRes.ok) {
+          trackerId = (await trackerRes.json()).id;
+          await fetch(`https://www.googleapis.com/upload/drive/v3/files/${trackerId}?uploadType=media`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+            body: trackerContent
+          });
+        }
+      }
 
       return Response.json({
         ok: true,
@@ -196,8 +254,11 @@ export default async function(req) {
         title: doc.title,
         file_id: file.id,
         folder_id: folderId,
+        strategy_folder_id: strategyFolderId,
+        sub_folders: subFolderMap,
+        tracker_id: trackerId,
         agent: targetAgent,
-        message: `Report "${doc.title}" saved to ${targetAgent}'s Drive folder`
+        message: `Report "${doc.title}" saved to ${targetAgent}'s Drive folder with standardized sub-folder structure`
       });
     }
 

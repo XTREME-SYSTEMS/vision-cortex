@@ -1,0 +1,45 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "30 * * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Swarm Milestone Notifications",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "swarm_milestone_notifier",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "check_milestones": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "swarmMilestoneNotifier",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Check for completed milestones",
+            "description": "Send email summaries for newly completed phases"
+          }
+        }
+      }
+    ]
+  },
+  "description": "Checks for completed swarm cluster milestones and sends email summaries to the owner"
+}

@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SwarmCockpit from '@/components/swarms/SwarmCockpit';
+import DurationHeatmap from '@/components/swarms/DurationHeatmap';
+import TrendsDashboard from '@/components/swarms/TrendsDashboard';
 
 const CATEGORY_META = {
   audit: { icon: ShieldCheck, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/30', label: 'Audit' },
@@ -181,6 +183,8 @@ export default function Swarms() {
       {/* Swarm Cockpit — cluster view */}
       <SwarmCockpit agents={agentPerf} activeTasks={activeTasks} />
 
+      <DurationHeatmap agents={agentPerf} />
+
       {/* Swarm Map — agents grouped by work category */}
       <div>
         <div className="flex items-center gap-2 mb-3">
@@ -286,6 +290,8 @@ export default function Swarms() {
           </table>
         </div>
       </div>
+
+      <TrendsDashboard agents={agentPerf} activeTasks={activeTasks} />
 
       {/* Strategy Implementation Status */}
       <div>
