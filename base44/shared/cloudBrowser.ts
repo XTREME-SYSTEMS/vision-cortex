@@ -46,6 +46,38 @@ export async function browseSession(url, maxChars = 40000) {
 //   Layer 3 (Browser):  navigator.webdriver patch before navigation
 //   Layer 4 (Behavioral): scroll + jittered delay to mimic human reading
 // Plus auto-retry with rotation — re-spin a fresh session/proxy on failure until it succeeds.
+// Fallback direct-fetch scraper — used when the Cloud Browser engine is down.
+// No stealth/anti-detection, but works for most public pages without an external engine.
+export async function browseDirect(url, maxChars = 40000) {
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9',
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!res.ok) throw new Error(`direct fetch ${res.status}: ${res.statusText}`);
+  const html = await res.text();
+  // Strip scripts, styles, tags, and collapse whitespace
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+  return str(text, maxChars);
+}
+
 export async function browseStealth(url, opts = {}) {
   const {
     maxChars = 40000,
@@ -57,7 +89,11 @@ export async function browseStealth(url, opts = {}) {
     antiDetect = true,
   } = opts;
 
-  if (!cbUrl() || !cbKey()) throw new Error('CLOUD_BROWSER_URL / CLOUD_BROWSER_API_KEY secrets not set');
+  // If engine secrets aren't set, go straight to direct-fetch fallback
+  if (!cbUrl() || !cbKey()) {
+    const text = await browseDirect(url, maxChars);
+    return { text, attempts: 1, sessionId: null, success: true, method: 'direct' };
+  }
 
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -98,6 +134,16 @@ export async function browseStealth(url, opts = {}) {
     } finally {
       if (sid) await engine(`/sessions/${sid}`, 'DELETE').catch(() => {});
     }
+  }
+
+  // Engine exhausted or down — fall back to direct fetch so the pipeline still works
+  try {
+    const text = await browseDirect(url, maxChars);
+    if (text && text.length >= 50) {
+      return { text, attempts: retries + 1, sessionId: null, success: true, method: 'direct_fallback' };
+    }
+  } catch (e) {
+    // direct fetch also failed — throw the original engine error
   }
   throw lastErr || new Error('stealth browse failed after all retries');
 }
