@@ -1,0 +1,140 @@
+{
+  "name": "AgentSettings",
+  "type": "object",
+  "properties": {
+    "user_name": {
+      "type": "string",
+      "description": "What the agent should call the user"
+    },
+    "about_user": {
+      "type": "string",
+      "description": "What would you like Prime to know about you? (custom instructions part 1)"
+    },
+    "response_style": {
+      "type": "string",
+      "description": "How would you like Prime to respond? (custom instructions part 2)"
+    },
+    "personality_traits": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Traits the agent should have (concise, proactive, witty, etc.)"
+    },
+    "conversation_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Rules the agent should follow in every conversation"
+    },
+    "memory_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the agent can remember things across conversations"
+    },
+    "memories": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Stored memories across conversations"
+    },
+    "voice": {
+      "type": "string",
+      "enum": [
+        "alloy",
+        "echo",
+        "fable",
+        "onyx",
+        "nova",
+        "shimmer",
+        "sage",
+        "ash",
+        "ballad",
+        "coral"
+      ],
+      "default": "alloy",
+      "description": "Voice for real-time voice chat (OpenAI Realtime API)"
+    },
+    "tone": {
+      "type": "string",
+      "enum": [
+        "concise",
+        "friendly",
+        "professional",
+        "casual",
+        "formal",
+        "witty"
+      ],
+      "default": "concise",
+      "description": "Conversation tone"
+    },
+    "model": {
+      "type": "string",
+      "default": "gpt-4o-realtime-preview",
+      "description": "Preferred model for chat and voice"
+    },
+    "auto_submit_voice": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-submit voice transcriptions without manual send"
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "Conversation language (ISO code)"
+    },
+    "temperature": {
+      "type": "number",
+      "default": 0.7,
+      "minimum": 0,
+      "maximum": 2,
+      "description": "Response creativity (0=focused, 2=creative)"
+    },
+    "xtreme_comms_from_number": {
+      "type": "string",
+      "description": "Default from-phone-number for Xtreme Communications SMS/calls"
+    },
+    "xtreme_comms_from_email": {
+      "type": "string",
+      "description": "Default from-email for Xtreme Communications email sends"
+    }
+  },
+  "required": [
+    "user_name"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
