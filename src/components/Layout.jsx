@@ -61,6 +61,7 @@ const navGroups = [
       { to: '/forensic', label: 'Forensic Audit', icon: ShieldCheck },
       { to: '/system-analyst', label: 'System Analyst', icon: ScanLine },
       { to: '/intel', label: 'Intel', icon: Telescope },
+      { to: '/fleet', label: 'Fleet Command', icon: Server },
       { to: '/scrape', label: 'Scrape Pipeline', icon: Globe },
       { to: '/intelligence', label: 'Intelligence Seeker', icon: Brain },
     ],

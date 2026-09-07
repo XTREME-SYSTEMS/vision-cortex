@@ -1,0 +1,243 @@
+{
+  "name": "BrowserEngineFleet",
+  "type": "object",
+  "properties": {
+    "engine_id": {
+      "type": "string",
+      "description": "Unique slug identifier (e.g. staging-primary, prod-backup-01)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Friendly display name"
+    },
+    "url": {
+      "type": "string",
+      "description": "Engine endpoint URL (base, no trailing slash)"
+    },
+    "api_key_secret": {
+      "type": "string",
+      "description": "Name of the app secret holding this engine's API key"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "railway",
+        "vercel",
+        "render",
+        "fly",
+        "heroku",
+        "digitalocean",
+        "aws",
+        "gcp",
+        "azure",
+        "custom"
+      ],
+      "default": "railway",
+      "description": "Cloud provider hosting this engine"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographic region (us-east, eu-west, ap-south, etc.)"
+    },
+    "priority": {
+      "type": "number",
+      "default": 10,
+      "description": "Failover priority \u2014 1 = highest (tried first)"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "primary",
+        "backup",
+        "standby",
+        "canary"
+      ],
+      "default": "backup",
+      "description": "Fleet role: primary serves traffic, backups take over on failure, standby waits, canary tests new builds"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "healthy",
+        "degraded",
+        "critical",
+        "offline",
+        "restarting"
+      ],
+      "default": "offline"
+    },
+    "health_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 rolling health score"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Supported technological capabilities (stealth_browsing, captcha_solving, etc.)"
+    },
+    "max_concurrent_sessions": {
+      "type": "number",
+      "default": 5,
+      "description": "Max parallel browser sessions this engine supports"
+    },
+    "active_sessions": {
+      "type": "number",
+      "default": 0,
+      "description": "Current active session count"
+    },
+    "total_requests": {
+      "type": "number",
+      "default": 0,
+      "description": "Lifetime request count"
+    },
+    "total_failures": {
+      "type": "number",
+      "default": 0,
+      "description": "Lifetime failure count"
+    },
+    "success_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Rolling 0-100 success rate"
+    },
+    "avg_latency_ms": {
+      "type": "number",
+      "default": 0,
+      "description": "Average response latency in milliseconds"
+    },
+    "uptime_started": {
+      "type": "string",
+      "description": "ISO timestamp when current uptime began"
+    },
+    "last_health_check": {
+      "type": "string",
+      "description": "ISO timestamp of last health probe"
+    },
+    "last_failure": {
+      "type": "string",
+      "description": "ISO timestamp of last failure"
+    },
+    "last_failure_reason": {
+      "type": "string",
+      "description": "Error message from last failure"
+    },
+    "consecutive_failures": {
+      "type": "number",
+      "default": 0,
+      "description": "Current consecutive failure streak"
+    },
+    "auto_restart": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the fleet manager should auto-restart this engine"
+    },
+    "restart_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Total auto-restart attempts"
+    },
+    "max_restarts": {
+      "type": "number",
+      "default": 5,
+      "description": "Max restarts before declaring engine offline"
+    },
+    "last_restart": {
+      "type": "string",
+      "description": "ISO timestamp of last restart attempt"
+    },
+    "proxy_pool_config": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "countries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "rotation_strategy": {
+          "type": "string",
+          "enum": [
+            "per_session",
+            "per_request",
+            "sticky"
+          ],
+          "default": "per_session"
+        }
+      },
+      "default": {},
+      "description": "Proxy pool configuration for IP rotation"
+    },
+    "anti_detection": {
+      "type": "object",
+      "properties": {
+        "webdriver_patch": {
+          "type": "boolean",
+          "default": true
+        },
+        "behavioral_mimicry": {
+          "type": "boolean",
+          "default": true
+        },
+        "scroll_simulation": {
+          "type": "boolean",
+          "default": true
+        },
+        "jitter_delay": {
+          "type": "boolean",
+          "default": true
+        },
+        "tls_fingerprint": {
+          "type": "boolean",
+          "default": false
+        },
+        "canvas_spoofing": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "default": {},
+      "description": "Anti-detection feature flags"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Operator notes"
+    }
+  },
+  "required": [
+    "engine_id",
+    "name",
+    "url",
+    "api_key_secret"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "name": "Fleet Health Monitor",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "fleet_health_monitor",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "health_check": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "browserFleetManager",
+            "args": {
+              "action": "health_check"
+            }
+          },
+          "then": "auto_fix",
+          "x-base44": {
+            "title": "Health Check",
+            "description": "Probe all fleet engines"
+          }
+        }
+      },
+      {
+        "auto_fix": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "browserFleetManager",
+            "args": {
+              "action": "auto_fix"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Auto-Fix",
+            "description": "Restart failed engines and manage failover"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/5 * * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Continuous health monitoring and auto-fix for the multi-cloud browser engine fleet \u2014 runs every 5 minutes"
+}
