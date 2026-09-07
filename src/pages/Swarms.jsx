@@ -37,8 +37,8 @@ export default function Swarms() {
         base44.functions.invoke('companyOrchestrator', { action: 'status' }),
         base44.functions.invoke('timeclockManager', { action: 'status' }).catch(() => null),
       ]);
-      setStatus(companyRes);
-      setTimeclock(tcRes);
+      setStatus(companyRes?.data || companyRes);
+      setTimeclock(tcRes?.data || tcRes);
     } catch (e) {
       console.error('Failed to load swarm data:', e);
     } finally {

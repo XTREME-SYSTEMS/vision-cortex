@@ -15,7 +15,7 @@ export default function Company() {
   const load = useCallback(async () => {
     try {
       const res = await base44.functions.invoke('companyOrchestrator', { action: 'status' });
-      setStatus(res);
+      setStatus(res?.data || res);
     } catch (e) {
       console.error('Failed to load company status:', e);
     } finally {
