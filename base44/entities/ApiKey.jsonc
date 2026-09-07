@@ -1,0 +1,134 @@
+{
+  "name": "ApiKey",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable label for this key"
+    },
+    "key_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the full key for verification without storing plaintext"
+    },
+    "key_preview": {
+      "type": "string",
+      "description": "First 8 chars + last 4 chars for identification (e.g. vc_a1b2c3...wxyz)"
+    },
+    "prefix": {
+      "type": "string",
+      "default": "vc"
+    },
+    "category": {
+      "type": "string",
+      "description": "Ecosystem category ID from apiKeyCategories"
+    },
+    "vault_entry_id": {
+      "type": "string",
+      "description": "Linked VaultEntry ID if assigned"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Name of the vault entry this key is assigned to"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked",
+        "expired",
+        "rotated"
+      ],
+      "default": "active"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "write",
+          "execute",
+          "admin",
+          "sync",
+          "scrape",
+          "build",
+          "deploy",
+          "communicate",
+          "full"
+        ]
+      },
+      "default": [
+        "read",
+        "write"
+      ]
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Specific service scopes (e.g. googledrive, gmail, supabase)"
+    },
+    "rate_limit": {
+      "type": "number",
+      "default": 1000,
+      "description": "Requests per hour"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_used": {
+      "type": "string"
+    },
+    "last_used_ip": {
+      "type": "string"
+    },
+    "last_rotated": {
+      "type": "string"
+    },
+    "rotation_count": {
+      "type": "number",
+      "default": 0
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "name",
+    "key_hash",
+    "key_preview"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

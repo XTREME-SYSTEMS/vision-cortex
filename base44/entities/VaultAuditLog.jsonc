@@ -1,0 +1,91 @@
+{
+  "name": "VaultAuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": [
+        "view",
+        "create",
+        "update",
+        "delete",
+        "copy",
+        "export",
+        "key_generate",
+        "key_revoke",
+        "key_rotate",
+        "key_use",
+        "login",
+        "failed_access",
+        "permission_change",
+        "security_alert"
+      ]
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "vault_entry",
+        "api_key",
+        "capability",
+        "mcp_server",
+        "wallet",
+        "account"
+      ]
+    },
+    "resource_id": {
+      "type": "string"
+    },
+    "resource_name": {
+      "type": "string"
+    },
+    "details": {
+      "type": "string",
+      "description": "What happened"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "user_agent": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "warning",
+        "critical"
+      ],
+      "default": "info"
+    },
+    "success": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "action",
+    "resource_type"
+  ],
+  "rls": {
+    "read": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

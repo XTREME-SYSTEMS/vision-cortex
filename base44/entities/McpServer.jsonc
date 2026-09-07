@@ -1,0 +1,139 @@
+{
+  "name": "McpServer",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Server name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "server_id": {
+      "type": "string",
+      "description": "Unique slug identifier"
+    },
+    "transport": {
+      "type": "string",
+      "enum": [
+        "stdio",
+        "sse",
+        "http",
+        "websocket"
+      ],
+      "default": "http"
+    },
+    "endpoint_url": {
+      "type": "string",
+      "description": "URL for SSE/HTTP/WebSocket transports"
+    },
+    "command": {
+      "type": "string",
+      "description": "Command for stdio transport (e.g. npx, python)"
+    },
+    "args": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Arguments for stdio transport"
+    },
+    "env_vars": {
+      "type": "object",
+      "default": {},
+      "description": "Environment variables for the server"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "input_schema": {
+            "type": "object"
+          },
+          "handler": {
+            "type": "string"
+          },
+          "annotations": {
+            "type": "object"
+          }
+        }
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "paused",
+        "error"
+      ],
+      "default": "draft"
+    },
+    "auth_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "bearer",
+        "api_key",
+        "oauth"
+      ],
+      "default": "none"
+    },
+    "auth_token_key": {
+      "type": "string",
+      "description": "Secret name for auth token"
+    },
+    "connected_agent_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "last_tested": {
+      "type": "string"
+    },
+    "last_test_result": {
+      "type": "string"
+    },
+    "tool_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "server_id",
+    "transport"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

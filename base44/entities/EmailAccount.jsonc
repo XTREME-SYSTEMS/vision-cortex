@@ -1,0 +1,141 @@
+{
+  "name": "EmailAccount",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "Friendly name for this email account"
+    },
+    "email_address": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "enum": [
+        "gmail",
+        "outlook",
+        "yahoo",
+        "proton",
+        "custom",
+        "workspace",
+        "sendgrid",
+        "resend",
+        "telnyx"
+      ],
+      "default": "gmail"
+    },
+    "connection_type": {
+      "type": "string",
+      "enum": [
+        "oauth",
+        "imap",
+        "smtp",
+        "api",
+        "connector"
+      ],
+      "default": "connector"
+    },
+    "connector_id": {
+      "type": "string",
+      "description": "Base44 connector ID if using OAuth connector"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "error",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "send",
+          "reply",
+          "draft",
+          "search",
+          "labels",
+          "attachments",
+          "forward",
+          "schedule"
+        ]
+      },
+      "default": [
+        "read",
+        "send"
+      ]
+    },
+    "assigned_agents": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Agent names that can use this email account"
+    },
+    "assigned_vault_id": {
+      "type": "string",
+      "description": "VaultEntry ID with credentials"
+    },
+    "imap_host": {
+      "type": "string"
+    },
+    "imap_port": {
+      "type": "number",
+      "default": 993
+    },
+    "smtp_host": {
+      "type": "string"
+    },
+    "smtp_port": {
+      "type": "number",
+      "default": 587
+    },
+    "last_sync": {
+      "type": "string"
+    },
+    "last_error": {
+      "type": "string"
+    },
+    "emails_sent": {
+      "type": "number",
+      "default": 0
+    },
+    "emails_received": {
+      "type": "number",
+      "default": 0
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "label",
+    "email_address",
+    "provider"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "name": "CapabilityToggle",
+  "type": "object",
+  "properties": {
+    "capability_id": {
+      "type": "string",
+      "description": "Unique slug (e.g. headless_browser, asyncio_parallel, email_send)"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "browser",
+        "execution",
+        "data_access",
+        "frontend_editing",
+        "backend_editing",
+        "communications",
+        "email",
+        "scraping",
+        "accounts",
+        "build",
+        "deploy",
+        "ai_inference",
+        "mcp",
+        "security"
+      ]
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "agent_names": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Which agents have this capability. Empty = all agents."
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "max_concurrent": {
+          "type": "number"
+        },
+        "rate_limit": {
+          "type": "number"
+        },
+        "timeout_seconds": {
+          "type": "number"
+        },
+        "allowed_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocked_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "custom_settings": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "requires_approval": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, agent requests using this capability need admin approval"
+    },
+    "last_toggled_by": {
+      "type": "string"
+    },
+    "last_toggled_at": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string",
+      "default": "Cpu"
+    }
+  },
+  "required": [
+    "capability_id",
+    "name",
+    "category"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
