@@ -1,0 +1,163 @@
+{
+  "name": "SystemTaskRegistry",
+  "type": "object",
+  "properties": {
+    "task_type": {
+      "type": "string",
+      "description": "Unique slug identifier (e.g. forensic_audit, intelligence_ingest, factory_build)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable task name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "fix",
+        "harden",
+        "build",
+        "optimize",
+        "intelligence",
+        "outreach",
+        "comms",
+        "monitoring",
+        "documentation",
+        "research",
+        "deployment",
+        "strategy",
+        "evolution",
+        "simulation",
+        "financial",
+        "security",
+        "governance",
+        "other"
+      ],
+      "default": "other"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this task does"
+    },
+    "assigned_agent": {
+      "type": "string",
+      "description": "Agent name responsible for this task"
+    },
+    "assigned_agent_codename": {
+      "type": "string"
+    },
+    "source_page": {
+      "type": "string",
+      "description": "Which page/feature this task belongs to (e.g. ForensicAudit, Intel, Factory)"
+    },
+    "source_function": {
+      "type": "string",
+      "description": "Backend function that executes this task"
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "scheduled",
+        "event_driven",
+        "autonomous",
+        "webhook"
+      ],
+      "default": "manual"
+    },
+    "trigger_schedule": {
+      "type": "string",
+      "description": "Cron expression or interval description if scheduled"
+    },
+    "estimated_duration_minutes": {
+      "type": "number",
+      "default": 30,
+      "description": "Expected completion time in minutes"
+    },
+    "payment_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "INF tokens earned for completing this task"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "unassigned",
+        "deprecated"
+      ],
+      "default": "active"
+    },
+    "last_run": {
+      "type": "string",
+      "description": "ISO timestamp of last execution"
+    },
+    "last_status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "running",
+        "never"
+      ],
+      "default": "never"
+    },
+    "last_duration_minutes": {
+      "type": "number",
+      "default": 0
+    },
+    "run_count": {
+      "type": "number",
+      "default": 0
+    },
+    "fail_count": {
+      "type": "number",
+      "default": 0
+    },
+    "requires_google_task": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this task should be tracked in Google Tasks"
+    },
+    "requires_calendar_event": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this task should be scheduled in Google Calendar"
+    }
+  },
+  "required": [
+    "task_type",
+    "name",
+    "category",
+    "assigned_agent"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "name": "TimeClockEntry",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string",
+      "description": "Agent who clocked in"
+    },
+    "agent_codename": {
+      "type": "string"
+    },
+    "task_registry_id": {
+      "type": "string",
+      "description": "SystemTaskRegistry ID for this task type"
+    },
+    "task_type": {
+      "type": "string",
+      "description": "The task_type slug from SystemTaskRegistry"
+    },
+    "schedule_id": {
+      "type": "string",
+      "description": "Linked AgentSchedule ID if created from a scheduled task"
+    },
+    "google_task_id": {
+      "type": "string",
+      "description": "Google Tasks task ID if tracked there"
+    },
+    "task_list_id": {
+      "type": "string",
+      "description": "Google Tasks list ID"
+    },
+    "clock_in": {
+      "type": "string",
+      "description": "ISO timestamp when agent started working"
+    },
+    "clock_out": {
+      "type": "string",
+      "description": "ISO timestamp when agent finished"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Calculated work duration in minutes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "abandoned",
+        "paused"
+      ],
+      "default": "active"
+    },
+    "result": {
+      "type": "string",
+      "description": "Outcome summary"
+    },
+    "payment_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "INF tokens earned for this time entry"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "pending",
+        "paid",
+        "forfeit"
+      ],
+      "default": "unpaid"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "google_task",
+        "autonomous",
+        "schedule"
+      ],
+      "default": "schedule"
+    },
+    "source_page": {
+      "type": "string",
+      "description": "Which page triggered this"
+    }
+  },
+  "required": [
+    "agent_name",
+    "task_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
