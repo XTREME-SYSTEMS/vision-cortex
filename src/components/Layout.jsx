@@ -31,6 +31,7 @@ const navGroups = [
     items: [
       { to: '/blueprint', label: 'Blueprint', icon: BookOpen },
       { to: '/company', label: 'The Company', icon: Building2 },
+      { to: '/registry', label: 'System Registry', icon: ListChecks },
       { to: '/vision', label: 'Vision', icon: Radar },
       { to: '/', label: 'Opportunities', icon: LayoutDashboard },
       { to: '/destiny', label: 'Destiny Flow', icon: Sparkles },
