@@ -70,6 +70,7 @@ import CloudBrowserPipeline from '@/pages/CloudBrowserPipeline';
 import FleetCommand from '@/pages/FleetCommand';
 import SimFloor from '@/pages/SimFloor';
 import AgentSettings from '@/pages/AgentSettings';
+import Plugins from '@/pages/Plugins';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -159,6 +160,7 @@ const AuthenticatedApp = () => {
           <Route path="/fleet" element={<FleetCommand />} />
           <Route path="/sim" element={<SimFloor />} />
           <Route path="/settings" element={<AgentSettings />} />
+          <Route path="/plugins" element={<Plugins />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

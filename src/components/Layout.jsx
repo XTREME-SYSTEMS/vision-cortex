@@ -8,7 +8,7 @@ import {
   Workflow, Rocket, Megaphone, Globe,
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
-  EyeOff, Server, Lock, Zap, Building2, Network, Settings,
+  EyeOff, Server, Lock, Zap, Building2, Network, Settings, Puzzle,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -42,6 +42,7 @@ const navGroups = [
       { to: '/lifelab', label: 'Life Lab', icon: FlaskConical },
       { to: '/usersim', label: 'User Sim', icon: Users },
       { to: '/settings', label: 'Agent Settings', icon: Settings },
+      { to: '/plugins', label: 'Plugin Store', icon: Puzzle },
     ],
   },
   {

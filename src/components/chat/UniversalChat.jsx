@@ -12,6 +12,7 @@ export default function UniversalChat({ activeAgents }) {
   const [validating, setValidating] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceChatOpen, setVoiceChatOpen] = useState(false);
+  const [plugins, setPlugins] = useState([]);
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -28,6 +29,10 @@ export default function UniversalChat({ activeAgents }) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    base44.entities.Plugin.filter({ enabled: true }).then(setPlugins).catch(() => {});
+  }, []);
 
   const send = async () => {
     if (!input.trim() || sending) return;
@@ -206,28 +211,33 @@ export default function UniversalChat({ activeAgents }) {
             );
           }
           const isPrimary = m.primary || m.approval;
-          return (
-            <div key={i} className={cn('flex gap-2.5', m.author_type === 'user' ? 'justify-end' : 'justify-start', m.delegated && 'opacity-70')}>
-              {m.author_type === 'agent' && (
-                <div className={cn('w-7 h-7 rounded-full grid place-items-center shrink-0 mt-0.5', isPrimary ? 'bg-foreground text-background' : 'bg-muted')}>
-                  {m.author === 'System' ? <AlertCircle className="w-3.5 h-3.5 text-amber-500" /> : <Bot className="w-3.5 h-3.5" />}
+          const isUser = m.author_type === 'user';
+
+          // ChatGPT style: user = gray bubble right, AI = no bubble left with avatar
+          if (isUser) {
+            return (
+              <div key={i} className="flex justify-end">
+                <div className="bg-muted rounded-3xl px-4 py-2.5 text-sm max-w-[80%]">
+                  <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
                 </div>
-              )}
-              <div className={cn('max-w-[75%] rounded-2xl px-3.5 py-2 text-sm', m.author_type === 'user' ? 'bg-foreground text-background' : isPrimary ? 'bg-foreground/5 border border-foreground/15' : m.simulation ? 'bg-chart-3/10 border border-chart-3/30' : 'bg-muted text-foreground', m.approval && 'border-amber-500/40 bg-amber-500/5')}>
-                {m.author_type === 'agent' && m.author !== 'System' && (
-                  <p className={cn('text-[10px] uppercase tracking-wider mb-0.5 font-semibold', isPrimary ? 'text-foreground' : 'text-muted-foreground')}>
-                    {m.author}{m.delegated && ' · delegated'}
-                    {m.simulation && ' · simulation'}
-                    {m.approval && ' · approval needed'}
+              </div>
+            );
+          }
+          return (
+            <div key={i} className={cn('flex gap-3', m.delegated && 'opacity-70')}>
+              <div className={cn('w-7 h-7 rounded-full grid place-items-center shrink-0 mt-0.5', isPrimary ? 'bg-foreground text-background' : 'bg-muted')}>
+                {m.author === 'System' ? <AlertCircle className="w-3.5 h-3.5 text-amber-500" /> : <Bot className="w-3.5 h-3.5" />}
+              </div>
+              <div className="flex-1 min-w-0 pt-0.5">
+                {m.author !== 'System' && (
+                  <p className={cn('text-[10px] uppercase tracking-wider mb-1 font-semibold', isPrimary ? 'text-foreground' : 'text-muted-foreground')}>
+                    {m.author}{m.delegated && ' · delegated'}{m.simulation && ' · simulation'}{m.approval && ' · approval needed'}
                   </p>
                 )}
-                <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
-              </div>
-              {m.author_type === 'user' && (
-                <div className="w-7 h-7 rounded-full bg-foreground text-background grid place-items-center shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5" />
+                <div className={cn('text-sm', m.simulation && 'bg-chart-3/5 border border-chart-3/20 rounded-xl p-3', m.approval && 'bg-amber-500/5 border border-amber-500/30 rounded-xl p-3')}>
+                  <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
@@ -285,6 +295,18 @@ export default function UniversalChat({ activeAgents }) {
         )}
         <div className="max-w-3xl mx-auto">
           <input ref={fileInputRef} type="file" multiple onChange={handleFileUpload} className="hidden" />
+          {/* Model picker — ChatGPT style */}
+          <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg bg-muted">
+              <Bot className="w-3 h-3" />
+              Prime
+            </div>
+            {plugins.map((p) => (
+              <span key={p.id} className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-muted/50 border border-border/30 text-muted-foreground">
+                {p.name}
+              </span>
+            ))}
+          </div>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}

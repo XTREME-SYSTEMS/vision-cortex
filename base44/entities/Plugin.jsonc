@@ -1,0 +1,105 @@
+{
+  "name": "Plugin",
+  "type": "object",
+  "properties": {
+    "plugin_id": {
+      "type": "string",
+      "description": "Unique slug identifier (e.g. web_browser, system_auditor)"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this plugin does"
+    },
+    "icon": {
+      "type": "string",
+      "default": "Puzzle",
+      "description": "Lucide icon name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "productivity",
+        "research",
+        "communication",
+        "system",
+        "data",
+        "creative",
+        "custom"
+      ],
+      "default": "custom"
+    },
+    "system_prompt": {
+      "type": "string",
+      "description": "Additional instructions injected into Prime's context when this plugin is enabled"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "What this plugin can do (shown as tags)"
+    },
+    "backend_function": {
+      "type": "string",
+      "description": "Backend function to call when this plugin is triggered"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_builtin": {
+      "type": "boolean",
+      "default": false,
+      "description": "Built-in plugin vs user-created"
+    },
+    "color": {
+      "type": "string",
+      "default": "blue",
+      "enum": [
+        "blue",
+        "green",
+        "purple",
+        "orange",
+        "red",
+        "cyan",
+        "pink",
+        "yellow"
+      ]
+    },
+    "author": {
+      "type": "string",
+      "default": "Vision Cortex"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    }
+  },
+  "required": [
+    "plugin_id",
+    "name",
+    "category"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

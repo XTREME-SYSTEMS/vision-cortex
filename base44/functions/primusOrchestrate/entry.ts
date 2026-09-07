@@ -22,6 +22,18 @@ export default async function (req) {
       s.conversation_rules?.length ? '\nRules: ' + s.conversation_rules.join('; ') : '',
       s.memory_enabled && s.memories?.length ? '\nMemories: ' + s.memories.map((m) => m.content).join('; ') : '',
     ].filter(Boolean).join('');
+
+    // Load enabled plugins (ChatGPT-style plugin system)
+    const enabledPlugins = await base44.asServiceRole.entities.Plugin.filter({ enabled: true });
+    const pluginBlock = enabledPlugins.length
+      ? '\n\nActive plugins (use their capabilities when relevant to the user\'s request):\n' +
+        enabledPlugins.map((p) =>
+          '- ' + p.name + ': ' + (p.description || '') +
+          (p.capabilities?.length ? '\n  Capabilities: ' + p.capabilities.join(', ') : '') +
+          (p.system_prompt ? '\n  Instructions: ' + p.system_prompt : '') +
+          (p.backend_function ? '\n  Backend function: ' + p.backend_function : '')
+        ).join('\n')
+      : '';
     const history = Array.isArray(body?.history) ? body.history.slice(-12) : [];
 
     // On-demand validation — triggered by the Validate button, not on every message
@@ -171,7 +183,7 @@ export default async function (req) {
       : 'You handled this directly.';
 
     const synthesisPrompt =
-      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n' + personalizationBlock + '\n\n' +
+      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n' + personalizationBlock + pluginBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
       '\n' + delegationLine + '\n' +
