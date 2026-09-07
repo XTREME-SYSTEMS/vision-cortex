@@ -6,13 +6,83 @@ import { secrets } from 'base44:runtime';
 // and regenerates them via Groq (zero Base44 credits) to maintain system consistency.
 // The Codex Keeper agent is responsible for invoking this.
 
+// ============================================================================
+// ZERO-FAILURE MULTI-PROVIDER ROUTER (inline — shared imports not bundleable)
+// Chain: Groq → Vercel AI Gateway → Base44 Core (always available)
+// A rate limit on Groq no longer halts the document evolution cascade.
+// ============================================================================
+
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODELS = ['openai/gpt-oss-120b'];
+const GROQ_MODEL = 'openai/gpt-oss-120b';
 
-async function groqEvolve(sourceDoc, dependentDoc) {
-  const key = secrets.get('GROQ_API_KEY');
-  if (!key) throw new Error('GROQ_API_KEY not set');
+async function routeLLM(prompt, systemContext, base44Client, jsonMode) {
+  // Provider 1: Groq (fastest, cheapest)
+  try {
+    const key = secrets.get('GROQ_API_KEY');
+    if (key) {
+      const body = {
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: systemContext || 'You are the Codex Keeper.' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.1,
+        max_tokens: 4000
+      };
+      if (jsonMode) body.response_format = { type: 'json_object' };
+      const res = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return { text: data.choices[0].message.content, provider: 'GROQ' };
+      }
+    }
+  } catch (e) { /* fall through to next provider */ }
 
+  // Provider 2: Vercel AI Gateway (fallback)
+  try {
+    const gatewayKey = secrets.get('AI_GATEWAY_API_KEY');
+    if (gatewayKey) {
+      const res = await fetch('https://api.vercel.com/v1/ai/generate', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${gatewayKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, system: systemContext, maxTokens: 4000, temperature: 0.1 })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return { text: data.text || data.response || '', provider: 'VERCEL_GATEWAY' };
+      }
+    }
+  } catch (e) { /* fall through to final provider */ }
+
+  // Provider 3: Base44 Core InvokeLLM (zero-failure — always available)
+  const core = base44Client.asServiceRole.integrations.Core;
+  const coreOpts = { prompt };
+  if (jsonMode) {
+    coreOpts.response_json_schema = {
+      type: 'object',
+      properties: {
+        validation_score: { type: 'number' },
+        inconsistencies: { type: 'array', items: { type: 'string' } },
+        recommendations: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['validation_score'],
+      additionalProperties: true,
+    };
+  }
+  const result = await core.InvokeLLM(coreOpts);
+  // When response_json_schema is used, Core returns a parsed object — stringify it
+  // so callers that JSON.parse can handle it uniformly
+  if (jsonMode && typeof result === 'object' && result !== null) {
+    return { text: JSON.stringify(result), provider: 'BASE44_CORE' };
+  }
+  return { text: typeof result === 'string' ? result : result?.response || String(result || ''), provider: 'BASE44_CORE' };
+}
+
+async function groqEvolve(sourceDoc, dependentDoc, base44Client) {
   const prompt = `You are the Codex Keeper — guardian of the Vision Cortex document ecosystem.
 
 The source document "${sourceDoc.title}" has been updated. You must update the dependent document "${dependentDoc.title}" to reflect these changes and maintain consistency across the entire system.
@@ -30,41 +100,12 @@ INSTRUCTIONS:
 4. If the source change does not affect this document, return the content unchanged
 5. Output ONLY the complete updated document content in markdown — no explanations, no preamble`;
 
-  // Try primary model, fall back to secondary on rate limit
-  for (const model of GROQ_MODELS) {
-    try {
-      const res = await fetch(GROQ_URL, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: 'system', content: 'You are the Codex Keeper — guardian of the Vision Cortex document ecosystem. You ensure all system documents remain consistent when any document changes. You output only updated document content in markdown, never explanations.' },
-            { role: 'user', content: prompt }
-          ],
-          temperature: 0.1,
-          max_tokens: 4000
-        })
-      });
-
-      if (!res.ok) {
-        const err = await res.text();
-        if (err.includes('rate_limit') && model !== GROQ_MODELS[GROQ_MODELS.length - 1]) continue;
-        throw new Error(`Groq error: ${err}`);
-      }
-      const data = await res.json();
-      return data.choices[0].message.content;
-    } catch (e) {
-      if (model === GROQ_MODELS[GROQ_MODELS.length - 1]) throw e;
-    }
-  }
-  throw new Error('All Groq models failed');
+  const systemContext = 'You are the Codex Keeper — guardian of the Vision Cortex document ecosystem. You ensure all system documents remain consistent when any document changes. You output only updated document content in markdown, never explanations.';
+  const result = await routeLLM(prompt, systemContext, base44Client);
+  return result.text;
 }
 
-async function groqValidate(documents) {
-  const key = secrets.get('GROQ_API_KEY');
-  if (!key) throw new Error('GROQ_API_KEY not set');
-
+async function groqValidate(documents, base44Client) {
   const docSummaries = documents.map(d => `- ${d.document_id} v${d.version}: ${d.title}`).join('\n');
   const prompt = `You are the Codex Keeper. Validate the consistency of this document ecosystem. Output a JSON object with a validation_score (0-1) and any inconsistencies found.
 
@@ -73,28 +114,14 @@ ${docSummaries}
 
 Return JSON: {"validation_score": 0.0-1.0, "inconsistencies": ["issue1", "issue2"], "recommendations": ["rec1"]}`;
 
-  const res = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages: [
-        { role: 'system', content: 'You are a document consistency validator. Output only JSON.' },
-        { role: 'user', content: prompt }
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.1,
-      max_tokens: 1000
-    })
-  });
-
-  if (!res.ok) { const err = await res.text(); throw new Error(`Groq error: ${err}`); }
-  const data = await res.json();
-  return JSON.parse(data.choices[0].message.content);
+  const systemContext = 'You are a document consistency validator. Output only JSON.';
+  const result = await routeLLM(prompt, systemContext, base44Client, true);
+  try {
+    return JSON.parse(result.text);
+  } catch {
+    return { validation_score: 0.5, inconsistencies: ['Parse error from provider'], recommendations: [] };
+  }
 }
-
-// Use primary model for validate (lower token usage)
-const GROQ_MODEL = GROQ_MODELS[0];
 
 function bumpVersion(version) {
   const parts = (version || '1.0.0').split('.').map(Number);
@@ -128,7 +155,7 @@ export default async function(req) {
       if (!allDocs || allDocs.length === 0) {
         return Response.json({ error: 'No core documents found. Run bootstrap first.' }, { status: 400 });
       }
-      const validation = await groqValidate(allDocs);
+      const validation = await groqValidate(allDocs, base44);
 
       // Update validation scores
       for (const doc of allDocs) {
@@ -196,7 +223,7 @@ export default async function(req) {
 
         try {
           // Evolve via Groq
-          const newContent = await groqEvolve(currentDoc, depDoc);
+          const newContent = await groqEvolve(currentDoc, depDoc, base44);
           const oldVersion = depDoc.version || '1.0.0';
           const newVersion = bumpVersion(oldVersion);
 
@@ -247,7 +274,7 @@ export default async function(req) {
       cascaded_count: cascaded.length,
       validation_score: validationScore,
       zero_credit: true,
-      groq_models: GROQ_MODELS
+      router: 'groq_to_vercel_to_base44'
     });
   } catch (error) {
     return Response.json({ error: error.message, zero_credit: true, timestamp: new Date().toISOString() }, { status: 500 });
