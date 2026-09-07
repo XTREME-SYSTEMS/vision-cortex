@@ -1,0 +1,173 @@
+{
+  "name": "AgentSchedule",
+  "type": "object",
+  "properties": {
+    "agent_name": {
+      "type": "string",
+      "description": "Name of the agent assigned to this task"
+    },
+    "agent_codename": {
+      "type": "string"
+    },
+    "task_title": {
+      "type": "string",
+      "description": "What the agent is working on"
+    },
+    "task_description": {
+      "type": "string"
+    },
+    "task_category": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "fix",
+        "harden",
+        "build",
+        "optimize",
+        "intelligence",
+        "outreach",
+        "comms",
+        "monitoring",
+        "documentation",
+        "research",
+        "deployment",
+        "other"
+      ],
+      "default": "other"
+    },
+    "playbook_phase": {
+      "type": "string",
+      "description": "Which playbook phase this belongs to (e.g. '1_audit', '2_fix', '3_harden')"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "failed",
+        "paused",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "priority": {
+      "type": "number",
+      "default": 3,
+      "description": "1 = highest, 5 = lowest"
+    },
+    "scheduled_start": {
+      "type": "string",
+      "description": "ISO timestamp when the task should start"
+    },
+    "scheduled_end": {
+      "type": "string",
+      "description": "ISO timestamp when the task should end"
+    },
+    "actual_start": {
+      "type": "string",
+      "description": "When the agent actually started"
+    },
+    "actual_end": {
+      "type": "string",
+      "description": "When the agent actually finished"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 0,
+      "description": "Actual work duration in minutes"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "description": "0-100 completion percentage"
+    },
+    "result": {
+      "type": "string",
+      "description": "Outcome summary when completed"
+    },
+    "output_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "IDs of entities, documents, or reports produced"
+    },
+    "payment_amount": {
+      "type": "number",
+      "default": 0,
+      "description": "INF tokens earned for completing this task"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "pending",
+        "paid",
+        "forfeit"
+      ],
+      "default": "unpaid"
+    },
+    "calendar_event_id": {
+      "type": "string",
+      "description": "Google Calendar event ID"
+    },
+    "calendar_event_url": {
+      "type": "string"
+    },
+    "google_task_id": {
+      "type": "string",
+      "description": "Google Tasks task ID"
+    },
+    "task_list_id": {
+      "type": "string",
+      "description": "Google Tasks list ID"
+    },
+    "whatsapp_notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "parent_task_id": {
+      "type": "string",
+      "description": "If this is a subtask, the parent AgentSchedule ID"
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "AgentSchedule IDs that must complete before this starts"
+    },
+    "system_target": {
+      "type": "string",
+      "description": "Which system/site this task targets (e.g. 'vision_cortex', 'hidden_property_intel')"
+    }
+  },
+  "required": [
+    "agent_name",
+    "task_title",
+    "task_category"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
