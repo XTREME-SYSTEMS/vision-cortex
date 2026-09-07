@@ -8,7 +8,7 @@ import {
   Workflow, Rocket, Megaphone, Globe,
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
-  EyeOff, Server, Lock, Zap, Building2,
+  EyeOff, Server, Lock, Zap, Building2, Network,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -31,6 +31,7 @@ const navGroups = [
     items: [
       { to: '/blueprint', label: 'Blueprint', icon: BookOpen },
       { to: '/company', label: 'The Company', icon: Building2 },
+      { to: '/swarms', label: 'Swarms', icon: Network },
       { to: '/registry', label: 'System Registry', icon: ListChecks },
       { to: '/vision', label: 'Vision', icon: Radar },
       { to: '/', label: 'Opportunities', icon: LayoutDashboard },

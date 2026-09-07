@@ -64,6 +64,7 @@ import AutonomousLoop from '@/pages/AutonomousLoop';
 import Blueprint from '@/pages/Blueprint';
 import Company from '@/pages/Company';
 import SystemRegistry from '@/pages/SystemRegistry';
+import Swarms from '@/pages/Swarms';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -147,6 +148,7 @@ const AuthenticatedApp = () => {
           <Route path="/blueprint" element={<Blueprint />} />
           <Route path="/company" element={<Company />} />
           <Route path="/registry" element={<SystemRegistry />} />
+          <Route path="/swarms" element={<Swarms />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

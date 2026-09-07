@@ -34,6 +34,27 @@
     },
     "impact_score": {
       "type": "number"
+    },
+    "assigned_agent": {
+      "type": "string",
+      "description": "Agent responsible for this intel item"
+    },
+    "source_agent": {
+      "type": "string",
+      "description": "Agent that scraped/discovered this intel"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to attached file if any"
+    },
+    "drive_organized": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this intel has been organized into Google Drive"
+    },
+    "drive_folder_id": {
+      "type": "string",
+      "description": "Google Drive folder ID where this intel is stored"
     }
   },
   "required": [

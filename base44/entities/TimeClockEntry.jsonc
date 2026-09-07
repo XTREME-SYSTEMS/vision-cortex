@@ -29,6 +29,10 @@
       "type": "string",
       "description": "Google Tasks list ID"
     },
+    "calendar_event_id": {
+      "type": "string",
+      "description": "Google Calendar event ID for real-time activity tracking"
+    },
     "clock_in": {
       "type": "string",
       "description": "ISO timestamp when agent started working"

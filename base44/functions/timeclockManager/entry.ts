@@ -82,7 +82,7 @@ export default async function(req) {
 
     // ─── CLOCK IN ──────────────────────────────────────────────────────
     if (action === 'clock_in') {
-      const { agent_name, task_type, task_title, source_page, schedule_id, create_google_task } = body;
+      const { agent_name, task_type, task_title, source_page, schedule_id, create_google_task, create_calendar_event } = body;
       if (!agent_name || !task_type) {
         return Response.json({ error: 'agent_name and task_type required' }, { status: 400 });
       }
@@ -113,6 +113,32 @@ export default async function(req) {
 
       let googleTaskId = null;
       let taskListId = null;
+      let calendarEventId = null;
+
+      // Create Google Calendar event for real-time activity tracking
+      if (create_calendar_event !== false) {
+        try {
+          const { accessToken: calToken } = await sr.connectors.getConnection('googlecalendar');
+          const eventBody = {
+            summary: `[${agent_name}] ${task_title || task_type}`,
+            description: `Agent: ${agent_name}${codename ? ' (' + codename + ')' : ''}\nTask type: ${task_type}\nSource: ${source_page || 'system'}\nPayment: ${paymentAmount} INF\n\nAuto-logged by Vision Cortex Timeclock`,
+            start: { dateTime: new Date().toISOString() },
+            end: { dateTime: new Date(Date.now() + 3600000).toISOString() },
+            colorId: '2'
+          };
+          const calRes = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${calToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventBody)
+          });
+          if (calRes.ok) {
+            const calData = await calRes.json();
+            calendarEventId = calData.id;
+          }
+        } catch (e) {
+          // Calendar creation failed — continue without it
+        }
+      }
 
       // Create Google Task if requested
       if (create_google_task !== false) {
@@ -174,7 +200,8 @@ export default async function(req) {
         payment_amount: paymentAmount,
         payment_status: 'unpaid',
         source: body.source || 'manual',
-        source_page: source_page || ''
+        source_page: source_page || '',
+        calendar_event_id: calendarEventId || ''
       });
 
       return Response.json({
@@ -185,6 +212,8 @@ export default async function(req) {
         task_type,
         google_task_created: !!googleTaskId,
         google_task_id: googleTaskId,
+        calendar_event_created: !!calendarEventId,
+        calendar_event_id: calendarEventId,
         payment_amount: paymentAmount
       });
     }
@@ -207,6 +236,23 @@ export default async function(req) {
       const clockOut = new Date().toISOString();
       const clockIn = new Date(entry.clock_in);
       const durationMin = Math.round((Date.now() - clockIn.getTime()) / 60000);
+
+      // Update Google Calendar event with actual end time
+      if (entry.calendar_event_id) {
+        try {
+          const { accessToken: calToken } = await sr.connectors.getConnection('googlecalendar');
+          await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${entry.calendar_event_id}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `Bearer ${calToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              end: { dateTime: clockOut },
+              description: `Agent: ${entry.agent_name}\nTask type: ${entry.task_type}\nDuration: ${durationMin} min\nPayment: ${entry.payment_amount} INF\nResult: ${result || 'Completed'}\n\nAuto-logged by Vision Cortex Timeclock`
+            })
+          });
+        } catch (e) {
+          // Non-fatal
+        }
+      }
 
       // Mark Google Task as done
       if (mark_google_task_done !== false && entry.google_task_id && entry.task_list_id) {
