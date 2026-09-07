@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import {
   Settings, User, MessageSquare, Brain, Mic, Cpu,
   Phone, Save, Loader2, Plus, X, Check, Trash2, Send,
+  ShieldCheck, Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,6 +35,8 @@ export default function AgentSettings() {
   const [commsStatus, setCommsStatus] = useState(null);
   const [commsAction, setCommsAction] = useState(null);
   const [commsResult, setCommsResult] = useState(null);
+  const [auditResult, setAuditResult] = useState(null);
+  const [healResult, setHealResult] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -121,6 +124,22 @@ export default function AgentSettings() {
       setCommsStatus(res?.data || res);
     } catch (e) {
       setCommsStatus({ error: e.message });
+    } finally {
+      setCommsAction(null);
+    }
+  };
+
+  const runCommsAction = async (actionName) => {
+    setCommsAction(actionName);
+    try {
+      const res = await base44.functions.invoke('xtremeComms', { action: actionName });
+      const data = res?.data || res;
+      if (actionName === 'runAutonomousAudit') setAuditResult(data);
+      else if (actionName === 'preflightHeal') setHealResult(data);
+      return data;
+    } catch (e) {
+      if (actionName === 'runAutonomousAudit') setAuditResult({ error: e.message });
+      else if (actionName === 'preflightHeal') setHealResult({ error: e.message });
     } finally {
       setCommsAction(null);
     }
@@ -388,8 +407,41 @@ export default function AgentSettings() {
           />
         </Field>
 
+        {/* Autonomous Audit & Auto-Heal */}
+        <div className="rounded-lg bg-muted/50 border border-border/30 p-3 space-y-2">
+          <p className="text-xs font-medium">System Operations</p>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => runCommsAction('runAutonomousAudit')}
+              disabled={!!commsAction}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors disabled:opacity-40"
+            >
+              {commsAction === 'runAutonomousAudit' ? <Loader2 className="w-3 h-3 animate-spin" /> : <ShieldCheck className="w-3 h-3" />}
+              Run Autonomous Audit
+            </button>
+            <button
+              onClick={() => runCommsAction('preflightHeal')}
+              disabled={!!commsAction}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-colors disabled:opacity-40"
+            >
+              {commsAction === 'preflightHeal' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Zap className="w-3 h-3" />}
+              Run Auto-Heal
+            </button>
+          </div>
+          {auditResult && (
+            <div className={cn('text-[10px] rounded p-2 border', auditResult.error ? 'bg-red-500/5 border-red-500/20 text-red-500' : 'bg-emerald-500/5 border-emerald-500/20 text-muted-foreground')}>
+              {auditResult.error ? '❌ ' + auditResult.error : '✅ Audit: ' + JSON.stringify(auditResult.data || auditResult).slice(0, 300)}
+            </div>
+          )}
+          {healResult && (
+            <div className={cn('text-[10px] rounded p-2 border', healResult.error ? 'bg-red-500/5 border-red-500/20 text-red-500' : 'bg-amber-500/5 border-amber-500/20 text-muted-foreground')}>
+              {healResult.error ? '❌ ' + healResult.error : '✅ Healed: ' + JSON.stringify(healResult.data || healResult).slice(0, 300)}
+            </div>
+          )}
+        </div>
+
         <p className="text-[10px] text-muted-foreground/70 mt-2">
-          Full portal at xtremecommunications.com — purchase numbers, create AI voice agents, send SMS/MMS/WhatsApp/Email, make calls.
+          Full portal at xtreme-communications.com — purchase numbers, create AI voice agents, send SMS/MMS/WhatsApp/Email, make calls.
         </p>
       </Section>
     </div>
