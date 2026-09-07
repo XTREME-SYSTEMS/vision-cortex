@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Radar, Target, Activity, Clock, Zap, Brain } from 'lucide-react';
+import { Radar, Target, Activity, Clock, Zap, Brain, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SwarmTimeline from '@/components/vision/SwarmTimeline';
 import AgentProgressGrid from '@/components/vision/AgentProgressGrid';
 import BrainLinkPanel from '@/components/vision/BrainLinkPanel';
+import ZeroFailureDashboard from '@/components/vision/ZeroFailureDashboard';
 
 const toBullets = (text) => {
   if (!text) return [];
@@ -106,6 +107,18 @@ export default function Vision() {
           </span>
         </div>
         <AgentProgressGrid agents={agents} />
+      </section>
+
+      {/* Zero-Failure Pipeline — live agent economy & deterministic validation */}
+      <section>
+        <div className="flex items-center gap-2 mb-3">
+          <Shield className="w-4 h-4 text-violet-500" />
+          <h2 className="font-display text-lg">Zero-Failure Pipeline · $INF Economy</h2>
+          <span className="flex items-center gap-1 text-[10px] text-violet-500 font-medium ml-auto">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" /> Deterministic
+          </span>
+        </div>
+        <ZeroFailureDashboard />
       </section>
 
       {/* Brain Link — bi-directional sync with V-1 Brain + Cloud Browser engine */}
