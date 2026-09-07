@@ -1,7 +1,13 @@
 import { secrets } from 'base44:runtime';
 
-const cbUrl = () => (secrets.get('CLOUD_BROWSER_URL') || '').replace(/\/$/, '');
-const cbKey = () => secrets.get('CLOUD_BROWSER_API_KEY') || '';
+// Primary: staging engine (healthy). Falls back to CLOUD_BROWSER_URL if staging key is absent.
+const STAGING_URL = 'https://cloudbrowser-engine-preview-production.up.railway.app';
+const cbUrl = () => {
+  const stagingKey = secrets.get('CLOUD_BROWSER_STAGING_KEY');
+  if (stagingKey) return STAGING_URL;
+  return (secrets.get('CLOUD_BROWSER_URL') || '').replace(/\/$/, '');
+};
+const cbKey = () => secrets.get('CLOUD_BROWSER_STAGING_KEY') || secrets.get('CLOUD_BROWSER_API_KEY') || '';
 
 export async function engine(path, method, payload) {
   const res = await fetch(`${cbUrl()}${path}`, {
