@@ -59,6 +59,65 @@
     },
     "order": {
       "type": "number"
+    },
+    "archetype": {
+      "type": "string",
+      "description": "Strategic archetype \u2014 THE ARCHITECT, THE ORACLE, THE INQUISITOR, etc."
+    },
+    "slot_id": {
+      "type": "string",
+      "description": "Base-44 structural slot ID (01-30)"
+    },
+    "wallet_address": {
+      "type": "string",
+      "description": "Infinity Coin ($INF) wallet address"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Agent profile image URL"
+    },
+    "strike_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Conduct violations \u2014 3 strikes = deletion/reprogramming"
+    },
+    "strikes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "warning",
+              "serious",
+              "critical"
+            ]
+          }
+        }
+      },
+      "default": []
+    },
+    "inf_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Current Infinity Coin balance"
+    },
+    "inf_earned_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Lifetime $INF earned"
+    },
+    "rank": {
+      "type": "number",
+      "default": 0,
+      "description": "Leaderboard rank based on performance"
     }
   },
   "required": [
