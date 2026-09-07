@@ -9,6 +9,19 @@ export default async function (req) {
     const body = await req.json();
     const action = (body?.action || 'chat').trim();
     const message = (body?.message || '').trim();
+
+    // Load user personalization settings (ChatGPT-style custom instructions)
+    const settingsList = await base44.asServiceRole.entities.AgentSettings.list('-updated_date', 1);
+    const s = settingsList[0] || {};
+    const personalizationBlock = [
+      s.user_name ? '\nThe owner\'s name is ' + s.user_name + '. Address them by name when natural.' : '',
+      s.about_user ? '\nAbout the owner: ' + s.about_user : '',
+      s.response_style ? '\nResponse style: ' + s.response_style : '',
+      s.tone ? '\nTone: ' + s.tone : '',
+      s.personality_traits?.length ? '\nTraits: ' + s.personality_traits.join(', ') : '',
+      s.conversation_rules?.length ? '\nRules: ' + s.conversation_rules.join('; ') : '',
+      s.memory_enabled && s.memories?.length ? '\nMemories: ' + s.memories.map((m) => m.content).join('; ') : '',
+    ].filter(Boolean).join('');
     const history = Array.isArray(body?.history) ? body.history.slice(-12) : [];
 
     // On-demand validation — triggered by the Validate button, not on every message
@@ -87,7 +100,7 @@ export default async function (req) {
 
     // STEP 1 — Primus decides delegation
     const delegationPrompt =
-      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n\n' +
+      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n' + personalizationBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
       '\nAvailable specialist agents: ' + specialistNames.join(', ') + '\n\n' +
@@ -158,7 +171,7 @@ export default async function (req) {
       : 'You handled this directly.';
 
     const synthesisPrompt =
-      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n\n' +
+      'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n' + personalizationBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
       '\n' + delegationLine + '\n' +

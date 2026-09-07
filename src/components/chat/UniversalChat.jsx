@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Send, Loader2, Bot, User, AlertCircle, FlaskConical, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb } from 'lucide-react';
+import { Send, Loader2, Bot, User, AlertCircle, FlaskConical, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, PhoneOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import VoiceChat from '@/components/chat/VoiceChat';
 
 export default function UniversalChat({ activeAgents }) {
   const [messages, setMessages] = useState([]);
@@ -9,6 +10,9 @@ export default function UniversalChat({ activeAgents }) {
   const [sending, setSending] = useState(false);
   const [simulating, setSimulating] = useState(false);
   const [validating, setValidating] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [voiceChatOpen, setVoiceChatOpen] = useState(false);
+  const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const [attachedFiles, setAttachedFiles] = useState([]);
@@ -73,16 +77,17 @@ export default function UniversalChat({ activeAgents }) {
       const data = res.data || res;
       if (data.error) throw new Error(data.error);
       const sim = data.simulation || {};
-      const scenarios = sim.scenarios || [];
+      const options = sim.options || [];
       const simText =
-        '📊 SIMULATION: ' + (sim.topic || topic) + '\n\n' +
+        '📊 DECISION SIMULATION: ' + (sim.topic || topic) + '\n\n' +
         (sim.summary || '') + '\n\n' +
-        'SCENARIOS:\n' +
-        scenarios.map((s) => '• ' + s.name + ' (' + Math.round((s.probability || 0) * 100) + '%): ' + s.outcome + ' | Impact: ' + (s.financial_impact || 'N/A') + ' | Timeline: ' + (s.timeline || 'N/A')).join('\n') +
-        '\n\nExpected value: ' + (sim.expected_value || 'N/A') +
+        '3 OPTIONS EVALUATED:\n' +
+        options.map((o) => '• ' + o.name + ' (' + Math.round((o.success_probability || 0) * 100) + '% success): ' + o.approach + ' | Impact: ' + (o.financial_impact || 'N/A') + ' | Timeline: ' + (o.timeline || 'N/A')).join('\n') +
+        '\n\n✅ CHOSEN: ' + (sim.chosen_option || 'N/A') +
+        '\nRationale: ' + (sim.chosen_rationale || 'N/A') +
+        '\nCore alignment: ' + (sim.core_alignment || 'N/A') +
+        (sim.aligned === false ? ' ⚠️ Not fully aligned' : ' ✓ Aligned') +
         '\nConfidence: ' + Math.round((sim.confidence || 0) * 100) + '%\n\n' +
-        'Risks: ' + ((sim.key_risks || []).join('; ')) + '\n' +
-        'Opportunities: ' + ((sim.opportunities || []).join('; ')) + '\n\n' +
         'Recommendation: ' + (sim.recommendation || 'N/A');
       setMessages((m) => [...m, { author: 'Prime', author_type: 'agent', content: simText, accent: 'chart-3', simulation: true }]);
     } catch (e) {
@@ -108,6 +113,32 @@ export default function UniversalChat({ activeAgents }) {
     } finally {
       setValidating(false);
     }
+  };
+
+  const toggleVoiceInput = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      setListening(false);
+      return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Voice input not supported in this browser. Try Chrome or Edge.' }]);
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognition.onresult = (e) => {
+      const transcript = Array.from(e.results).map((r) => r[0].transcript).join('');
+      setInput(transcript);
+    };
+    recognition.onend = () => setListening(false);
+    recognition.onerror = () => setListening(false);
+    recognition.start();
+    setListening(true);
   };
 
   const validationVerdict = (v) => {
@@ -252,32 +283,8 @@ export default function UniversalChat({ activeAgents }) {
             ))}
           </div>
         )}
-        <div className="flex items-end gap-2 max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <input ref={fileInputRef} type="file" multiple onChange={handleFileUpload} className="hidden" />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            title="Attach files"
-            className="rounded-xl bg-muted text-foreground border border-border/40 p-2.5 disabled:opacity-40 hover:bg-muted/70 transition-colors shrink-0"
-          >
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={validate}
-            disabled={validating || sending || !messages.some((m) => m.author === 'Prime' && !m.validation)}
-            title="Validate the last Prime response"
-            className="rounded-xl bg-emerald-500/15 text-foreground border border-emerald-500/30 p-2.5 disabled:opacity-40 hover:bg-emerald-500/25 transition-colors shrink-0"
-          >
-            {validating ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={simulate}
-            disabled={simulating || sending || (!input.trim() && !messages.some((m) => m.author_type === 'user'))}
-            title="Simulate: evaluate 3 options and pick the best"
-            className="rounded-xl bg-chart-3/15 text-foreground border border-chart-3/30 p-2.5 disabled:opacity-40 hover:bg-chart-3/25 transition-colors shrink-0"
-          >
-            {simulating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FlaskConical className="w-4 h-4" />}
-          </button>
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -289,15 +296,16 @@ export default function UniversalChat({ activeAgents }) {
             }}
             placeholder="Message Prime…"
             rows={1}
-            className="flex-1 resize-none bg-muted rounded-xl px-3.5 py-2.5 text-sm outline-none max-h-28 min-h-[40px] focus:ring-1 focus:ring-ring"
+            className="w-full resize-none bg-muted rounded-xl px-3.5 py-3 text-sm outline-none max-h-28 min-h-[44px] focus:ring-1 focus:ring-ring"
           />
-          <button
-            onClick={send}
-            disabled={sending || !input.trim()}
-            className="rounded-xl bg-foreground text-background p-2.5 disabled:opacity-40 hover:opacity-90 transition-opacity shrink-0"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+          <div className="flex items-center justify-between gap-1 mt-2">
+            <ActionButton icon={Paperclip} label="Attach" tooltip="Attach files" onClick={() => fileInputRef.current?.click()} disabled={uploading} loading={uploading} />
+            <ActionButton icon={listening ? MicOff : Mic} label={listening ? 'Stop' : 'Dictate'} tooltip="Voice-to-text input" onClick={toggleVoiceInput} active={listening} />
+            <ActionButton icon={Phone} label="Voice" tooltip="Real-time voice chat with interrupt" onClick={() => setVoiceChatOpen(true)} />
+            <ActionButton icon={ShieldCheck} label="Validate" tooltip="Validate last Prime response" onClick={validate} disabled={validating || !messages.some((m) => m.author === 'Prime' && !m.validation)} loading={validating} />
+            <ActionButton icon={FlaskConical} label="Simulate" tooltip="Evaluate 3 options, pick best" onClick={simulate} disabled={simulating || (!input.trim() && !messages.some((m) => m.author_type === 'user'))} loading={simulating} />
+            <ActionButton icon={Send} label="Send" tooltip="Send message" onClick={send} disabled={sending || !input.trim()} loading={sending} primary />
+          </div>
         </div>
         <div className="flex items-center justify-center gap-3 mt-1.5">
           <p className="text-[10px] text-muted-foreground">
@@ -305,6 +313,29 @@ export default function UniversalChat({ activeAgents }) {
           </p>
         </div>
       </div>
+      {voiceChatOpen && <VoiceChat onClose={() => setVoiceChatOpen(false)} />}
+    </div>
+  );
+}
+
+function ActionButton({ icon: Icon, label, tooltip, onClick, disabled, loading, active, primary }) {
+  return (
+    <div className="relative group flex-1">
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={cn(
+          'w-full flex flex-col items-center gap-0.5 py-1.5 rounded-lg transition-colors',
+          primary ? 'bg-foreground text-background' : active ? 'bg-red-500/15 text-red-500' : 'hover:bg-muted text-foreground',
+          disabled && 'opacity-40'
+        )}
+      >
+        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
+        <span className="text-[9px] font-medium">{label}</span>
+      </button>
+      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-foreground text-background text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+        {tooltip}
+      </span>
     </div>
   );
 }
