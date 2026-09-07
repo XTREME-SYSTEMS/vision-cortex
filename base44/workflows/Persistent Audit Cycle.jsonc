@@ -1,0 +1,45 @@
+{
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "persistent_audit_cycle",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_audit": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "persistentAuditCycle",
+            "args": {}
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run persistent audit scan",
+            "description": "Scan all systems for issues and create notifications"
+          }
+        }
+      }
+    ]
+  },
+  "name": "Persistent Audit Cycle",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/30 * * * *",
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Runs every 30 minutes \u2014 scans all systems for issues needing audit, fix, heal, harden, optimize, or enhance. Creates notifications for the owner's attention dropdown."
+}

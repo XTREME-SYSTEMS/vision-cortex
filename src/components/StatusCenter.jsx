@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Activity, ChevronDown, AlertTriangle, TrendingUp, Rocket, Wrench, CheckCircle, Zap, Loader2 } from 'lucide-react';
+import { Activity, ChevronDown, AlertTriangle, TrendingUp, Rocket, Wrench, CheckCircle, Zap, Loader2, MessageCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +9,8 @@ export default function StatusCenter() {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState({ opportunities: [], enhancements: [], projects: [], notifications: [], accounts: [] });
   const [resolving, setResolving] = useState(null);
+  const [selected, setSelected] = useState(new Set());
+  const navigate = useNavigate();
 
   const load = async () => {
     try {
@@ -34,15 +37,16 @@ export default function StatusCenter() {
     return unsub;
   }, []);
 
-  const criticalNotifs = data.notifications.filter(n => n.severity === 'critical');
+  const auditNotifs = data.notifications.filter(n => n.kind === 'gate');
+  const criticalNotifs = auditNotifs.filter(n => n.severity === 'critical');
   const topOpps = data.opportunities.filter(o => (o.score || 0) >= 50);
   const avgHealth = data.accounts.length > 0
     ? Math.round(data.accounts.reduce((s, a) => s + (a.health_score || 0), 0) / data.accounts.length)
     : 100;
 
-  const hasAttention = criticalNotifs.length > 0;
+  const hasAttention = auditNotifs.length > 0;
   const statusLabel = hasAttention
-    ? `${criticalNotifs.length} item${criticalNotifs.length > 1 ? 's' : ''} need your call`
+    ? `${auditNotifs.length} item${auditNotifs.length > 1 ? 's' : ''} need your call`
     : topOpps.length > 0
       ? `${topOpps.length} deal${topOpps.length > 1 ? 's' : ''} in motion`
       : 'All systems managed';
@@ -123,27 +127,67 @@ export default function StatusCenter() {
             </Section>
           )}
 
-          {/* Attention Required — problem / reason / solution + 1-click */}
-          {criticalNotifs.length > 0 && (
-            <Section icon={AlertTriangle} label="Attention Required" color="text-amber-500">
+          {/* Items That Need Your Call — persistent audit & self-reflection results */}
+          {auditNotifs.length > 0 && (
+            <Section icon={AlertTriangle} label="Items That Need Your Call" color="text-amber-500">
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  onClick={() => selected.size === auditNotifs.length ? setSelected(new Set()) : setSelected(new Set(auditNotifs.map(n => n.id)))}
+                  className="text-[10px] text-muted-foreground hover:text-foreground font-medium"
+                >
+                  {selected.size === auditNotifs.length && auditNotifs.length > 0 ? 'Deselect all' : 'Select all'}
+                </button>
+                {selected.size > 0 && (
+                  <button
+                    onClick={async () => {
+                      for (const id of selected) {
+                        try { await base44.entities.Notification.update(id, { read: true }); } catch {}
+                      }
+                      setSelected(new Set());
+                      load();
+                    }}
+                    className="text-[10px] font-semibold text-amber-500 hover:text-amber-400"
+                  >
+                    Resolve selected ({selected.size})
+                  </button>
+                )}
+              </div>
               <div className="space-y-2">
-                {criticalNotifs.map(n => (
-                  <div key={n.id} className="bg-amber-500/5 border border-amber-500/20 rounded-lg px-2.5 py-2">
-                    <p className="text-[11px] font-semibold text-amber-500 mb-1.5">{n.title}</p>
-                    <div className="space-y-0.5 mb-2">
-                      <p className="text-[10px]"><span className="text-muted-foreground font-medium">Problem:</span> {n.title}</p>
-                      <p className="text-[10px]"><span className="text-muted-foreground font-medium">Reason:</span> {n.body || 'Detected by autonomous monitoring'}</p>
-                      <p className="text-[10px]"><span className="text-muted-foreground font-medium">Solution:</span> Auto-resolve & mark handled</p>
+                {auditNotifs.map(n => {
+                  const agent = n.body?.match(/Agent:\s*(.+)/)?.[1]?.trim() || 'Prime';
+                  const problem = n.body?.split('\n')[0]?.replace('Problem: ', '') || 'Detected by autonomous audit';
+                  const isSelected = selected.has(n.id);
+                  return (
+                    <div key={n.id} className={`bg-amber-500/5 border rounded-lg px-2.5 py-2 ${isSelected ? 'border-amber-500' : 'border-amber-500/20'}`}>
+                      <div className="flex items-start gap-2">
+                        <button
+                          onClick={() => setSelected(prev => {
+                            const next = new Set(prev);
+                            if (next.has(n.id)) next.delete(n.id);
+                            else next.add(n.id);
+                            return next;
+                          })}
+                          className="mt-0.5 shrink-0"
+                        >
+                          <span className={`block w-3.5 h-3.5 rounded border flex items-center justify-center ${isSelected ? 'bg-amber-500 border-amber-500' : 'border-muted-foreground/40'}`}>
+                            {isSelected && <CheckCircle className="w-2.5 h-2.5 text-white" />}
+                          </span>
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[11px] font-semibold text-amber-500 mb-1">{n.title}</p>
+                          <p className="text-[10px] text-muted-foreground mb-0.5">{problem}</p>
+                          <p className="text-[10px]"><span className="text-muted-foreground font-medium">Agent:</span> {agent}</p>
+                        </div>
+                        <button
+                          onClick={() => navigate(`/?agent=${encodeURIComponent(agent)}`)}
+                          className="shrink-0 text-[10px] font-semibold bg-foreground text-background rounded-md px-2 py-1 hover:opacity-90 transition-opacity flex items-center gap-1"
+                        >
+                          <MessageCircle className="w-3 h-3" /> Chat
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => resolveNotification(n.id)}
-                      disabled={resolving === n.id}
-                      className="w-full text-[10px] font-semibold bg-foreground text-background rounded-md py-1.5 hover:opacity-90 disabled:opacity-40 transition-opacity flex items-center justify-center gap-1"
-                    >
-                      {resolving === n.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <><Zap className="w-3 h-3" /> Resolve with 1 click</>}
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Section>
           )}
@@ -163,7 +207,7 @@ export default function StatusCenter() {
           </div>
 
           {/* Empty positive state */}
-          {topOpps.length === 0 && data.enhancements.length === 0 && data.projects.length === 0 && criticalNotifs.length === 0 && (
+          {topOpps.length === 0 && data.enhancements.length === 0 && data.projects.length === 0 && auditNotifs.length === 0 && (
             <div className="p-4 text-center">
               <p className="text-[11px] text-muted-foreground italic">Everything is handled. Your system is 10 steps ahead.</p>
             </div>

@@ -136,6 +136,15 @@ export default function Layout() {
   const toggleAgent = (name) =>
     setActiveAgents((a) => (a.includes(name) ? a.filter((n) => n !== name) : [...a, name]));
 
+  // Auto-activate agent from query param (e.g. ?agent=Alpha-Inquisitor)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const agent = params.get('agent');
+    if (agent && !activeAgents.includes(agent)) {
+      setActiveAgents((a) => [...a, agent]);
+    }
+  }, [pathname]);
+
   const goHome = () => {
     setShowAgentsCard(false);
     navigate('/');
