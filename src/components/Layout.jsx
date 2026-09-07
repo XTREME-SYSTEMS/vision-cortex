@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  Radar, ChevronLeft, X, Bot,
+  Radar, ChevronLeft, X, Bot, Menu,
   LayoutDashboard, Sparkles, FlaskConical, Users,
   Dna, ShieldAlert, Gauge, History, Trophy, Target,
   ListChecks, ShieldCheck, ScanLine, Telescope,
@@ -126,15 +126,17 @@ export default function Layout() {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAgentsCard, setShowAgentsCard] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeAgents, setActiveAgents] = useState(['Prime']);
 
   useEffect(() => {
     base44.auth.me().then((u) => setIsAdmin(u?.role === 'admin')).catch(() => {});
   }, []);
 
-  // Close agents card when navigating via sidebar
+  // Close agents card and mobile menu when navigating
   useEffect(() => {
     setShowAgentsCard(false);
+    setMobileMenuOpen(false);
   }, [pathname]);
 
   const toggleAgent = (name) =>
@@ -151,6 +153,7 @@ export default function Layout() {
 
   const goHome = () => {
     setShowAgentsCard(false);
+    setMobileMenuOpen(false);
     navigate('/');
   };
 
@@ -160,7 +163,7 @@ export default function Layout() {
   return (
     <div className="h-screen flex overflow-hidden bg-background text-foreground">
       {/* Left sidebar */}
-      <aside className="w-56 shrink-0 border-r border-border/60 flex flex-col bg-sidebar">
+      <aside className="hidden md:flex w-56 shrink-0 border-r border-border/60 flex-col bg-sidebar">
         <div className="px-3 py-3 border-b border-border/60">
           <Link to="/" className="flex items-center gap-2.5">
             <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
@@ -207,51 +210,112 @@ export default function Layout() {
 
       {/* Main content — chat primary (ChatGPT-style), pages open in center */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-end gap-1 px-3 py-1 border-b border-border/60 bg-background">
+        {/* Mobile top bar with hamburger */}
+        <div className="md:hidden flex items-center justify-between gap-1 px-3 py-2 border-b border-border/60 bg-background">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <Link to="/" onClick={goHome} className="flex items-center gap-2">
+            <span className="h-6 w-6 rounded-lg bg-foreground text-background grid place-items-center">
+              <Radar className="w-3.5 h-3.5" />
+            </span>
+            <span className="font-display text-xs tracking-[0.15em] uppercase">Vision Cortex</span>
+          </Link>
+          <div className="flex items-center gap-1">
+            <OwnerBell />
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Desktop top bar */}
+        <div className="hidden md:flex items-center justify-end gap-1 px-3 py-1 border-b border-border/60 bg-background">
           <OwnerBell />
           <ThemeToggle />
         </div>
-        <StatusCenter />
-        <AgentRow activeAgents={activeAgents} onToggleAgent={toggleAgent} />
+        <div className="hidden md:block"><StatusCenter /></div>
+        <div className="hidden md:block"><AgentRow activeAgents={activeAgents} onToggleAgent={toggleAgent} /></div>
 
-        <div className="flex-1 min-h-0 overflow-hidden">
-          {showAgentsCard ? (
-            <div className="h-full flex flex-col">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30 shrink-0">
-                <button onClick={goHome} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  <ChevronLeft className="w-4 h-4" /> Back
-                </button>
-                <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">Agent Selection</span>
-                <button onClick={goHome} className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <AgentsCard activeAgents={activeAgents} onToggleAgent={toggleAgent} onClose={goHome} />
-              </div>
-            </div>
-          ) : isHome ? (
+        <div className="flex-1 min-h-0 overflow-hidden relative">
+          {/* Base layer: always chat */}
+          <div className={cn('absolute inset-0', (!isHome || showAgentsCard) && 'md:hidden')}>
             <UniversalChat activeAgents={activeAgents} />
-          ) : (
-            <div className="h-full flex flex-col">
+          </div>
+
+          {/* Overlay: agents card or page — full-screen on mobile, in-flow on desktop */}
+          {(showAgentsCard || !isHome) && (
+            <div className="fixed inset-0 z-50 bg-background flex flex-col md:absolute md:inset-0 md:z-auto">
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30 shrink-0">
                 <button onClick={goHome} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
                 <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium truncate px-2 capitalize">
-                  {pageTitle}
+                  {showAgentsCard ? 'Agent Selection' : pageTitle}
                 </span>
                 <button onClick={goHome} className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <Outlet />
+                {showAgentsCard ? (
+                  <AgentsCard activeAgents={activeAgents} onToggleAgent={toggleAgent} onClose={goHome} />
+                ) : (
+                  <Outlet />
+                )}
               </div>
             </div>
           )}
         </div>
       </main>
+
+      {/* Mobile menu drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[80%] bg-sidebar border-r border-border/60 flex flex-col">
+            <div className="px-3 py-3 border-b border-border/60 flex items-center justify-between">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
+                <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
+                  <Radar className="w-4 h-4" />
+                </span>
+                <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
+              </Link>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="px-2 pt-2 pb-2 border-b border-border/60">
+              <button
+                onClick={() => { setShowAgentsCard(true); setMobileMenuOpen(false); }}
+                className={cn(
+                  'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
+                  showAgentsCard ? 'bg-foreground text-background' : 'hover:bg-muted text-foreground'
+                )}
+              >
+                <Bot className="w-4 h-4" />
+                <span className="flex-1 text-left">Chat Agents</span>
+                {activeAgents.length > 0 && (
+                  <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', showAgentsCard ? 'bg-background/20' : 'bg-foreground text-background')}>
+                    {activeAgents.length}
+                  </span>
+                )}
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 no-scrollbar">
+              {navGroups.map((g) => (
+                <NavGroup key={g.label} {...g} />
+              ))}
+              {isAdmin && <NavGroup {...adminNav} />}
+              <ProjectFolders />
+            </nav>
+            <div className="px-2 py-2 border-t border-border/60">
+              <SidebarActions />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
