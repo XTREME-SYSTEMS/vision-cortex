@@ -104,6 +104,7 @@ const navGroups = [
     items: [
       { to: '/agents', label: 'Agents', icon: Bot },
       { to: '/comms', label: 'Comms Hub', icon: Send },
+      { to: '/outreach', label: 'Autonomous Outreach', icon: Rocket },
       { to: '/crm', label: 'CRM Pipeline', icon: Briefcase },
       { to: '/chat', label: 'War Room', icon: MessagesSquare },
       { to: '/council', label: 'Council', icon: Users },

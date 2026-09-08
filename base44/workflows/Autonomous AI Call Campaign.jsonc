@@ -1,0 +1,48 @@
+{
+  "name": "Autonomous AI Call Campaign",
+  "description": "Daily AI voice call campaign \u2014 Eden Skye makes up to 100 calls per day to CRM contacts to schedule consultations",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "autonomous_ai_calls",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_calls": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "aiCallCampaign",
+            "args": {
+              "action": "start_campaign",
+              "max_calls": 100
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run AI Call Campaign",
+            "description": "Eden Skye makes up to 100 AI voice calls to schedule consultations"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 9 * * 1-5",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}

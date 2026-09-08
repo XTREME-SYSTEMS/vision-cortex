@@ -74,6 +74,7 @@ import Plugins from '@/pages/Plugins';
 import LeadScraper from '@/pages/LeadScraper';
 import XtremeCrm from '@/pages/XtremeCrm';
 import Comms from '@/pages/Comms';
+import AutonomousOutreach from '@/pages/AutonomousOutreach';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -167,6 +168,7 @@ const AuthenticatedApp = () => {
           <Route path="/leads" element={<LeadScraper />} />
           <Route path="/crm" element={<XtremeCrm />} />
           <Route path="/comms" element={<Comms />} />
+          <Route path="/outreach" element={<AutonomousOutreach />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

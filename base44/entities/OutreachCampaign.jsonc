@@ -1,0 +1,222 @@
+{
+  "name": "OutreachCampaign",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Campaign name"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Target industry (e.g. epoxy, hvac, roofing)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Target location (e.g. Florida, Miami FL)"
+    },
+    "keyword": {
+      "type": "string"
+    },
+    "radius_miles": {
+      "type": "number",
+      "default": 50
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "scrape_enrich_audit",
+        "mms_outreach",
+        "voice_calls",
+        "follow_up",
+        "email_proposal",
+        "full_pipeline"
+      ],
+      "default": "full_pipeline"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "queued",
+        "scraping",
+        "enriching",
+        "auditing",
+        "messaging",
+        "calling",
+        "sending",
+        "completed",
+        "failed",
+        "paused"
+      ],
+      "default": "draft"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "total_leads": {
+      "type": "number",
+      "default": 0
+    },
+    "enriched_leads": {
+      "type": "number",
+      "default": 0
+    },
+    "audited_leads": {
+      "type": "number",
+      "default": 0
+    },
+    "messages_sent": {
+      "type": "number",
+      "default": 0
+    },
+    "calls_made": {
+      "type": "number",
+      "default": 0
+    },
+    "emails_sent": {
+      "type": "number",
+      "default": 0
+    },
+    "consultations_scheduled": {
+      "type": "number",
+      "default": 0
+    },
+    "from_number": {
+      "type": "string",
+      "description": "Telnyx from number for this campaign"
+    },
+    "message_template": {
+      "type": "string",
+      "description": "Custom message template override"
+    },
+    "hooks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "free_audit",
+        "ai_tools",
+        "free_lead_gen_website"
+      ],
+      "description": "Marketing hooks to include in outreach"
+    },
+    "max_daily_calls": {
+      "type": "number",
+      "default": 100,
+      "description": "Max AI calls per day"
+    },
+    "batch_size": {
+      "type": "number",
+      "default": 50,
+      "description": "How many messages to send per batch"
+    },
+    "delay_between_sends_seconds": {
+      "type": "number",
+      "default": 3,
+      "description": "Throttle between sends to avoid carrier filtering"
+    },
+    "voice_agent": {
+      "type": "string",
+      "default": "eden_skye",
+      "description": "Which agent persona to use for voice calls"
+    },
+    "autonomous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this campaign runs autonomously on a schedule"
+    },
+    "schedule_cron": {
+      "type": "string",
+      "description": "Cron expression for autonomous campaigns"
+    },
+    "lead_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "ScrapedLead IDs targeted by this campaign"
+    },
+    "contact_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "XtremeCrmContact IDs targeted by this campaign"
+    },
+    "results": {
+      "type": "object",
+      "properties": {
+        "scrape_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "send_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "call_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "sample_messages": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      },
+      "default": {}
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "industry",
+    "location",
+    "type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

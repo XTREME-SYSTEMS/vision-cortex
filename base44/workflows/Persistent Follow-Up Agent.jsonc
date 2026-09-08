@@ -1,0 +1,49 @@
+{
+  "name": "Persistent Follow-Up Agent",
+  "description": "Daily persistent follow-up agent \u2014 sends due follow-up messages to all CRM contacts with follow_up_enabled",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "persistent_follow_up",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_follow_ups": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "persistentMessageAgent",
+            "args": {
+              "action": "run_follow_ups",
+              "max_per_run": 50,
+              "delay_seconds": 5
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Run Follow-Ups",
+            "description": "Send due follow-up messages to CRM contacts"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 10 * * 1-5",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}
