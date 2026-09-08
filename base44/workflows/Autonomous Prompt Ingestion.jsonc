@@ -1,0 +1,49 @@
+{
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 3 * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "name": "Autonomous Prompt Ingestion",
+  "description": "Sequentially ingests every active SystemPrompt into the agent's context, one immediately after another. Runs daily to keep all agents loaded with the latest prompt library.",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "autonomous_prompt_ingestion",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "ingest_all": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "ingestPromptLibrary",
+            "args": {
+              "action": "ingest_all",
+              "agent_name": "PRIMUS",
+              "max_per_run": 50
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Ingest all prompts sequentially",
+            "description": "PRIMUS loads every active prompt one after another"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
   BookOpen, Loader2, RefreshCw, Search, Brain, Wrench, ShieldCheck,
-  Rocket, Activity, Zap, Eye, ChevronDown, ChevronUp, Copy, Check, Plus, Trash2, Edit3, X
+  Rocket, Activity, Zap, Eye, ChevronDown, ChevronUp, Copy, Check, Plus, Trash2, Edit3, X, Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +38,8 @@ export default function PromptLibrary() {
   const [copiedId, setCopiedId] = useState(null);
   const [editing, setEditing] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [ingesting, setIngesting] = useState(false);
+  const [ingestResult, setIngestResult] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -90,6 +92,24 @@ export default function PromptLibrary() {
     } catch {}
   };
 
+  const ingestAll = async () => {
+    setIngesting(true);
+    setIngestResult(null);
+    try {
+      const res = await base44.functions.invoke('ingestPromptLibrary', {
+        action: 'ingest_all',
+        agent_name: 'PRIMUS',
+        max_per_run: 50,
+      });
+      setIngestResult(res.data || res);
+      load();
+    } catch (e) {
+      setIngestResult({ error: e.message });
+    } finally {
+      setIngesting(false);
+    }
+  };
+
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4">
       <div className="flex items-center justify-between">
@@ -105,11 +125,33 @@ export default function PromptLibrary() {
           <button onClick={load} disabled={loading} className="p-2 rounded-lg border border-border hover:bg-accent">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
           </button>
+          <button
+            onClick={ingestAll}
+            disabled={ingesting}
+            className="px-3 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {ingesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            Ingest All
+          </button>
           <button onClick={() => setCreating(true)} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 flex items-center gap-1.5">
             <Plus className="w-4 h-4" /> New
           </button>
         </div>
       </div>
+
+      {ingestResult && (
+        <div className={cn(
+          'rounded-lg border p-3 text-sm',
+          ingestResult.error ? 'border-red-500/40 bg-red-500/5 text-red-500' : 'border-emerald-500/40 bg-emerald-500/5 text-emerald-600'
+        )}>
+          {ingestResult.error ? `Error: ${ingestResult.error}` : (
+            <span>
+              Ingested <strong>{ingestResult.succeeded}</strong> of <strong>{ingestResult.total}</strong> prompts for {ingestResult.agent}
+              {ingestResult.failed > 0 && ` (${ingestResult.failed} failed)`}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Search */}
       <div className="relative">
