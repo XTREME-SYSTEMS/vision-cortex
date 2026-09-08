@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { getMessagingProfile, normalizePhone, sendTelnyxMessage, sleep } from "../../shared/telnyxHelpers.ts";
+import { getMessagingProfile, normalizePhone, sendTelnyxMessage, sleep, getNextFromNumber } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================
 // batchMmsOutreach — Batch MMS/SMS outreach to all leads in a campaign
@@ -18,7 +18,8 @@ export default async function(req) {
 
     // ── SEND BATCH MMS/SMS ────────────────────────────────────
     case 'send_batch': {
-      const { campaign_id, from, channel = 'mms', media_urls = [], batch_size = 50, delay_seconds = 3, lead_ids = [] } = body;
+      const { campaign_id, from: fromArg, channel = 'mms', media_urls = [], batch_size = 50, delay_seconds = 3, lead_ids = [] } = body;
+      const from = fromArg || getNextFromNumber();
       if (!from) return Response.json({ error: 'from number required' }, { status: 400 });
 
       const profileId = await getMessagingProfile();
@@ -93,7 +94,8 @@ export default async function(req) {
 
     // ── SEND TO CRM CONTACTS (follow-up batch) ────────────────
     case 'send_to_contacts': {
-      const { contact_ids = [], from, channel = 'sms', message_template, media_urls = [], delay_seconds = 3, campaign_id } = body;
+      const { contact_ids = [], from: fromArg2, channel = 'sms', message_template, media_urls = [], delay_seconds = 3, campaign_id } = body;
+      const from = fromArg2 || getNextFromNumber();
       if (!from) return Response.json({ error: 'from number required' }, { status: 400 });
 
       const profileId = await getMessagingProfile();

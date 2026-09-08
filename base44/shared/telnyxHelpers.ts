@@ -58,6 +58,20 @@ export async function sendTelnyxMessage(to, from, text, mediaUrls = [], profileI
   return { ok: r.ok, data: data?.data, error: data?.errors?.[0]?.detail };
 }
 
+// Active Telnyx from-number pool — rotated round-robin for carrier compliance
+export const FROM_NUMBER_POOL = [
+  '+19548848885',
+  '+18337001239',
+  '+18334843799',
+];
+
+let _poolIndex = 0;
+export function getNextFromNumber() {
+  const num = FROM_NUMBER_POOL[_poolIndex % FROM_NUMBER_POOL.length];
+  _poolIndex++;
+  return num;
+}
+
 export function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }

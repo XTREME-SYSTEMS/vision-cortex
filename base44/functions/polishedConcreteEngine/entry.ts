@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { secrets } from 'base44:runtime';
-import { normalizePhone, sendTelnyxMessage, getMessagingProfile, sleep } from "../../shared/telnyxHelpers.ts";
+import { normalizePhone, sendTelnyxMessage, getMessagingProfile, sleep, getNextFromNumber } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================
 // polishedConcreteEngine — Unified autonomous pipeline for polished concrete
@@ -347,8 +347,9 @@ Make it personal and human, not robotic.`;
 
       // ── SEND OUTREACH SMS/MMS ────────────────────────────────
       case 'send_outreach_sms': {
-        const { lead_id, from, message, media_urls = [] } = body;
-        if (!lead_id || !from) return Response.json({ error: 'lead_id and from required' }, { status: 400 });
+        const { lead_id, from: fromArg, message, media_urls = [] } = body;
+        const from = fromArg || getNextFromNumber();
+        if (!lead_id) return Response.json({ error: 'lead_id required' }, { status: 400 });
 
         const lead = await base44.entities.PcuLead.get(lead_id);
         const to = normalizePhone(lead.phone);
@@ -372,8 +373,9 @@ Make it personal and human, not robotic.`;
 
       // ── SEND WHATSAPP ────────────────────────────────────────
       case 'send_whatsapp': {
-        const { lead_id, from, message } = body;
-        if (!lead_id || !from) return Response.json({ error: 'lead_id and from required' }, { status: 400 });
+        const { lead_id, from: fromArg, message } = body;
+        const from = fromArg || getNextFromNumber();
+        if (!lead_id) return Response.json({ error: 'lead_id required' }, { status: 400 });
 
         const lead = await base44.entities.PcuLead.get(lead_id);
         const to = normalizePhone(lead.phone);
@@ -404,7 +406,8 @@ Make it personal and human, not robotic.`;
 
       // ── FOLLOW UP ────────────────────────────────────────────
       case 'follow_up': {
-        const { lead_id, from, channel = 'email' } = body;
+        const { lead_id, from: fromArg, channel = 'email' } = body;
+        const from = fromArg || getNextFromNumber();
         if (!lead_id) return Response.json({ error: 'lead_id required' }, { status: 400 });
 
         const lead = await base44.entities.PcuLead.get(lead_id);
@@ -447,7 +450,8 @@ Under 250 chars for SMS, 600 for email. Return ONLY the message.`;
 
       // ── FULL PIPELINE: scrape → enrich → takeoff → bid → email ──
       case 'full_pipeline': {
-        const { state, city, trade = 'polished concrete contractor', from, max_leads = 20 } = body;
+        const { state, city, trade = 'polished concrete contractor', from: fromArg, max_leads = 20 } = body;
+        const from = fromArg || getNextFromNumber();
         if (!state && !city) return Response.json({ error: 'state or city required' }, { status: 400 });
 
         // Step 1: Scrape
@@ -559,7 +563,8 @@ Under 250 chars for SMS, 600 for email. Return ONLY the message.`;
 
       // ── BATCH FOLLOW-UP (swarm) ─────────────────────────────
       case 'batch_follow_up': {
-        const { from, max_per_run = 50 } = body;
+        const { from: fromArg, max_per_run = 50 } = body;
+        const from = fromArg || getNextFromNumber();
         const now = new Date().toISOString();
         const leads = await base44.entities.PcuLead.filter({
           status: { $in: ['bid_sent', 'follow_up'] },

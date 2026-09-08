@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 import { secrets } from 'base44:runtime';
+import { getNextFromNumber } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================
 // aiCallCampaign — AI voice call campaigns via Telnyx Call Control
@@ -74,8 +75,8 @@ Return JSON: {"script": "the full call script", "voicemail": "short voicemail if
 
     // ── START CALL CAMPAIGN ───────────────────────────────────
     case 'start_campaign': {
-      const { campaign_id, from, max_calls = 100, contact_ids = [], webhook_url } = body;
-      if (!from) return Response.json({ error: 'from number required' }, { status: 400 });
+      const { campaign_id, from: fromArg, max_calls = 100, contact_ids = [], webhook_url } = body;
+      const from = fromArg || getNextFromNumber();
 
       let campaign = null;
       let contacts = [];

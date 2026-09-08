@@ -1,5 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { getMessagingProfile, normalizePhone, sendTelnyxMessage, sleep } from "../../shared/telnyxHelpers.ts";
+import { getMessagingProfile, normalizePhone, sendTelnyxMessage, sleep, getNextFromNumber } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================
 // persistentMessageAgent — Autonomous persistent follow-up agent
@@ -61,7 +61,8 @@ Professional but warm tone. Format as email with subject line.`;
 
     // ── RUN FOLLOW-UPS (scheduled) ────────────────────────────
     case 'run_follow_ups': {
-      const { from, max_per_run = 50, delay_seconds = 5 } = body;
+      const { from: fromArg, max_per_run = 50, delay_seconds = 5 } = body;
+      const from = fromArg || getNextFromNumber();
       if (!from) return Response.json({ error: 'from number required' }, { status: 400 });
 
       const profileId = await getMessagingProfile();
@@ -122,7 +123,8 @@ Professional but warm tone. Format as email with subject line.`;
 
     // ── SEND MARKETING MESSAGE (coupon/promo) ─────────────────
     case 'send_marketing': {
-      const { contact_ids = [], from, offer, delay_seconds = 3 } = body;
+      const { contact_ids = [], from: fromArg2, offer, delay_seconds = 3 } = body;
+      const from = fromArg2 || getNextFromNumber();
       if (!from || !offer) return Response.json({ error: 'from and offer required' }, { status: 400 });
 
       const profileId = await getMessagingProfile();
