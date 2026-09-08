@@ -85,7 +85,6 @@ Be realistic and conservative. Every assumption is a line item with downstream f
           reverse_required_changes: { type: "array", items: { type: "string" } },
           reverse_feasible: { type: "boolean" },
         },
-        required: ["forecast", "metrics"],
       },
     });
 
@@ -110,6 +109,37 @@ Be realistic and conservative. Every assumption is a line item with downstream f
     }
     return Response.json({ simulation: record });
   } catch (e) {
-    return Response.json({ error: e.message }, { status: 500 });
+    const msg = e?.message || String(e);
+    // If the LLM rejected the response schema, retry once without the strict schema
+    if (msg.includes("400") && !body._retried) {
+      try {
+        const core = base44.asServiceRole.integrations.Core;
+        const res = await core.InvokeLLM({
+          prompt: `You are the Simulation Engine. Forecast this strategy as a line-item financial model. Return JSON only.
+STRATEGY: ${body.strategy_name || "Untitled"}
+HORIZON (days): ${body.horizon_days || 365}
+ASSUMPTIONS: ${JSON.stringify(body.assumptions || [])}
+Return: {"forecast":[{"day":30,"revenue":0,"cost":0,"profit":0,"cumulative":0}],"metrics":{"total_revenue":0,"total_cost":0,"total_profit":0,"break_even_day":0,"roi_pct":0}}`,
+        });
+        const parsed = typeof res === "string" ? JSON.parse(res) : res;
+        const sim = {
+          idea_id: body.idea_id || null,
+          strategy_name: body.strategy_name || "Untitled",
+          horizon_days: body.horizon_days || 365,
+          assumptions: body.assumptions || [],
+          forecast: parsed?.forecast || [],
+          metrics: parsed?.metrics || {},
+          reverse_target: body.reverse_target || null,
+          reverse_required_changes: [],
+          reverse_feasible: null,
+          status: body.reverse_target ? "reversed" : "forecasted",
+        };
+        const record = await base44.entities.Simulation.create(sim);
+        return Response.json({ simulation: record });
+      } catch (e2) {
+        return Response.json({ error: `Simulation failed: ${e2?.message || e2}` }, { status: 500 });
+      }
+    }
+    return Response.json({ error: `Simulation failed: ${msg}` }, { status: 500 });
   }
 }
