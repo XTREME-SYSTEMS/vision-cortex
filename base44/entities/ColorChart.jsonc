@@ -1,0 +1,79 @@
+{
+  "name": "ColorChart",
+  "type": "object",
+  "description": "Color options for flooring systems \u2014 used in the visualizer and bid generation.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Color name"
+    },
+    "hex_code": {
+      "type": "string",
+      "description": "Hex color code"
+    },
+    "rgb": {
+      "type": "string",
+      "description": "RGB values"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "metallic",
+        "flake",
+        "solid",
+        "quartz",
+        "polished",
+        "custom"
+      ],
+      "default": "solid"
+    },
+    "system_compatibility": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "FloorSystem names this color works with"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Sample image URL"
+    },
+    "premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a premium color (higher cost)"
+    },
+    "price_modifier": {
+      "type": "number",
+      "default": 0,
+      "description": "Price modifier per sqft (added to base)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "hex_code"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "name": "PcuDirectory",
+  "type": "object",
+  "description": "Polished Concrete University alumni directory \u2014 thousands of polished concrete contractors. Used as the master prospect list for autonomous outreach.",
+  "properties": {
+    "business_name": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "industry": {
+      "type": "string",
+      "default": "polished_concrete"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "years_in_business": {
+      "type": "number"
+    },
+    "employee_count": {
+      "type": "number"
+    },
+    "revenue_range": {
+      "type": "string"
+    },
+    "social_profiles": {
+      "type": "object",
+      "properties": {
+        "facebook": {
+          "type": "string"
+        },
+        "instagram": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "youtube": {
+          "type": "string"
+        }
+      }
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "review_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "enriched": {
+      "type": "boolean",
+      "default": false
+    },
+    "enrichment_data": {
+      "type": "object"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "responded",
+        "qualified",
+        "proposal_sent",
+        "won",
+        "lost",
+        "do_not_contact"
+      ],
+      "default": "new"
+    },
+    "lead_id": {
+      "type": "string",
+      "description": "PcuLead ID once converted"
+    },
+    "imported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_contacted": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "pcu_alumni",
+        "scraped",
+        "new_business",
+        "manual",
+        "imported"
+      ],
+      "default": "pcu_alumni"
+    }
+  },
+  "required": [
+    "business_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

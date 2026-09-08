@@ -1,0 +1,156 @@
+{
+  "name": "CompanyIntel",
+  "type": "object",
+  "description": "Master intelligence record for XPS family companies (xps, xps_xpress, pcu, ncp). Stores complete online presence, products, equipment, content, social media, and brand intelligence.",
+  "properties": {
+    "company_key": {
+      "type": "string",
+      "enum": [
+        "xps",
+        "xps_xpress",
+        "pcu",
+        "ncp",
+        "vision_cortex"
+      ],
+      "description": "Unique identifier for the company"
+    },
+    "company_name": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "about_content": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "value_proposition": {
+      "type": "string"
+    },
+    "target_audience": {
+      "type": "string"
+    },
+    "competitive_advantages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "brand_colors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "brand_voice": {
+      "type": "string"
+    },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "social_profiles": {
+      "type": "object",
+      "properties": {
+        "facebook": {
+          "type": "string"
+        },
+        "instagram": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "youtube": {
+          "type": "string"
+        },
+        "twitter": {
+          "type": "string"
+        }
+      }
+    },
+    "social_content": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "web_mentions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "default": []
+    },
+    "sync_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "syncing",
+        "synced",
+        "failed",
+        "stale"
+      ],
+      "default": "pending"
+    },
+    "last_synced": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intel_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 intelligence completeness score"
+    }
+  },
+  "required": [
+    "company_key",
+    "company_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

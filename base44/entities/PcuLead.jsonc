@@ -1,0 +1,235 @@
+{
+  "name": "PcuLead",
+  "type": "object",
+  "description": "Polished concrete lead with floor specs, AI analysis, bid, and follow-up tracking. Powers the autonomous scrape \u2192 takeoff \u2192 bid \u2192 email \u2192 follow-up pipeline.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Lead or business name"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string",
+      "default": "polished_concrete"
+    },
+    "sqft": {
+      "type": "number",
+      "description": "Square footage of the project"
+    },
+    "floor_condition": {
+      "type": "string",
+      "enum": [
+        "new_concrete",
+        "good",
+        "cracked",
+        "stained",
+        "old_coating",
+        "unknown"
+      ],
+      "default": "unknown"
+    },
+    "desired_finish": {
+      "type": "string",
+      "enum": [
+        "metallic",
+        "flake",
+        "solid",
+        "quartz",
+        "polished",
+        "epoxy"
+      ],
+      "default": "flake"
+    },
+    "color_choice": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "analyzing",
+        "bid_ready",
+        "bid_sent",
+        "follow_up",
+        "visit_proposed",
+        "scheduled",
+        "won",
+        "lost"
+      ],
+      "default": "new"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "directory",
+        "scraper",
+        "intake_form",
+        "referral",
+        "manual",
+        "new_business"
+      ],
+      "default": "scraper"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "properties": {
+        "condition_score": {
+          "type": "number"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "prep_required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "estimated_sqft": {
+          "type": "number"
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": [
+            "easy",
+            "medium",
+            "hard",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "bid": {
+      "type": "object",
+      "properties": {
+        "material_cost": {
+          "type": "number"
+        },
+        "labor_cost": {
+          "type": "number"
+        },
+        "prep_cost": {
+          "type": "number"
+        },
+        "total": {
+          "type": "number"
+        },
+        "price_per_sqft": {
+          "type": "number"
+        },
+        "timeline_days": {
+          "type": "number"
+        },
+        "proposal": {
+          "type": "string"
+        },
+        "proposal_html": {
+          "type": "string"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "visualizer_url": {
+      "type": "string"
+    },
+    "follow_up_count": {
+      "type": "number",
+      "default": 0
+    },
+    "next_follow_up": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_contact": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_contact_channel": {
+      "type": "string",
+      "enum": [
+        "voice",
+        "sms",
+        "mms",
+        "email",
+        "whatsapp",
+        "none"
+      ],
+      "default": "none"
+    },
+    "consultation_scheduled": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "calendar_event_id": {
+      "type": "string"
+    },
+    "campaign_id": {
+      "type": "string"
+    },
+    "directory_id": {
+      "type": "string",
+      "description": "PcuDirectory entry this lead came from"
+    },
+    "enriched": {
+      "type": "boolean",
+      "default": false
+    },
+    "enrichment_data": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

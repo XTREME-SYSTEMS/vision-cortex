@@ -1,0 +1,97 @@
+{
+  "name": "PricingRule",
+  "type": "object",
+  "description": "Pricing rules for bid generation \u2014 regional pricing, volume discounts, and condition-based adjustments.",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "rule_type": {
+      "type": "string",
+      "enum": [
+        "base_price",
+        "regional_adjustment",
+        "volume_discount",
+        "condition_surcharge",
+        "prep_surcharge",
+        "color_premium",
+        "minimum_charge"
+      ],
+      "default": "base_price"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographic region (e.g. Florida, Texas, National)"
+    },
+    "floor_category": {
+      "type": "string",
+      "description": "FloorSystem category this applies to"
+    },
+    "min_sqft": {
+      "type": "number",
+      "description": "Minimum sqft for this rule to apply"
+    },
+    "max_sqft": {
+      "type": "number",
+      "description": "Maximum sqft for this rule to apply"
+    },
+    "price_per_sqft": {
+      "type": "number",
+      "description": "Base price per sqft"
+    },
+    "adjustment_percent": {
+      "type": "number",
+      "description": "Percentage adjustment (for regional, condition, etc.)"
+    },
+    "adjustment_amount": {
+      "type": "number",
+      "description": "Flat adjustment amount per sqft"
+    },
+    "floor_condition": {
+      "type": "string",
+      "enum": [
+        "new_concrete",
+        "good",
+        "cracked",
+        "stained",
+        "old_coating",
+        "unknown",
+        "any"
+      ],
+      "default": "any"
+    },
+    "minimum_charge": {
+      "type": "number",
+      "description": "Minimum project charge"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "rule_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

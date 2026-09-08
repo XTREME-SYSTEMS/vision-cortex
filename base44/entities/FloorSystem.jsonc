@@ -1,0 +1,124 @@
+{
+  "name": "FloorSystem",
+  "type": "object",
+  "description": "Flooring system specifications \u2014 material types, application methods, coverage rates, and pricing. Used for bid generation.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "System name (e.g. Metallic Epoxy, Polished Concrete, Flake System)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "epoxy",
+        "polished",
+        "polyaspartic",
+        "urethane",
+        "acrylic",
+        "metallic",
+        "flake",
+        "quartz",
+        "solid"
+      ],
+      "default": "epoxy"
+    },
+    "description": {
+      "type": "string"
+    },
+    "finish_type": {
+      "type": "string",
+      "enum": [
+        "metallic",
+        "flake",
+        "solid",
+        "quartz",
+        "polished",
+        "matte",
+        "gloss"
+      ],
+      "default": "flake"
+    },
+    "coverage_rate_sqft_per_gal": {
+      "type": "number",
+      "description": "Coverage per gallon in sqft"
+    },
+    "coats_required": {
+      "type": "integer",
+      "default": 2
+    },
+    "material_cost_per_gal": {
+      "type": "number",
+      "description": "Material cost per gallon"
+    },
+    "material_cost_per_sqft": {
+      "type": "number",
+      "description": "Calculated material cost per sqft"
+    },
+    "labor_cost_per_sqft": {
+      "type": "number",
+      "description": "Labor cost per sqft"
+    },
+    "prep_cost_per_sqft": {
+      "type": "number",
+      "description": "Prep cost per sqft (grinding, patching, etc.)"
+    },
+    "total_cost_per_sqft": {
+      "type": "number",
+      "description": "Total cost per sqft (material + labor + prep)"
+    },
+    "timeline_days_per_1000sqft": {
+      "type": "number",
+      "default": 2
+    },
+    "color_options": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "durability_rating": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "extreme"
+      ],
+      "default": "high"
+    },
+    "recommended_for": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "category"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
