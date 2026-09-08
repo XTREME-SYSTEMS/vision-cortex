@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap } from 'lucide-react';
+import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap, Hammer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VoiceChat from '@/components/chat/VoiceChat';
+import AutoBuildModal from '@/components/chat/AutoBuildModal';
 
 const LOGO_URL = 'https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png';
 
@@ -26,6 +27,7 @@ export default function UniversalChat({ activeAgents }) {
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
+  const [autoBuildOpen, setAutoBuildOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
@@ -174,6 +176,7 @@ export default function UniversalChat({ activeAgents }) {
   const hasPrime = messages.some((m) => m.author === 'Prime' && !m.validation);
 
   const plusMenuItems = [
+    { icon: Hammer, label: 'Auto Builder', onClick: () => { setAutoBuildOpen(true); setPlusMenuOpen(false); } },
     { icon: Paperclip, label: 'Attach', onClick: () => fileInputRef.current?.click(), disabled: uploading, loading: uploading },
     { icon: listening ? MicOff : Mic, label: listening ? 'Stop' : 'Dictate', onClick: toggleVoiceInput, active: listening },
     { icon: Phone, label: 'Voice', onClick: () => { setVoiceChatOpen(true); setPlusMenuOpen(false); } },
@@ -406,6 +409,17 @@ export default function UniversalChat({ activeAgents }) {
         </div>
       </div>
       {voiceChatOpen && <VoiceChat onClose={() => setVoiceChatOpen(false)} />}
+      {autoBuildOpen && (
+        <AutoBuildModal
+          onClose={() => setAutoBuildOpen(false)}
+          onComplete={(data) => {
+            setMessages((m) => [...m, {
+              author: 'Prime', author_type: 'agent', content: `Auto Build complete for **${data.business_name}**. ${data.steps_completed?.length || 0} onboarding steps generated. Provisioning: Vercel ${data.provisioning?.vercel?.id ? '✓' : '✗'}, Supabase ${data.provisioning?.supabase?.ref ? '✓' : '✗'}, Drive ${data.provisioning?.drive?.ok ? '✓' : '✗'}, Railway ${data.provisioning?.railway?.serviceId ? '✓' : '✗'}, AI Gateway ${data.provisioning?.ai_gateway?.configured ? '✓' : '✗'}. ${data.deploy_url ? `Deployed: ${data.deploy_url}` : ''}`,
+              primary: true,
+            }]);
+          }}
+        />
+      )}
     </div>
   );
 }
