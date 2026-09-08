@@ -1,0 +1,330 @@
+{
+  "name": "CloneJob",
+  "type": "object",
+  "properties": {
+    "target_url": {
+      "type": "string",
+      "description": "URL of the system to clone"
+    },
+    "site_name": {
+      "type": "string",
+      "description": "Friendly name for the target site"
+    },
+    "industry": {
+      "type": "string",
+      "default": "Uncategorized"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "cloning",
+        "validating",
+        "passed",
+        "failed",
+        "rebranding",
+        "provisioning",
+        "completed"
+      ],
+      "default": "queued"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "discovered",
+        "batch",
+        "gallery"
+      ],
+      "default": "manual"
+    },
+    "clone_progress": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "description": "0-100 clone progress"
+    },
+    "parity_score": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0-1 aggregate parity score"
+    },
+    "visual_parity": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "operational_parity": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "content_parity": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 1
+    },
+    "validation_results": {
+      "type": "object",
+      "properties": {
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "fix": {
+                "type": "string"
+              }
+            }
+          },
+          "default": []
+        },
+        "tests_passed": {
+          "type": "number",
+          "default": 0
+        },
+        "tests_total": {
+          "type": "number",
+          "default": 0
+        },
+        "test_details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "score": {
+                "type": "number"
+              },
+              "detail": {
+                "type": "string"
+              }
+            }
+          },
+          "default": []
+        }
+      },
+      "default": {}
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "max_retries": {
+      "type": "number",
+      "default": 10
+    },
+    "template_id": {
+      "type": "string",
+      "description": "CloneTemplate ID once saved to library"
+    },
+    "clone_spec": {
+      "type": "object",
+      "description": "The full DEEP-generated clone specification",
+      "properties": {
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "functions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "styles": {
+          "type": "object",
+          "default": {}
+        },
+        "uncloneable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "inferred": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        }
+      },
+      "default": {}
+    },
+    "rebrand_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scanning",
+        "scanned",
+        "revising",
+        "approved"
+      ],
+      "default": "pending"
+    },
+    "provision_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "provisioning",
+        "provisioned",
+        "failed"
+      ],
+      "default": "pending"
+    },
+    "provision_targets": {
+      "type": "object",
+      "properties": {
+        "supabase": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          },
+          "default": {}
+        },
+        "vercel": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "url": {
+              "type": "string"
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          },
+          "default": {}
+        },
+        "drive": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "folder_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          },
+          "default": {}
+        },
+        "git": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "repo_url": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          },
+          "default": {}
+        }
+      },
+      "default": {}
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "target_url",
+    "site_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "name": "CloneRebrandAsset",
+  "type": "object",
+  "properties": {
+    "clone_job_id": {
+      "type": "string",
+      "description": "CloneJob this asset belongs to"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "CloneTemplate this asset belongs to"
+    },
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "logo",
+        "image",
+        "text",
+        "brand_name",
+        "color",
+        "font",
+        "copyright",
+        "trademark",
+        "tagline",
+        "contact_info"
+      ],
+      "description": "Type of asset that needs rebranding"
+    },
+    "original_url": {
+      "type": "string",
+      "description": "URL of the original asset (for images/logos)"
+    },
+    "original_content": {
+      "type": "string",
+      "description": "Original text content that must change"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this asset is and where it appears"
+    },
+    "location": {
+      "type": "string",
+      "description": "Where on the site this asset appears (header, footer, hero, etc.)"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "critical",
+        "warning",
+        "info"
+      ],
+      "default": "warning",
+      "description": "critical = must change legally, warning = should change, info = optional"
+    },
+    "must_change": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this asset MUST be changed (legal/IP requirement)"
+    },
+    "legal_reason": {
+      "type": "string",
+      "description": "Why this must change (trademark, copyright, IP, etc.)"
+    },
+    "revisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "index": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string"
+          },
+          "style_notes": {
+            "type": "string"
+          },
+          "image_url": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "10 generated revision options"
+    },
+    "approved_revision_index": {
+      "type": "number",
+      "default": -1,
+      "description": "Index of the approved revision (-1 = none approved yet)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scanned",
+        "revising",
+        "approved",
+        "skipped"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "clone_job_id",
+    "asset_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
