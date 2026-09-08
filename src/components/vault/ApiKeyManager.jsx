@@ -220,11 +220,16 @@ export default function ApiKeyManager() {
             </div>
             <button onClick={() => setGeneratedKey(null)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
           </div>
-          <div className="flex items-center gap-2">
-            <p className="text-xs font-mono break-all flex-1 bg-background/50 rounded-md p-2.5 border border-border/30 select-all">{generatedKey.key}</p>
-            <button onClick={() => copyKey(generatedKey.key)} className="shrink-0 p-2 rounded-md bg-background/50 hover:bg-background border border-border/30">
-              {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-            </button>
+          <div className="space-y-2">
+            <p className="text-xs font-mono break-all bg-background/50 rounded-md p-2.5 border border-border/30 select-all">{generatedKey.key}</p>
+            <Button
+              size="sm"
+              onClick={() => copyKey(generatedKey.key)}
+              className={cn('w-full', copied && 'bg-emerald-500 text-white hover:bg-emerald-600')}
+            >
+              {copied ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
+              {copied ? 'Copied!' : 'Copy Key'}
+            </Button>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-amber-500 bg-amber-500/10 rounded-md p-2">
             <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
