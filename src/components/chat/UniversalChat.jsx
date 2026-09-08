@@ -25,12 +25,10 @@ export default function UniversalChat({ activeAgents }) {
   const [uploading, setUploading] = useState(false);
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
-  const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const plusMenuRef = useRef(null);
-  const modelPickerRef = useRef(null);
 
   const suggestions = [
     'Analyze my current portfolio',
@@ -51,7 +49,6 @@ export default function UniversalChat({ activeAgents }) {
   useEffect(() => {
     const handler = (e) => {
       if (plusMenuRef.current && !plusMenuRef.current.contains(e.target)) setPlusMenuOpen(false);
-      if (modelPickerRef.current && !modelPickerRef.current.contains(e.target)) setModelPickerOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -297,49 +294,6 @@ export default function UniversalChat({ activeAgents }) {
         <div className="max-w-3xl mx-auto">
           <input ref={fileInputRef} type="file" multiple onChange={handleFileUpload} className="hidden" />
 
-          {/* Model picker */}
-          <div className="relative mb-2" ref={modelPickerRef}>
-            <button
-              onClick={() => setModelPickerOpen(!modelPickerOpen)}
-              className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/70 transition-colors"
-            >
-              {currentModel.icon ? <currentModel.icon className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
-              <span>{currentModel.label}</span>
-              <ChevronDown className={cn('w-3 h-3 transition-transform', modelPickerOpen && 'rotate-180')} />
-            </button>
-            {modelPickerOpen && (
-              <div className="absolute top-full left-0 mt-1 z-50 w-64 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
-                {MODELS.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => { setSelectedModel(m.id); setModelPickerOpen(false); }}
-                    className={cn(
-                      'w-full flex items-start gap-2.5 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors border-b border-border/30 last:border-0',
-                      selectedModel === m.id && 'bg-muted/30'
-                    )}
-                  >
-                    <div className="shrink-0 mt-0.5">
-                      {selectedModel === m.id ? <Check className="w-3.5 h-3.5 text-foreground" /> : <div className="w-3.5 h-3.5" />}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-xs font-medium">{m.label}</p>
-                      <p className="text-[10px] text-muted-foreground">{m.description}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
-            {plugins.length > 0 && (
-              <div className="inline-flex items-center gap-1 ml-1.5">
-                {plugins.slice(0, 3).map((p) => (
-                  <span key={p.id} className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-muted/50 border border-border/30 text-muted-foreground">
-                    {p.name}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Input bubble with + menu and send arrow inside */}
           <div className="relative flex items-end gap-2 bg-muted rounded-2xl border border-border/40 focus-within:ring-1 focus-within:ring-ring transition-shadow">
             {/* + button inside bubble */}
@@ -355,27 +309,56 @@ export default function UniversalChat({ activeAgents }) {
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className={cn('w-4 h-4 transition-transform', plusMenuOpen && 'rotate-45')} />}
               </button>
-              {/* + menu popover */}
+              {/* + menu popover — models + actions */}
               {plusMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-2 z-50 bg-card border border-border rounded-xl shadow-lg overflow-hidden w-44">
-                  {plusMenuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <button
-                        key={item.label}
-                        onClick={item.onClick}
-                        disabled={item.disabled}
-                        className={cn(
-                          'w-full flex items-center gap-2.5 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors border-b border-border/30 last:border-0',
-                          item.active && 'text-red-500',
-                          item.disabled && 'opacity-40'
-                        )}
-                      >
-                        {item.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
-                        <span className="text-xs font-medium">{item.label}</span>
-                      </button>
-                    );
-                  })}
+                <div className="absolute bottom-full left-0 mb-2 z-50 bg-card border border-border rounded-xl shadow-lg overflow-hidden w-56">
+                  {/* Model selector */}
+                  <div className="px-3 pt-2.5 pb-1.5 border-b border-border/30">
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
+                      <Bot className="w-2.5 h-2.5" /> Model
+                    </p>
+                    <div className="space-y-0.5 max-h-44 overflow-y-auto no-scrollbar">
+                      {MODELS.map((m) => (
+                        <button
+                          key={m.id}
+                          onClick={() => setSelectedModel(m.id)}
+                          className={cn(
+                            'w-full flex items-start gap-2 px-2 py-1.5 rounded-md text-left hover:bg-muted/50 transition-colors',
+                            selectedModel === m.id && 'bg-muted/60'
+                          )}
+                        >
+                          <div className="shrink-0 mt-0.5">
+                            {selectedModel === m.id ? <Check className="w-3 h-3 text-foreground" /> : <div className="w-3 h-3" />}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-medium leading-tight">{m.label}</p>
+                            <p className="text-[9px] text-muted-foreground leading-tight">{m.description}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Action buttons */}
+                  <div className="p-1.5">
+                    {plusMenuItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={item.onClick}
+                          disabled={item.disabled}
+                          className={cn(
+                            'w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md text-left hover:bg-muted/50 transition-colors',
+                            item.active && 'text-red-500',
+                            item.disabled && 'opacity-40'
+                          )}
+                        >
+                          {item.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}
+                          <span className="text-[11px] font-medium">{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
             </div>
