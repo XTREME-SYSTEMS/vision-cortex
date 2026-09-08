@@ -39,8 +39,18 @@ export default async function(req) {
         extract_styles: true,
         screenshot: true,
       });
-      siteData = scrapeRes;
-      log(`Fetched ${siteData?.pages?.length || 1} page(s), ${siteData?.links?.length || 0} links`);
+      // Extract only serializable fields — the raw response may contain circular refs
+      const d = scrapeRes.data || scrapeRes;
+      siteData = {
+        html: d.html || d.content || '',
+        title: d.title || '',
+        text: d.text || d.textContent || '',
+        links: Array.isArray(d.links) ? d.links.slice(0, 100) : [],
+        styles: d.styles || {},
+        screenshot_url: d.screenshot_url || d.screenshot || '',
+        pages: d.pages || [{ url: target_url, html: d.html || d.content || '' }],
+      };
+      log(`Fetched ${siteData.pages.length} page(s), ${siteData.links.length} links`);
     } catch (e) {
       log(`Cloud browser failed, falling back to direct fetch: ${e.message}`);
       try {
