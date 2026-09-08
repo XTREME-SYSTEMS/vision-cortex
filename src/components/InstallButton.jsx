@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+const LOGO_URL = 'https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png';
 
 export default function InstallButton({ className, variant = 'outline', size = 'sm' }) {
   const [deferred, setDeferred] = useState(null);
@@ -32,7 +33,7 @@ export default function InstallButton({ className, variant = 'outline', size = '
         setDeferred(null);
       }}
     >
-      <Download className="w-3.5 h-3.5" /> Install app
+      <img src={LOGO_URL} alt="Vision Cortex" className="w-4 h-4 rounded" /> Install app
     </Button>
   );
 }

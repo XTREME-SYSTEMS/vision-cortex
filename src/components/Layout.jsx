@@ -24,6 +24,8 @@ import UniversalChat from '@/components/chat/UniversalChat';
 import ProjectFolders from '@/components/sidebar/ProjectFolders';
 import { base44 } from '@/api/base44Client';
 
+const LOGO_URL = 'https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png';
+
 const navGroups = [
   {
     label: 'Core',
@@ -169,9 +171,7 @@ export default function Layout() {
       <aside className="hidden md:flex w-56 shrink-0 border-r border-border/60 flex-col bg-sidebar">
         <div className="px-3 py-3 border-b border-border/60">
           <Link to="/" className="flex items-center gap-2.5">
-            <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
-              <Radar className="w-4 h-4" />
-            </span>
+            <img src={LOGO_URL} alt="Vision Cortex" className="h-7 w-7 rounded-lg object-cover" />
             <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
             <span className="text-[9px] font-mono text-muted-foreground/60 tracking-wider">V-1</span>
           </Link>
@@ -222,9 +222,7 @@ export default function Layout() {
             <Menu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={goHome} className="flex items-center gap-2">
-            <span className="h-6 w-6 rounded-lg bg-foreground text-background grid place-items-center">
-              <Radar className="w-3.5 h-3.5" />
-            </span>
+            <img src={LOGO_URL} alt="Vision Cortex" className="h-6 w-6 rounded-lg object-cover" />
             <span className="font-display text-xs tracking-[0.15em] uppercase">Vision Cortex</span>
           </Link>
           <div className="flex items-center gap-1">
@@ -294,9 +292,7 @@ export default function Layout() {
             >
               <div className="px-3 py-3 border-b border-border/60 flex items-center justify-between">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
-                  <span className="h-7 w-7 rounded-lg bg-foreground text-background grid place-items-center">
-                    <Radar className="w-4 h-4" />
-                  </span>
+                  <img src={LOGO_URL} alt="Vision Cortex" className="h-7 w-7 rounded-lg object-cover" />
                   <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">
