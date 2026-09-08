@@ -214,76 +214,98 @@ export default async function (req) {
 
     // ── DISPATCH NEXT: pick the next due prompt and invoke its target function ──
     if (action === 'dispatch_next') {
-      const due = await base44.asServiceRole.entities.PromptQueue.filter(
-        { active: true, status: 'queued' },
-        'next_run_at',
-        1
-      );
-      if (!due || due.length === 0) {
-        return Response.json({ ok: true, message: 'No prompts due for dispatch' });
+      const [queued, failed, skipped] = await Promise.all([
+        base44.asServiceRole.entities.PromptQueue.filter({ active: true, status: 'queued' }, 'next_run_at', 50),
+        base44.asServiceRole.entities.PromptQueue.filter({ active: true, status: 'failed' }, 'next_run_at', 50),
+        base44.asServiceRole.entities.PromptQueue.filter({ active: true, status: 'skipped' }, 'next_run_at', 50),
+      ]);
+      const candidates = [
+        ...(failed || []),
+        ...(skipped || []),
+        ...(queued || []).filter((q) => !q.next_run_at || new Date(q.next_run_at) <= new Date()),
+      ];
+      if (candidates.length === 0) {
+        const allDue = [...(queued || []), ...(failed || [])].sort((a, b) => new Date(a.next_run_at || 0) - new Date(b.next_run_at || 0));
+        return Response.json({ ok: true, message: 'No prompts due yet', next_due: allDue[0]?.next_run_at || null });
       }
 
-      const entry = due[0];
-      const now = new Date().toISOString();
-      if (entry.next_run_at && new Date(entry.next_run_at) > new Date()) {
-        return Response.json({ ok: true, message: 'No prompts due yet', next_due: entry.next_run_at });
+      const skippedList = [];
+      for (const entry of candidates) {
+        const now = new Date().toISOString();
+        await base44.asServiceRole.entities.PromptQueue.update(entry.id, { status: 'processing', last_run_at: now });
+
+        try {
+          const prompt = await base44.asServiceRole.entities.SystemPrompt.get(entry.prompt_id);
+          const fnPayload = {
+            prompt_id: entry.prompt_id,
+            prompt_text: prompt?.prompt_text || '',
+            prompt_name: entry.prompt_name,
+            name: entry.prompt_name,
+            title: entry.prompt_name,
+            strategy_name: entry.prompt_name,
+            category: entry.category,
+            queue_id: entry.id,
+            ...(entry.payload || {}),
+          };
+
+          const fnResult = await base44.asServiceRole.functions.invoke(entry.target_function, fnPayload);
+          const resultStr = typeof fnResult === 'string' ? fnResult : JSON.stringify(fnResult?.data || fnResult || {});
+
+          const cadence = entry.cadence_hours || 0;
+          const isOneShot = cadence <= 0;
+          await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
+            status: isOneShot ? 'completed' : 'queued',
+            last_result: resultStr.slice(0, 500),
+            run_count: (entry.run_count || 0) + 1,
+            next_run_at: isOneShot ? null : nextRunFromCadence(cadence),
+          });
+
+          await base44.asServiceRole.entities.AgentLog.create({
+            agent_name: 'PRIMUS',
+            category: 'prompt_dispatch',
+            level: 'success',
+            message: `Dispatched prompt: ${entry.prompt_name} -> ${entry.target_function}`,
+            detail: resultStr.slice(0, 300),
+          });
+
+          return Response.json({
+            ok: true,
+            dispatched: entry.prompt_name,
+            target_function: entry.target_function,
+            result: resultStr.slice(0, 500),
+            skipped_count: skippedList.length,
+          });
+        } catch (err) {
+          const is400 = (err?.message || '').includes('400');
+          const newStatus = is400 ? 'skipped' : 'failed';
+          await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
+            status: newStatus,
+            last_result: err.message.slice(0, 500),
+            fail_count: (entry.fail_count || 0) + 1,
+            next_run_at: is400 ? null : nextRunFromCadence(entry.cadence_hours || 24),
+          });
+          await base44.asServiceRole.entities.AgentLog.create({
+            agent_name: 'PRIMUS',
+            category: 'prompt_dispatch',
+            level: is400 ? 'warn' : 'error',
+            message: `${is400 ? 'Skipped (needs manual inputs)' : 'Failed dispatch'}: ${entry.prompt_name} -> ${entry.target_function}`,
+            detail: err.message.slice(0, 300),
+          });
+
+          if (is400) {
+            skippedList.push({ name: entry.prompt_name, target_function: entry.target_function, error: err.message });
+            continue; // try the next candidate
+          }
+          return Response.json({ ok: false, error: err.message, dispatched: entry.prompt_name });
+        }
       }
 
-      // Mark processing
-      await base44.asServiceRole.entities.PromptQueue.update(entry.id, { status: 'processing', last_run_at: now });
-
-      try {
-        const prompt = await base44.asServiceRole.entities.SystemPrompt.get(entry.prompt_id);
-        const fnPayload = {
-          prompt_id: entry.prompt_id,
-          prompt_text: prompt?.prompt_text || '',
-          category: entry.category,
-          queue_id: entry.id,
-          ...(entry.payload || {}),
-        };
-
-        const fnResult = await base44.asServiceRole.functions.invoke(entry.target_function, fnPayload);
-        const resultStr = typeof fnResult === 'string' ? fnResult : JSON.stringify(fnResult?.data || fnResult || {});
-
-        const cadence = entry.cadence_hours || 0;
-        const isOneShot = cadence <= 0;
-        await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
-          status: isOneShot ? 'completed' : 'queued',
-          last_result: resultStr.slice(0, 500),
-          run_count: (entry.run_count || 0) + 1,
-          next_run_at: isOneShot ? null : nextRunFromCadence(cadence),
-        });
-
-        await base44.asServiceRole.entities.AgentLog.create({
-          agent_name: 'PRIMUS',
-          category: 'prompt_dispatch',
-          level: 'success',
-          message: `Dispatched prompt: ${entry.prompt_name} -> ${entry.target_function}`,
-          detail: resultStr.slice(0, 300),
-        });
-
-        return Response.json({
-          ok: true,
-          dispatched: entry.prompt_name,
-          target_function: entry.target_function,
-          result: resultStr.slice(0, 500),
-        });
-      } catch (err) {
-        await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
-          status: 'failed',
-          last_result: err.message.slice(0, 500),
-          fail_count: (entry.fail_count || 0) + 1,
-          next_run_at: nextRunFromCadence(entry.cadence_hours || 24),
-        });
-        await base44.asServiceRole.entities.AgentLog.create({
-          agent_name: 'PRIMUS',
-          category: 'prompt_dispatch',
-          level: 'error',
-          message: `Failed dispatch: ${entry.prompt_name} -> ${entry.target_function}`,
-          detail: err.message.slice(0, 300),
-        });
-        return Response.json({ ok: false, error: err.message, dispatched: entry.prompt_name });
-      }
+      // All candidates were skipped
+      return Response.json({
+        ok: false,
+        message: 'All due prompts require specific manual inputs — none could be auto-dispatched',
+        skipped: skippedList,
+      });
     }
 
     return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
