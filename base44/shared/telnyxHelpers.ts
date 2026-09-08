@@ -58,18 +58,28 @@ export async function sendTelnyxMessage(to, from, text, mediaUrls = [], profileI
   return { ok: r.ok, data: data?.data, error: data?.errors?.[0]?.detail };
 }
 
-// Active Telnyx from-number pool — rotated round-robin for carrier compliance
-export const FROM_NUMBER_POOL = [
-  '+19548848885',
-  '+18337001239',
-  '+18334843799',
-];
+// Telnyx from-numbers mapped to their companies (from Telnyx connection names)
+// Each number is dedicated to a specific company — NOT round-robin
+export const COMPANY_NUMBERS = {
+  ai_assistant: '+19548848885',      // ai-assistant connection — Eden Skye / Vision Cortex AI voice
+  xtreme_comms: '+18337001239',      // XTREME COMMS Voice — Xtreme Communications (primary toll-free)
+  xtreme_comms_2: '+18334843799',    // XTREME COMMS Voice — Xtreme Communications (secondary toll-free)
+};
 
-let _poolIndex = 0;
+// Default number for AI voice campaigns (Eden Skye)
+export const DEFAULT_VOICE_NUMBER = COMPANY_NUMBERS.ai_assistant;
+
+// Default number for SMS/MMS outreach
+export const DEFAULT_MESSAGING_NUMBER = COMPANY_NUMBERS.xtreme_comms;
+
+// Get the from-number for a given company key
+export function getFromNumberForCompany(company) {
+  return COMPANY_NUMBERS[company] || DEFAULT_MESSAGING_NUMBER;
+}
+
+// Backward compat — returns the default messaging number
 export function getNextFromNumber() {
-  const num = FROM_NUMBER_POOL[_poolIndex % FROM_NUMBER_POOL.length];
-  _poolIndex++;
-  return num;
+  return DEFAULT_MESSAGING_NUMBER;
 }
 
 export function sleep(ms) {
