@@ -9,6 +9,7 @@ import {
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
   EyeOff, Server, Lock, Zap, Building2, Network, Settings, Puzzle,
+  Search, Briefcase,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -69,6 +70,7 @@ const navGroups = [
       { to: '/intel', label: 'Intel', icon: Telescope },
       { to: '/fleet', label: 'Fleet Command', icon: Server },
       { to: '/scrape', label: 'Scrape Pipeline', icon: Globe },
+      { to: '/leads', label: 'Lead Scraper', icon: Search },
       { to: '/intelligence', label: 'Intelligence Seeker', icon: Brain },
     ],
   },

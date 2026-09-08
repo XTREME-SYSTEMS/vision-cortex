@@ -71,6 +71,8 @@ import FleetCommand from '@/pages/FleetCommand';
 import SimFloor from '@/pages/SimFloor';
 import AgentSettings from '@/pages/AgentSettings';
 import Plugins from '@/pages/Plugins';
+import LeadScraper from '@/pages/LeadScraper';
+import XtremeCrm from '@/pages/XtremeCrm';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -161,6 +163,8 @@ const AuthenticatedApp = () => {
           <Route path="/sim" element={<SimFloor />} />
           <Route path="/settings" element={<AgentSettings />} />
           <Route path="/plugins" element={<Plugins />} />
+          <Route path="/leads" element={<LeadScraper />} />
+          <Route path="/crm" element={<XtremeCrm />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />
