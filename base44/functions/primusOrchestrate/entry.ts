@@ -1,4 +1,67 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { secrets } from 'base44:runtime';
+
+const GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
+
+// Top 5 models on Vercel AI Gateway
+const AVAILABLE_MODELS = [
+  'openai/gpt-5.6-sol',
+  'openai/gpt-5.6-luna',
+  'anthropic/claude-opus-4.8',
+  'google/gemini-3.1-pro',
+  'xai/grok-4',
+];
+
+// Auto-mode heuristic: pick the best model for the message
+function pickAutoModel(message: string): string {
+  const lower = message.toLowerCase();
+  // Code / technical → advanced reasoning
+  if (lower.match(/code|implement|debug|fix|build|deploy|function|bug|api|endpoint|refactor/)) return 'openai/gpt-5.6-luna';
+  // Strategy / analysis / decisions → deepest reasoning
+  if (lower.match(/analyz|strategy|plan|compar|reason|decid|evaluat|architect|design/)) return 'anthropic/claude-opus-4.8';
+  // Current events / real-time → grok
+  if (lower.match(/search|news|latest|current|today|real.?time|now|happen/)) return 'xai/grok-4';
+  // Long context / documents → gemini
+  if (message.length > 2000 || lower.match(/document|summariz|read|context|long/)) return 'google/gemini-3.1-pro';
+  // Short / simple → fast daily driver
+  return 'openai/gpt-5.6-sol';
+}
+
+// Route through Vercel AI Gateway with fallback to Base44 Core
+async function gatewayChat(prompt: string, system: string, model: string, base44Client: any): Promise<string> {
+  const apiKey = secrets.get('AI_GATEWAY_API_KEY');
+  if (apiKey) {
+    try {
+      const res = await fetch(GATEWAY_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            ...(system ? [{ role: 'system', content: system }] : []),
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 4096,
+          temperature: 0.7,
+          stream: false,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text) return text;
+      }
+    } catch (e) {
+      console.error('Gateway failed, falling back to Core:', e.message);
+    }
+  }
+  // Fallback: Base44 Core InvokeLLM
+  const result = await base44Client.asServiceRole.integrations.Core.InvokeLLM({ prompt });
+  return typeof result === 'string' ? result : result?.response || String(result || '');
+}
 
 export default async function (req) {
   try {
@@ -9,6 +72,11 @@ export default async function (req) {
     const body = await req.json();
     const action = (body?.action || 'chat').trim();
     const message = (body?.message || '').trim();
+    const requestedModel = (body?.model || 'auto').trim();
+    // Resolve the actual model to use
+    const selectedModel = requestedModel === 'auto' || !AVAILABLE_MODELS.includes(requestedModel)
+      ? pickAutoModel(message)
+      : requestedModel;
 
     // Load user personalization settings (ChatGPT-style custom instructions)
     const settingsList = await base44.asServiceRole.entities.AgentSettings.list('-updated_date', 1);
@@ -195,8 +263,8 @@ export default async function (req) {
       '- Be proactive: surface risks, opportunities, and next steps the owner hasn\'t asked about.\n' +
       '- Be concise but complete. American English, zero ambiguity, minimal emotion.';
 
-    const synthRes = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt: synthesisPrompt });
-    const primusReply = typeof synthRes === 'string' ? synthRes : synthRes?.response || String(synthRes || '');
+    const synthSystem = 'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.';
+    const primusReply = await gatewayChat(synthesisPrompt, synthSystem, selectedModel, base44);
 
     await base44.asServiceRole.entities.ChatMessage.create({
       author: 'Prime',
@@ -217,6 +285,7 @@ export default async function (req) {
     return Response.json({
       reply: primusReply,
       agent: 'Prime',
+      model_used: selectedModel,
       delegation: {
         handle_directly: plan.handle_directly,
         delegated_to: plan.delegate_to || [],
