@@ -84,6 +84,9 @@ const navGroups = [
       { to: '/marketer', label: 'Marketer', icon: Megaphone },
       { to: '/audit', label: 'Audit', icon: ShieldCheck },
       { to: '/site-monitor', label: 'Site Monitor', icon: Globe },
+      { to: '/auto-builder', label: 'Auto Builder', icon: Hammer },
+      { to: '/visualizer', label: 'Floor Visualizer', icon: Eye },
+      { to: '/prompt-library', label: 'Prompt Library', icon: BookOpen },
     ],
   },
   {
@@ -97,8 +100,6 @@ const navGroups = [
       { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
       { to: '/xtreme-perfection', label: 'Xtreme Perfection', icon: Brain },
       { to: '/quote', label: 'Floor Quote Flow', icon: Square },
-      { to: '/visualizer', label: 'Floor Visualizer', icon: Eye },
-      { to: '/auto-builder', label: 'Auto Builder', icon: Hammer },
     ],
   },
   {
@@ -117,7 +118,6 @@ const navGroups = [
       { to: '/queue', label: 'Queue', icon: ListTodo },
       { to: '/playbook', label: 'Playbook', icon: BookOpen },
       { to: '/codebase', label: 'Codebase', icon: FileCode },
-      { to: '/prompt-library', label: 'Prompt Library', icon: BookOpen },
     ],
   },
 ];
