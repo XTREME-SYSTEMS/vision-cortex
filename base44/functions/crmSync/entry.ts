@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { normEmail, normPhone, dedupKeyCrm } from "../../shared/crmUtils.ts";
 
 // ============================================================================
 // crmSync — Aggregates all lead sources (PCU alumni directory, scraped prospects,
@@ -16,23 +17,8 @@ export default async function(req) {
     const body = await req.json().catch(() => ({}));
     const { action = 'sync_all' } = body;
 
-    // ── Dedup key: normalized email or phone ──
-    const normEmail = (e) => (e || '').toLowerCase().trim();
-    const normPhone = (p) => {
-      if (!p) return '';
-      let n = p.replace(/[^\d+]/g, '');
-      if (!n.startsWith('+') && n.length === 10) n = '+1' + n;
-      if (!n.startsWith('+') && n.length === 11) n = '+' + n;
-      return n;
-    };
-    const dedupKey = (c) => {
-      const e = normEmail(c.email);
-      if (e) return `email:${e}`;
-      const p = normPhone(c.phone);
-      if (p) return `phone:${p}`;
-      const co = (c.company || c.business_name || c.full_name || '').toLowerCase().trim();
-      return `name:${co}`;
-    };
+    // ── Dedup key from shared module ──
+    const dedupKey = dedupKeyCrm;
 
     switch (action) {
 
