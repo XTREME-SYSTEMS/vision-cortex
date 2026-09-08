@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
-import { Phone, Send, Bot, FileText, Image, Briefcase, Search } from 'lucide-react';
+import { Phone, Send, Bot, FileText, Image, Briefcase, Search, Wifi, WifiOff, Loader2 } from 'lucide-react';
 import NumbersTab from '@/components/comms/NumbersTab';
 import ComposerTab from '@/components/comms/ComposerTab';
 import VoiceTab from '@/components/comms/VoiceTab';
@@ -23,6 +24,13 @@ const LINKS = [
 
 export default function Comms() {
   const [tab, setTab] = useState('numbers');
+  const [telnyxStatus, setTelnyxStatus] = useState(null);
+
+  useEffect(() => {
+    base44.functions.invoke('telnyxComms', { action: 'status' })
+      .then(res => setTelnyxStatus(res.data))
+      .catch(() => setTelnyxStatus({ connected: false }));
+  }, []);
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4">
@@ -30,9 +38,23 @@ export default function Comms() {
         <h1 className="text-xl md:text-2xl font-heading font-bold flex items-center gap-2">
           <Send className="h-5 w-5 md:h-6 md:w-6 text-primary" /> Communications Hub
         </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Unified SMS, MMS, WhatsApp, Voice, and Email — powered by Xtreme Communications. Manage phone numbers, send messages, place AI calls, and organize templates & creative assets.
-        </p>
+        <div className="flex items-center justify-between mt-1">
+          <p className="text-xs text-muted-foreground">
+            Unified SMS, MMS, WhatsApp, and Voice — powered by Telnyx. Manage phone numbers, send messages, place calls, and organize templates & creative assets.
+          </p>
+          {telnyxStatus && (
+            <span className={cn('flex items-center gap-1 text-[10px] px-2 py-1 rounded-full shrink-0 ml-2',
+              telnyxStatus.connected ? 'bg-emerald-500/10 text-emerald-500' : 'bg-destructive/10 text-destructive')}>
+              {telnyxStatus.connected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              {telnyxStatus.connected ? 'Telnyx Connected' : 'Telnyx Offline'}
+            </span>
+          )}
+          {!telnyxStatus && (
+            <span className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground shrink-0 ml-2">
+              <Loader2 className="h-3 w-3 animate-spin" /> Checking…
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Quick links to lead gen + CRM */}
