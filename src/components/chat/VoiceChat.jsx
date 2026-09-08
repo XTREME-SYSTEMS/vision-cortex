@@ -77,22 +77,20 @@ export default function VoiceChat({ onClose }) {
       ws.onopen = async () => {
         // Configure the session with voice, instructions, and server VAD
         ws.send(JSON.stringify({
-          type: 'session.update',
-          session: {
+          type: 'session-update',
+          config: {
             voice: voice || 'alloy',
             instructions: instructions || 'You are a helpful assistant.',
-            turn_detection: {
-              type: 'server_vad',
+            outputModalities: ['text', 'audio'],
+            inputAudioFormat: { type: 'audio/pcm', rate: 24000 },
+            outputAudioFormat: { type: 'audio/pcm', rate: 24000 },
+            inputAudioTranscription: { model: 'whisper-1' },
+            turnDetection: {
+              type: 'server-vad',
               threshold: 0.5,
-              prefix_padding_ms: 300,
-              silence_duration_ms: 500,
-              create_response: true,
-              interrupt_response: true,
+              prefixPaddingMs: 300,
+              silenceDurationMs: 500,
             },
-            input_audio_format: 'pcm16',
-            output_audio_format: 'pcm16',
-            modalities: ['text', 'audio'],
-            input_audio_transcription: { model: 'whisper-1' },
           },
         }));
 
@@ -126,7 +124,7 @@ export default function VoiceChat({ onClose }) {
             const base64 = arrayBufferToBase64(pcm16.buffer);
 
             wsRef.current.send(JSON.stringify({
-              type: 'input_audio_buffer.append',
+              type: 'input-audio-append',
               audio: base64,
             }));
           };
@@ -145,35 +143,41 @@ export default function VoiceChat({ onClose }) {
         try {
           const event = JSON.parse(e.data);
           switch (event.type) {
-            case 'session.created':
-            case 'session.updated':
+            case 'session-created':
+            case 'session-updated':
               break;
 
-            case 'input_audio_buffer.speech_started':
+            case 'speech-started':
               setUserSpeaking(true);
               setAiSpeaking(false);
               nextPlayTimeRef.current = 0; // Reset playback for barge-in
               break;
 
-            case 'input_audio_buffer.speech_stopped':
+            case 'speech-stopped':
               setUserSpeaking(false);
               break;
 
-            case 'response.audio.delta':
+            case 'audio-delta':
               if (event.delta) {
                 setAiSpeaking(true);
                 playAudioChunk(event.delta);
               }
               break;
 
-            case 'response.audio_transcript.delta':
+            case 'audio-transcript-delta':
               if (event.delta) {
                 aiTranscriptRef.current += event.delta;
               }
               break;
 
-            case 'response.audio_transcript.done':
-              if (aiTranscriptRef.current) {
+            case 'audio-transcript-done':
+              if (event.transcript) {
+                setTranscript((t) => [...t, {
+                  role: 'assistant',
+                  text: event.transcript,
+                }]);
+                aiTranscriptRef.current = '';
+              } else if (aiTranscriptRef.current) {
                 setTranscript((t) => [...t, {
                   role: 'assistant',
                   text: aiTranscriptRef.current,
@@ -182,7 +186,7 @@ export default function VoiceChat({ onClose }) {
               }
               break;
 
-            case 'conversation.item.input_audio_transcription.completed':
+            case 'input-transcription-completed':
               if (event.transcript) {
                 setTranscript((t) => [...t, {
                   role: 'user',
@@ -191,7 +195,7 @@ export default function VoiceChat({ onClose }) {
               }
               break;
 
-            case 'response.done':
+            case 'response-done':
               setAiSpeaking(false);
               if (aiTranscriptRef.current) {
                 setTranscript((t) => [...t, {
