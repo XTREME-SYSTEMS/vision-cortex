@@ -73,6 +73,7 @@ import AgentSettings from '@/pages/AgentSettings';
 import Plugins from '@/pages/Plugins';
 import LeadScraper from '@/pages/LeadScraper';
 import XtremeCrm from '@/pages/XtremeCrm';
+import Comms from '@/pages/Comms';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -165,6 +166,7 @@ const AuthenticatedApp = () => {
           <Route path="/plugins" element={<Plugins />} />
           <Route path="/leads" element={<LeadScraper />} />
           <Route path="/crm" element={<XtremeCrm />} />
+          <Route path="/comms" element={<Comms />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

@@ -9,7 +9,7 @@ import {
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
   EyeOff, Server, Lock, Zap, Building2, Network, Settings, Puzzle,
-  Search, Briefcase,
+  Search, Briefcase, Send,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -103,6 +103,8 @@ const navGroups = [
     icon: MessagesSquare,
     items: [
       { to: '/agents', label: 'Agents', icon: Bot },
+      { to: '/comms', label: 'Comms Hub', icon: Send },
+      { to: '/crm', label: 'CRM Pipeline', icon: Briefcase },
       { to: '/chat', label: 'War Room', icon: MessagesSquare },
       { to: '/council', label: 'Council', icon: Users },
       { to: '/live', label: 'Live Chat', icon: MessageCircle },
