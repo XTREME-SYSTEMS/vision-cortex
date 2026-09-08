@@ -437,6 +437,120 @@ Only include REAL businesses you can verify. Do not fabricate.`,
         return Response.json({ ok: true, ...res });
       }
 
+      // ── SYNC FROM XTREME OS — pull Directory records from the Xtreme OS platform ──
+      case 'sync_from_xtreme_os': {
+        const osApiKey = process.env.XTREME_OS_API_KEY;
+        if (!osApiKey) return Response.json({ error: 'XTREME_OS_API_KEY not set' }, { status: 400 });
+
+        const osUrl = 'https://xtremeos.base44.app/functions/executeSystemCommand';
+        const maxLimit = body.limit || 500;
+        let allRecords = [];
+        let offset = 0;
+        let hasMore = true;
+        const maxBatches = body.max_batches || 10;
+
+        // Paginate — Xtreme OS entity_crud read with skip/offset
+        for (let batch = 0; batch < maxBatches && hasMore; batch++) {
+          const r = await fetch(osUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${osApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              command: 'entity_crud',
+              operation: 'read',
+              entity_name: 'Directory',
+              query: {},
+              limit: maxLimit,
+              skip: offset,
+            }),
+          });
+          const data = await r.json().catch(() => ({}));
+          const records = data?.result || data?.data?.result || [];
+          if (records.length === 0) { hasMore = false; break; }
+          allRecords = allRecords.concat(records);
+          offset += records.length;
+          if (records.length < maxLimit) hasMore = false;
+        }
+
+        // Map Xtreme OS Directory → PcuDirectory format
+        const mapped = allRecords.map(r => ({
+          business_name: r.business_name || r.name || 'Unknown',
+          contact_name: r.owner_name || r.first_name || r.last_name || '',
+          phone: r.phone || r.owner_cell || '',
+          email: r.email || r.owner_email || '',
+          address: r.address || '',
+          city: r.city || '',
+          state: r.state || '',
+          zip: r.zip || '',
+          website: r.website || '',
+          industry: 'polished_concrete',
+          services: r.specialty_trade ? [r.specialty_trade] : [],
+          certifications: [],
+          years_in_business: r.years_in_business,
+          employee_count: r.employee_count,
+          rating: r.google_business_rating || 0,
+          review_count: r.google_review_count || 0,
+          source: r.type === 'pcu_alumni' ? 'pcu_alumni' : (r.type === 'new_business' ? 'new_business' : 'imported'),
+          status: r.contacted ? 'contacted' : 'new',
+          imported_at: new Date().toISOString(),
+          tags: [r.type, r.state, r.specialty_trade, r.discovery_source].filter(Boolean),
+          enrichment_data: {
+            xtreme_os_id: r.id,
+            specialty_trade: r.specialty_trade,
+            discovery_source: r.discovery_source,
+            registration_date: r.registration_date,
+            date_discovered: r.date_discovered,
+            estimated_revenue: r.estimated_revenue,
+            business_summary: r.business_summary,
+            gaps: r.gaps,
+            upsells: r.upsells,
+            ai_next_step: r.ai_next_step,
+          },
+        }));
+
+        // Dedup against existing PcuDirectory
+        const orConditions = mapped.flatMap(b => {
+          const c = [];
+          if (b.business_name && b.business_name !== 'Unknown') c.push({ business_name: b.business_name });
+          if (b.phone) c.push({ phone: b.phone });
+          return c;
+        });
+
+        let existing = [];
+        if (orConditions.length > 0) {
+          existing = await base44.asServiceRole.entities.PcuDirectory.filter({ $or: orConditions });
+        }
+        const existingKeys = new Set(existing.map(e => dedupKey(e.business_name, e.phone, e.city, e.state)));
+
+        const newRecords = mapped.filter(b => !existingKeys.has(dedupKey(b.business_name, b.phone, b.city, b.state)));
+
+        let created = [];
+        if (newRecords.length > 0) {
+          // Bulk create in batches of 100
+          for (let i = 0; i < newRecords.length; i += 100) {
+            const batch = await base44.asServiceRole.entities.PcuDirectory.bulkCreate(newRecords.slice(i, i + 100));
+            created = created.concat(batch);
+          }
+        }
+
+        // Sync to CRM
+        let crmSync = { imported: 0 };
+        if (body.sync_crm !== false) {
+          try { crmSync = await syncToCrm(); } catch (e) { crmSync = { error: e.message }; }
+        }
+
+        return Response.json({
+          ok: true,
+          action: 'sync_from_xtreme_os',
+          fetched: allRecords.length,
+          imported_to_directory: created.length,
+          duplicates: mapped.length - newRecords.length,
+          crm_sync: crmSync,
+        });
+      }
+
       // ── DIRECTORY STATS ──
       case 'stats': {
         const directory = await base44.asServiceRole.entities.PcuDirectory.list('-created_date', 5000);
