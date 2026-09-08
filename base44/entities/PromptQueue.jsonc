@@ -1,0 +1,102 @@
+{
+  "name": "PromptQueue",
+  "type": "object",
+  "description": "Persistent queue of master prompts installed for autonomous execution \u2014 the 'queen' system. Each entry links a SystemPrompt to a target backend function and tracks dispatch status, priority, cadence, and run history. Prompts wait here until the dispatcher picks them up, so ingested prompts persist between runs instead of being fired once and forgotten.",
+  "properties": {
+    "prompt_id": {
+      "type": "string",
+      "description": "SystemPrompt ID this queue entry is bound to"
+    },
+    "prompt_name": {
+      "type": "string",
+      "description": "Snapshot of the prompt name for fast display"
+    },
+    "category": {
+      "type": "string",
+      "description": "Snapshot of the prompt category"
+    },
+    "target_function": {
+      "type": "string",
+      "description": "Backend function to invoke when this prompt is dispatched"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "processing",
+        "completed",
+        "failed",
+        "skipped",
+        "paused"
+      ],
+      "default": "queued"
+    },
+    "cadence_hours": {
+      "type": "number",
+      "default": 24,
+      "description": "How often to re-queue for dispatch (0 = one-shot, run once then complete)"
+    },
+    "last_run_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_run_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the dispatcher should next pick this up"
+    },
+    "last_result": {
+      "type": "string",
+      "description": "Truncated result or error from the last dispatch"
+    },
+    "run_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "fail_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "payload": {
+      "type": "object",
+      "description": "Extra payload merged into the target function call",
+      "default": {}
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "prompt_id",
+    "target_function"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

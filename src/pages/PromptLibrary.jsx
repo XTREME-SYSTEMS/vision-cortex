@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
   BookOpen, Loader2, RefreshCw, Search, Brain, Wrench, ShieldCheck,
-  Rocket, Activity, Zap, Eye, ChevronDown, ChevronUp, Copy, Check, Plus, Trash2, Edit3, X, Download
+  Rocket, Activity, Zap, Eye, ChevronDown, ChevronUp, Copy, Check, Plus, Trash2, Edit3, X, Download, ListVideo, Play
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -40,6 +40,10 @@ export default function PromptLibrary() {
   const [creating, setCreating] = useState(false);
   const [ingesting, setIngesting] = useState(false);
   const [ingestResult, setIngestResult] = useState(null);
+  const [queue, setQueue] = useState([]);
+  const [queueStats, setQueueStats] = useState(null);
+  const [dispatching, setDispatching] = useState(false);
+  const [dispatchResult, setDispatchResult] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,6 +58,22 @@ export default function PromptLibrary() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  const loadQueue = useCallback(async () => {
+    try {
+      const [entries, stats] = await Promise.all([
+        base44.entities.PromptQueue.list('-created_date', 200),
+        base44.functions.invoke('ingestPromptLibrary', { action: 'status' }).then(r => r.data || r).catch(() => null),
+      ]);
+      setQueue(entries || []);
+      setQueueStats(stats);
+    } catch {
+      setQueue([]);
+      setQueueStats(null);
+    }
+  }, []);
+
+  useEffect(() => { loadQueue(); }, [loadQueue]);
 
   const filtered = prompts.filter(p => {
     if (activeCategory !== 'all' && p.category !== activeCategory) return false;
@@ -97,16 +117,29 @@ export default function PromptLibrary() {
     setIngestResult(null);
     try {
       const res = await base44.functions.invoke('ingestPromptLibrary', {
-        action: 'ingest_all',
-        agent_name: 'PRIMUS',
-        max_per_run: 50,
+        action: 'install_all',
       });
       setIngestResult(res.data || res);
       load();
+      loadQueue();
     } catch (e) {
       setIngestResult({ error: e.message });
     } finally {
       setIngesting(false);
+    }
+  };
+
+  const dispatchNext = async () => {
+    setDispatching(true);
+    setDispatchResult(null);
+    try {
+      const res = await base44.functions.invoke('ingestPromptLibrary', { action: 'dispatch_next' });
+      setDispatchResult(res.data || res);
+      loadQueue();
+    } catch (e) {
+      setDispatchResult({ error: e.message });
+    } finally {
+      setDispatching(false);
     }
   };
 
@@ -130,8 +163,8 @@ export default function PromptLibrary() {
             disabled={ingesting}
             className="px-3 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 disabled:opacity-50 flex items-center gap-1.5"
           >
-            {ingesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-            Ingest All
+            {ingesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ListVideo className="w-4 h-4" />}
+            Install to Queue
           </button>
           <button onClick={() => setCreating(true)} className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 flex items-center gap-1.5">
             <Plus className="w-4 h-4" /> New
@@ -146,12 +179,71 @@ export default function PromptLibrary() {
         )}>
           {ingestResult.error ? `Error: ${ingestResult.error}` : (
             <span>
-              Ingested <strong>{ingestResult.succeeded}</strong> of <strong>{ingestResult.total}</strong> prompts for {ingestResult.agent}
-              {ingestResult.failed > 0 && ` (${ingestResult.failed} failed)`}
+              Installed <strong>{ingestResult.installed}</strong> new prompts into the queue
+              {ingestResult.skipped > 0 && ` (${ingestResult.skipped} already queued)`} of {ingestResult.total} total.
             </span>
           )}
         </div>
       )}
+
+      {/* Queue panel */}
+      <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ListVideo className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">Prompt Queue</span>
+            {queueStats && (
+              <span className="text-[11px] text-muted-foreground">
+                {queueStats.total_in_queue} installed · {queueStats.due_now} due now
+              </span>
+            )}
+          </div>
+          <button
+            onClick={dispatchNext}
+            disabled={dispatching}
+            className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {dispatching ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+            Dispatch Next
+          </button>
+        </div>
+        {dispatchResult && (
+          <div className={cn(
+            'text-xs rounded-md p-2',
+            dispatchResult.error ? 'bg-red-500/5 text-red-500' : 'bg-emerald-500/5 text-emerald-600'
+          )}>
+            {dispatchResult.error ? `Error: ${dispatchResult.error}` : (
+              dispatchResult.message || `Dispatched: ${dispatchResult.dispatched} -> ${dispatchResult.target_function}`
+            )}
+          </div>
+        )}
+        {queue.length === 0 ? (
+          <p className="text-xs text-muted-foreground py-2">Queue is empty. Click "Install to Queue" to install all active prompts.</p>
+        ) : (
+          <div className="max-h-48 overflow-y-auto space-y-1 no-scrollbar">
+            {queue.map(q => (
+              <div key={q.id} className="flex items-center justify-between gap-2 text-xs py-1 px-2 rounded bg-muted/30">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={cn(
+                    'w-1.5 h-1.5 rounded-full shrink-0',
+                    q.status === 'queued' ? 'bg-blue-500' :
+                    q.status === 'processing' ? 'bg-amber-500 animate-pulse' :
+                    q.status === 'completed' ? 'bg-emerald-500' :
+                    q.status === 'failed' ? 'bg-red-500' :
+                    q.status === 'paused' ? 'bg-muted-foreground' : 'bg-muted-foreground'
+                  )} />
+                  <span className="truncate">{q.prompt_name}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 text-muted-foreground">
+                  <span className="font-mono text-[10px]">{q.target_function}</span>
+                  <span className="uppercase text-[10px] tracking-wider">{q.status}</span>
+                  <span className="text-[10px]">×{q.run_count || 0}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Search */}
       <div className="relative">

@@ -1,168 +1,289 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
 
 // ============================================================================
-// ingestPromptLibrary — Sequentially ingests every active SystemPrompt into
-// the agent's active context, one immediately after another. Each prompt is
-// invoked through the LLM, its usage_count is incremented, and an AgentLog
-// entry records the ingestion. Designed for autonomous agent self-loading.
+// ingestPromptLibrary — installs master prompts into the persistent PromptQueue
+// (the "queen" system). Prompts wait in the queue until a dispatcher picks them
+// up and invokes their target backend function. This replaces the old
+// fire-and-forget approach: prompts now persist between runs.
+//
+// Actions:
+//   install_all    — install every active SystemPrompt into the queue (idempotent)
+//   install_one    — install a single prompt by prompt_id
+//   status         — queue stats
+//   dispatch_next  — pick the next due prompt and invoke its target function
 // ============================================================================
 
-export default async function(req) {
+// Sensible default: category -> backend function
+const CATEGORY_FUNCTION_MAP: Record<string, string> = {
+  audit: 'deepSystemAudit',
+  heal: 'dnaSelfHeal',
+  harden: 'vaultSecurity',
+  optimize: 'autoEnhanceAll',
+  manage: 'masterLoopOrchestrator',
+  build: 'dispatchToBuilder',
+  intelligence: 'intelligenceGatherer',
+  communication: 'persistentMessageAgent',
+  prediction: 'councilPredict',
+  simulation: 'simulateStrategy',
+  strategy: 'councilBlueprint',
+  governance: 'runFullValidation',
+  reflection: 'autoRecommendAllSystems',
+  coding: 'implementEnhancement',
+  memory: 'bootstrapCoreDocuments',
+  discovery: 'DeepDiscoveryScan',
+  scraping: 'cloudBrowserPipeline',
+  clone: 'deepCloneSystem',
+  provision: 'provisionVercel',
+  other: 'masterLoopOrchestrator',
+};
+
+const DEFAULT_CADENCE: Record<string, number> = {
+  audit: 24,
+  heal: 12,
+  harden: 168,
+  optimize: 168,
+  manage: 6,
+  build: 0,
+  intelligence: 24,
+  communication: 0,
+  prediction: 24,
+  simulation: 0,
+  strategy: 168,
+  governance: 24,
+  reflection: 24,
+  coding: 0,
+  memory: 168,
+  discovery: 24,
+  scraping: 0,
+  clone: 0,
+  provision: 0,
+  other: 24,
+};
+
+function nextRunFromCadence(hours: number): string {
+  if (!hours || hours <= 0) return new Date(Date.now() + 60000).toISOString(); // 1 min for one-shot
+  return new Date(Date.now() + hours * 3600 * 1000).toISOString();
+}
+
+export default async function (req) {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
-    const {
-      action = 'ingest_all',
-      agent_name = 'PRIMUS',
-      category_filter,
-      max_per_run = 50,
-      delay_ms = 0,
-    } = body;
+    const action = body?.action || 'install_all';
 
-    // Normalize model names: entity uses underscores (claude_sonnet_5), API needs hyphens (claude-sonnet-5)
-    const normalizeModel = (m: string): string => {
-      if (!m || m === 'automatic' || m === 'gemini_3_flash') return m;
-      const valid = ['automatic', 'gemini_3_8_flash', 'gpt_5_6_luna', 'claude-sonnet-5', 'gpt_5_6_terra', 'claude_opus_5', 'gpt_5_6_sol', 'gpt_6_astra', 'claude_fable_5_1', 'glm_5_2'];
-      if (valid.includes(m)) return m;
-      // Map common underscore variants to valid API names
-      const map: Record<string, string> = {
-        'claude_sonnet_5': 'claude-sonnet-5',
-        'claude_opus_5': 'claude_opus_5',
-        'gemini_3_1_pro': 'gemini_3_8_flash',
-        'gpt_5_mini': 'gpt_5_6_luna',
-        'gpt_5_4': 'gpt_5_6_terra',
-      };
-      return map[m] || 'gemini_3_8_flash';
-    };
-
-    // ── INGEST ALL: sequentially process every active prompt ──
-    if (action === 'ingest_all') {
-      const filter: any = { active: true };
-      if (category_filter) filter.category = category_filter;
-
-      const prompts = await base44.asServiceRole.entities.SystemPrompt.filter(filter, 'category', max_per_run);
+    // ── INSTALL ALL: enqueue every active prompt (idempotent) ──
+    if (action === 'install_all') {
+      const prompts = await base44.asServiceRole.entities.SystemPrompt.filter(
+        { active: true },
+        'category',
+        200
+      );
       if (!prompts || prompts.length === 0) {
-        return Response.json({ ok: true, message: 'No active prompts found to ingest', ingested: 0 });
+        return Response.json({ ok: true, message: 'No active prompts to install', installed: 0 });
       }
+
+      // Pull existing queue entries so we don't duplicate
+      const existing = await base44.asServiceRole.entities.PromptQueue.list('-created_date', 500);
+      const existingByPromptId = new Map((existing || []).map((q) => [q.prompt_id, q]));
 
       const results = [];
-      let succeeded = 0;
-      let failed = 0;
+      let installed = 0;
+      let skipped = 0;
 
-      for (let i = 0; i < prompts.length; i++) {
-        const prompt = prompts[i];
-        try {
-          // Invoke the prompt through the LLM to activate it in agent context
-          const llmResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-            prompt: `[SYSTEM INGESTION — Prompt ${i + 1} of ${prompts.length}]\n\nAgent: ${agent_name}\nCategory: ${prompt.category}\n\n--- PROMPT ---\n${prompt.prompt_text}\n--- END PROMPT ---\n\nAcknowledge that you have internalized this prompt. Confirm your understanding in one sentence.`,
-            model: normalizeModel(prompt.target_model),
-          });
+      for (const prompt of prompts) {
+        const targetFunction = body?.function_map?.[prompt.category] || CATEGORY_FUNCTION_MAP[prompt.category] || 'masterLoopOrchestrator';
+        const cadence = body?.cadence_map?.[prompt.category] ?? DEFAULT_CADENCE[prompt.category] ?? 24;
 
-          const responseText = typeof llmResponse === 'string' ? llmResponse : JSON.stringify(llmResponse);
-
-          // Increment usage_count
-          await base44.asServiceRole.entities.SystemPrompt.update(prompt.id, {
-            usage_count: (prompt.usage_count || 0) + 1,
-            last_optimized_at: new Date().toISOString(),
-          });
-
-          // Log ingestion
-          await base44.asServiceRole.entities.AgentLog.create({
-            agent_name,
-            category: 'prompt_ingestion',
-            level: 'success',
-            message: `Ingested prompt: ${prompt.name} (${prompt.category})`,
-            detail: `Sequence ${i + 1}/${prompts.length}. Response: ${responseText.slice(0, 200)}`,
-          });
-
-          results.push({
-            id: prompt.id,
-            name: prompt.name,
-            category: prompt.category,
-            sequence: i + 1,
-            status: 'success',
-          });
-          succeeded++;
-
-          if (delay_ms > 0) await new Promise(r => setTimeout(r, delay_ms));
-        } catch (err) {
-          failed++;
-          results.push({
-            id: prompt.id,
-            name: prompt.name,
-            category: prompt.category,
-            sequence: i + 1,
-            status: 'failed',
-            error: err.message,
-          });
-
-          await base44.asServiceRole.entities.AgentLog.create({
-            agent_name,
-            category: 'prompt_ingestion',
-            level: 'error',
-            message: `Failed to ingest prompt: ${prompt.name}`,
-            detail: err.message,
-          });
+        if (existingByPromptId.has(prompt.id)) {
+          // Update target function / cadence if changed, keep status
+          const entry = existingByPromptId.get(prompt.id);
+          if (entry.target_function !== targetFunction || entry.cadence_hours !== cadence) {
+            await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
+              target_function: targetFunction,
+              cadence_hours: cadence,
+              prompt_name: prompt.name,
+              category: prompt.category,
+            });
+          }
+          skipped++;
+          results.push({ prompt_id: prompt.id, name: prompt.name, status: 'already_queued' });
+          continue;
         }
+
+        await base44.asServiceRole.entities.PromptQueue.create({
+          prompt_id: prompt.id,
+          prompt_name: prompt.name,
+          category: prompt.category,
+          target_function: targetFunction,
+          priority: 'medium',
+          status: 'queued',
+          cadence_hours: cadence,
+          next_run_at: nextRunFromCadence(cadence),
+          run_count: 0,
+          fail_count: 0,
+          payload: {},
+          active: true,
+        });
+
+        // Tick usage_count so the library reflects installation
+        await base44.asServiceRole.entities.SystemPrompt.update(prompt.id, {
+          usage_count: (prompt.usage_count || 0) + 1,
+          last_optimized_at: new Date().toISOString(),
+        });
+
+        installed++;
+        results.push({ prompt_id: prompt.id, name: prompt.name, target_function: targetFunction, status: 'installed' });
       }
+
+      await base44.asServiceRole.entities.AgentLog.create({
+        agent_name: 'PRIMUS',
+        category: 'prompt_ingestion',
+        level: 'success',
+        message: `Installed ${installed} prompts into queue (${skipped} already queued)`,
+        detail: JSON.stringify({ installed, skipped, total: prompts.length }).slice(0, 500),
+      });
 
       return Response.json({
         ok: true,
-        agent: agent_name,
         total: prompts.length,
-        succeeded,
-        failed,
+        installed,
+        skipped,
         results,
       });
     }
 
-    // ── INGEST SINGLE: process one specific prompt by ID ──
-    if (action === 'ingest_one') {
+    // ── INSTALL ONE: enqueue a single prompt ──
+    if (action === 'install_one') {
       const { prompt_id } = body;
       if (!prompt_id) return Response.json({ error: 'prompt_id required' }, { status: 400 });
 
       const prompt = await base44.asServiceRole.entities.SystemPrompt.get(prompt_id);
       if (!prompt) return Response.json({ error: 'Prompt not found' }, { status: 404 });
 
-      const llmResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: `[SYSTEM INGESTION — Single Prompt]\n\nAgent: ${agent_name}\nCategory: ${prompt.category}\n\n--- PROMPT ---\n${prompt.prompt_text}\n--- END PROMPT ---\n\nAcknowledge that you have internalized this prompt.`,
-        model: normalizeModel(prompt.target_model),
-      });
+      const targetFunction = body?.target_function || CATEGORY_FUNCTION_MAP[prompt.category] || 'masterLoopOrchestrator';
+      const cadence = body?.cadence_hours ?? DEFAULT_CADENCE[prompt.category] ?? 24;
 
-      const responseText = typeof llmResponse === 'string' ? llmResponse : JSON.stringify(llmResponse);
+      // Check existing
+      const existing = await base44.asServiceRole.entities.PromptQueue.filter({ prompt_id }, 'created_date', 1);
+      if (existing && existing.length > 0) {
+        return Response.json({ ok: true, message: 'Already queued', queue_id: existing[0].id });
+      }
+
+      const entry = await base44.asServiceRole.entities.PromptQueue.create({
+        prompt_id: prompt.id,
+        prompt_name: prompt.name,
+        category: prompt.category,
+        target_function: targetFunction,
+        priority: body?.priority || 'medium',
+        status: 'queued',
+        cadence_hours: cadence,
+        next_run_at: nextRunFromCadence(cadence),
+        run_count: 0,
+        fail_count: 0,
+        payload: body?.payload || {},
+        active: true,
+      });
 
       await base44.asServiceRole.entities.SystemPrompt.update(prompt_id, {
         usage_count: (prompt.usage_count || 0) + 1,
         last_optimized_at: new Date().toISOString(),
       });
 
-      await base44.asServiceRole.entities.AgentLog.create({
-        agent_name,
-        category: 'prompt_ingestion',
-        level: 'success',
-        message: `Ingested single prompt: ${prompt.name}`,
-        detail: responseText.slice(0, 300),
-      });
-
-      return Response.json({ ok: true, prompt_id, name: prompt.name, response: responseText.slice(0, 500) });
+      return Response.json({ ok: true, queue_id: entry.id, prompt_name: prompt.name, target_function: targetFunction });
     }
 
-    // ── STATUS: show ingestion progress ──
+    // ── STATUS: queue stats ──
     if (action === 'status') {
-      const all = await base44.asServiceRole.entities.SystemPrompt.filter({ active: true }, 'category', 200);
-      const ingested = all.filter(p => (p.usage_count || 0) > 0);
-      const never_ingested = all.filter(p => (p.usage_count || 0) === 0);
+      const queue = await base44.asServiceRole.entities.PromptQueue.list('-created_date', 500);
+      const byStatus = (queue || []).reduce((acc, q) => {
+        acc[q.status] = (acc[q.status] || 0) + 1;
+        return acc;
+      }, {});
+      const dueNow = (queue || []).filter((q) => q.active && q.status === 'queued' && (!q.next_run_at || new Date(q.next_run_at) <= new Date())).length;
 
       return Response.json({
         ok: true,
-        total_active: all.length,
-        ingested_count: ingested.length,
-        never_ingested_count: never_ingested.length,
-        avg_usage: all.length > 0 ? Math.round(all.reduce((s, p) => s + (p.usage_count || 0), 0) / all.length) : 0,
+        total_in_queue: (queue || []).length,
+        by_status: byStatus,
+        due_now: dueNow,
       });
+    }
+
+    // ── DISPATCH NEXT: pick the next due prompt and invoke its target function ──
+    if (action === 'dispatch_next') {
+      const due = await base44.asServiceRole.entities.PromptQueue.filter(
+        { active: true, status: 'queued' },
+        'next_run_at',
+        1
+      );
+      if (!due || due.length === 0) {
+        return Response.json({ ok: true, message: 'No prompts due for dispatch' });
+      }
+
+      const entry = due[0];
+      const now = new Date().toISOString();
+      if (entry.next_run_at && new Date(entry.next_run_at) > new Date()) {
+        return Response.json({ ok: true, message: 'No prompts due yet', next_due: entry.next_run_at });
+      }
+
+      // Mark processing
+      await base44.asServiceRole.entities.PromptQueue.update(entry.id, { status: 'processing', last_run_at: now });
+
+      try {
+        const prompt = await base44.asServiceRole.entities.SystemPrompt.get(entry.prompt_id);
+        const fnPayload = {
+          prompt_id: entry.prompt_id,
+          prompt_text: prompt?.prompt_text || '',
+          category: entry.category,
+          queue_id: entry.id,
+          ...(entry.payload || {}),
+        };
+
+        const fnResult = await base44.asServiceRole.functions.invoke(entry.target_function, fnPayload);
+        const resultStr = typeof fnResult === 'string' ? fnResult : JSON.stringify(fnResult?.data || fnResult || {});
+
+        const cadence = entry.cadence_hours || 0;
+        const isOneShot = cadence <= 0;
+        await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
+          status: isOneShot ? 'completed' : 'queued',
+          last_result: resultStr.slice(0, 500),
+          run_count: (entry.run_count || 0) + 1,
+          next_run_at: isOneShot ? null : nextRunFromCadence(cadence),
+        });
+
+        await base44.asServiceRole.entities.AgentLog.create({
+          agent_name: 'PRIMUS',
+          category: 'prompt_dispatch',
+          level: 'success',
+          message: `Dispatched prompt: ${entry.prompt_name} -> ${entry.target_function}`,
+          detail: resultStr.slice(0, 300),
+        });
+
+        return Response.json({
+          ok: true,
+          dispatched: entry.prompt_name,
+          target_function: entry.target_function,
+          result: resultStr.slice(0, 500),
+        });
+      } catch (err) {
+        await base44.asServiceRole.entities.PromptQueue.update(entry.id, {
+          status: 'failed',
+          last_result: err.message.slice(0, 500),
+          fail_count: (entry.fail_count || 0) + 1,
+          next_run_at: nextRunFromCadence(entry.cadence_hours || 24),
+        });
+        await base44.asServiceRole.entities.AgentLog.create({
+          agent_name: 'PRIMUS',
+          category: 'prompt_dispatch',
+          level: 'error',
+          message: `Failed dispatch: ${entry.prompt_name} -> ${entry.target_function}`,
+          detail: err.message.slice(0, 300),
+        });
+        return Response.json({ ok: false, error: err.message, dispatched: entry.prompt_name });
+      }
     }
 
     return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
