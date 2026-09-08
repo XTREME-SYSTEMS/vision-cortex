@@ -4,7 +4,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import {
   Users, Plus, Search, Phone, Mail, Bell, Loader2, X, Tag,
-  Building2, MapPin, Star, Send, CheckSquare, Square, Zap, ChevronDown
+  Building2, MapPin, Star, Send, CheckSquare, Square, Zap, ChevronDown,
+  RefreshCw, GraduationCap, Briefcase, Sparkles, FileText
 } from "lucide-react";
 import BulkActionBar from "@/components/crm/BulkActionBar";
 import FollowUpConfig from "@/components/crm/FollowUpConfig";
@@ -19,6 +20,14 @@ const STAGE_COLORS = {
   lost: "bg-red-500/15 text-red-500",
 };
 
+const SOURCES = [
+  { key: "all", label: "All", icon: Users },
+  { key: "pcu_alumni", label: "PCU Alumni", icon: GraduationCap },
+  { key: "scraper", label: "Prospects", icon: Briefcase },
+  { key: "new_business", label: "New Business", icon: Sparkles },
+  { key: "pcu_lead", label: "PCU Leads", icon: FileText },
+];
+
 export default function XtremeCrm() {
   const { toast } = useToast();
   const [contacts, setContacts] = useState([]);
@@ -29,11 +38,14 @@ export default function XtremeCrm() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [followUpContact, setFollowUpContact] = useState(null);
   const [expandedContact, setExpandedContact] = useState(null);
+  const [filterSource, setFilterSource] = useState("all");
+  const [syncing, setSyncing] = useState(false);
+  const [syncStats, setSyncStats] = useState(null);
   const [newContact, setNewContact] = useState({ full_name: "", email: "", phone: "", company: "", title: "", industry: "", location: "" });
 
   const loadContacts = async () => {
     try {
-      const list = await base44.entities.XtremeCrmContact.list('-created_date', 200);
+      const list = await base44.entities.XtremeCrmContact.list('-created_date', 500);
       setContacts(list || []);
     } catch (e) {
       toast({ title: "Failed to load contacts", description: e.message, variant: "destructive" });
@@ -43,13 +55,33 @@ export default function XtremeCrm() {
 
   useEffect(() => { loadContacts(); }, []);
 
+  const syncAll = async () => {
+    setSyncing(true);
+    try {
+      const res = await base44.functions.invoke("crmSync", { action: "sync_all" });
+      setSyncStats(res);
+      toast({ title: `Synced ${res.total_imported} new contacts`, description: `${res.total_crm_contacts} total in CRM` });
+      await loadContacts();
+    } catch (e) {
+      toast({ title: "Sync failed", description: e.message, variant: "destructive" });
+    }
+    setSyncing(false);
+  };
+
+  const sourceCounts = SOURCES.reduce((acc, s) => {
+    if (s.key === "all") acc[s.key] = contacts.length;
+    else acc[s.key] = contacts.filter(c => c.lead_source === s.key).length;
+    return acc;
+  }, {});
+
   const filtered = contacts.filter(c => {
     const matchesSearch = !search ||
       c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
       c.company?.toLowerCase().includes(search.toLowerCase()) ||
       c.email?.toLowerCase().includes(search.toLowerCase());
     const matchesStage = filterStage === "all" || c.lifecycle_stage === filterStage;
-    return matchesSearch && matchesStage;
+    const matchesSource = filterSource === "all" || c.lead_source === filterSource;
+    return matchesSearch && matchesStage && matchesSource;
   });
 
   const toggleSelect = (id) => {
@@ -156,6 +188,53 @@ export default function XtremeCrm() {
         </button>
       </div>
 
+      {/* Sync panel */}
+      <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-3 mb-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <RefreshCw className={cn("h-4 w-4 text-violet-500", syncing && "animate-spin")} />
+            <div>
+              <p className="text-sm font-semibold">Sync All Sources</p>
+              <p className="text-[11px] text-muted-foreground">Pull PCU alumni, prospects & new business registries into the CRM</p>
+            </div>
+          </div>
+          <button onClick={syncAll} disabled={syncing}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-600 text-white text-sm font-medium hover:bg-violet-700 disabled:opacity-50">
+            <RefreshCw className={cn("h-4 w-4", syncing && "animate-spin")} />
+            {syncing ? "Syncing…" : "Sync Now"}
+          </button>
+        </div>
+        {syncStats && (
+          <div className="grid grid-cols-4 gap-2 mt-3">
+            {["pcu_alumni", "prospects", "new_business", "pcu_leads"].map(src => (
+              <div key={src} className="text-center">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{src.replace(/_/g, " ")}</p>
+                <p className="text-sm font-bold">{syncStats.stats[src]?.imported || 0}</p>
+                <p className="text-[9px] text-muted-foreground">imported</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Source filter tabs */}
+      <div className="flex items-center gap-1.5 mb-3 overflow-x-auto no-scrollbar">
+        {SOURCES.map(s => {
+          const Icon = s.icon;
+          return (
+            <button key={s.key} onClick={() => setFilterSource(s.key)}
+              className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors",
+                filterSource === s.key ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground hover:bg-muted")}>
+              <Icon className="h-3 w-3" />
+              {s.label}
+              <span className={cn("text-[10px] px-1 rounded-full", filterSource === s.key ? "bg-primary-foreground/20" : "bg-muted")}>
+                {sourceCounts[s.key] || 0}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Stage pipeline summary */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
         {STAGES.map(stage => (
@@ -228,6 +307,9 @@ export default function XtremeCrm() {
                       <p className="text-sm font-medium">{contact.full_name}</p>
                       {contact.company && <span className="text-xs text-muted-foreground flex items-center gap-0.5"><Building2 className="h-3 w-3" /> {contact.company}</span>}
                       {contact.deal_value > 0 && <span className="text-xs text-emerald-500">${contact.deal_value}</span>}
+                      {contact.lead_source && contact.lead_source !== "manual" && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-violet-500/15 text-violet-500 font-medium">{contact.lead_source.replace(/_/g, " ")}</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                       {contact.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {contact.email}</span>}
