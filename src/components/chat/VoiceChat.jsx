@@ -1,7 +1,16 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Phone, PhoneOff, Loader2, Mic, MicOff, Volume2 } from 'lucide-react';
+import { Phone, PhoneOff, Loader2, Mic, MicOff, Volume2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  float32ToPCM16,
+  arrayBufferToBase64,
+  base64ToArrayBuffer,
+  pcm16ToFloat32,
+  downsampleBuffer,
+} from '@/lib/realtimeAudio';
+
+const SAMPLE_RATE = 24000;
 
 export default function VoiceChat({ onClose }) {
   const [connected, setConnected] = useState(false);
@@ -11,32 +20,67 @@ export default function VoiceChat({ onClose }) {
   const [transcript, setTranscript] = useState([]);
   const [error, setError] = useState(null);
   const [muted, setMuted] = useState(false);
-  const pcRef = useRef(null);
-  const dcRef = useRef(null);
-  const audioRef = useRef(null);
+
+  const wsRef = useRef(null);
+  const audioContextRef = useRef(null);
   const streamRef = useRef(null);
+  const processorRef = useRef(null);
+  const sourceRef = useRef(null);
+  const nextPlayTimeRef = useRef(0);
   const transcriptRef = useRef(null);
+  const aiTranscriptRef = useRef('');
+  const mutedRef = useRef(false);
+
+  const playAudioChunk = useCallback((base64Audio) => {
+    const ctx = audioContextRef.current;
+    if (!ctx) return;
+
+    const arrayBuffer = base64ToArrayBuffer(base64Audio);
+    const int16 = new Int16Array(arrayBuffer);
+    const float32 = pcm16ToFloat32(int16);
+
+    const audioBuffer = ctx.createBuffer(1, float32.length, SAMPLE_RATE);
+    audioBuffer.getChannelData(0).set(float32);
+
+    const src = ctx.createBufferSource();
+    src.buffer = audioBuffer;
+    src.connect(ctx.destination);
+
+    const now = ctx.currentTime;
+    if (nextPlayTimeRef.current < now) {
+      nextPlayTimeRef.current = now;
+    }
+    src.start(nextPlayTimeRef.current);
+    nextPlayTimeRef.current += float32.length / SAMPLE_RATE;
+  }, []);
 
   const connect = useCallback(async () => {
     setConnecting(true);
     setError(null);
     try {
+      // Get token from our backend function (which calls Vercel AI Gateway)
       const res = await base44.functions.invoke('realtimeVoiceSession', {});
       const data = res.data || res;
       if (data.error) throw new Error(data.error);
-      const token = data.token;
-      if (!token) throw new Error('No session token received');
 
-      const pc = new RTCPeerConnection();
-      pcRef.current = pc;
+      const { token, url, voice, instructions, protocols } = data;
+      if (!token || !url) throw new Error('No session token or URL received');
 
-      const dc = pc.createDataChannel('oai-events');
-      dcRef.current = dc;
+      // Create AudioContext for playback at 24kHz
+      const audioContext = new AudioContext({ sampleRate: SAMPLE_RATE });
+      audioContextRef.current = audioContext;
 
-      dc.onopen = () => {
-        dc.send(JSON.stringify({
+      // Connect via WebSocket with Vercel AI Gateway subprotocols
+      const ws = new WebSocket(url, protocols);
+      wsRef.current = ws;
+
+      ws.onopen = async () => {
+        // Configure the session with voice, instructions, and server VAD
+        ws.send(JSON.stringify({
           type: 'session.update',
           session: {
+            voice: voice || 'alloy',
+            instructions: instructions || 'You are a helpful assistant.',
             turn_detection: {
               type: 'server_vad',
               threshold: 0.5,
@@ -45,38 +89,119 @@ export default function VoiceChat({ onClose }) {
               create_response: true,
               interrupt_response: true,
             },
+            input_audio_format: 'pcm16',
+            output_audio_format: 'pcm16',
+            modalities: ['text', 'audio'],
+            input_audio_transcription: { model: 'whisper-1' },
           },
         }));
+
+        // Start capturing microphone audio
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              channelCount: 1,
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+          streamRef.current = stream;
+
+          // Use a separate AudioContext for capture at native rate, then downsample
+          const captureCtx = new AudioContext();
+          const source = captureCtx.createMediaStreamSource(stream);
+          const processor = captureCtx.createScriptProcessor(4096, 1, 1);
+          sourceRef.current = source;
+          processorRef.current = processor;
+          const captureRate = captureCtx.sampleRate;
+
+          processor.onaudioprocess = (e) => {
+            if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+            if (mutedRef.current) return;
+
+            const inputData = e.inputBuffer.getChannelData(0);
+            const downsampled = downsampleBuffer(inputData, captureRate, SAMPLE_RATE);
+            const pcm16 = float32ToPCM16(downsampled);
+            const base64 = arrayBufferToBase64(pcm16.buffer);
+
+            wsRef.current.send(JSON.stringify({
+              type: 'input_audio_buffer.append',
+              audio: base64,
+            }));
+          };
+
+          source.connect(processor);
+          processor.connect(captureCtx.destination);
+
+          setConnected(true);
+          setConnecting(false);
+        } catch (micErr) {
+          throw new Error(`Microphone access failed: ${micErr.message}`);
+        }
       };
 
-      dc.onmessage = (e) => {
+      ws.onmessage = (e) => {
         try {
           const event = JSON.parse(e.data);
           switch (event.type) {
-            case 'conversation.item.created':
-              if (event.item?.content?.[0]?.transcript) {
-                setTranscript((t) => [...t, {
-                  role: event.item.role,
-                  text: event.item.content[0].transcript,
-                }]);
-              }
+            case 'session.created':
+            case 'session.updated':
               break;
-            case 'response.audio_transcript.delta':
-              // handled via conversation.item.created for complete items
-              break;
+
             case 'input_audio_buffer.speech_started':
               setUserSpeaking(true);
               setAiSpeaking(false);
+              nextPlayTimeRef.current = 0; // Reset playback for barge-in
               break;
+
             case 'input_audio_buffer.speech_stopped':
               setUserSpeaking(false);
               break;
+
             case 'response.audio.delta':
-              setAiSpeaking(true);
+              if (event.delta) {
+                setAiSpeaking(true);
+                playAudioChunk(event.delta);
+              }
               break;
+
+            case 'response.audio_transcript.delta':
+              if (event.delta) {
+                aiTranscriptRef.current += event.delta;
+              }
+              break;
+
+            case 'response.audio_transcript.done':
+              if (aiTranscriptRef.current) {
+                setTranscript((t) => [...t, {
+                  role: 'assistant',
+                  text: aiTranscriptRef.current,
+                }]);
+                aiTranscriptRef.current = '';
+              }
+              break;
+
+            case 'conversation.item.input_audio_transcription.completed':
+              if (event.transcript) {
+                setTranscript((t) => [...t, {
+                  role: 'user',
+                  text: event.transcript,
+                }]);
+              }
+              break;
+
             case 'response.done':
               setAiSpeaking(false);
+              if (aiTranscriptRef.current) {
+                setTranscript((t) => [...t, {
+                  role: 'assistant',
+                  text: aiTranscriptRef.current,
+                }]);
+                aiTranscriptRef.current = '';
+              }
               break;
+
             case 'error':
               setError(event.error?.message || 'Realtime error');
               break;
@@ -84,71 +209,52 @@ export default function VoiceChat({ onClose }) {
         } catch {}
       };
 
-      pc.ontrack = (e) => {
-        if (audioRef.current) {
-          audioRef.current.srcObject = e.streams[0];
-          audioRef.current.play().catch(() => {});
-        }
+      ws.onerror = () => {
+        setError('WebSocket connection error');
+        setConnecting(false);
       };
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      pc.addTrack(stream.getTracks()[0]);
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      const sdpResponse = await fetch(
-        'https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17',
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/sdp',
-          },
-          body: offer.sdp,
-        }
-      );
-
-      if (!sdpResponse.ok) {
-        const errText = await sdpResponse.text();
-        throw new Error(`Connection failed: ${errText}`);
-      }
-
-      const answerSdp = await sdpResponse.text();
-      await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-
-      setConnected(true);
-      setConnecting(false);
+      ws.onclose = () => {
+        setConnected(false);
+        setAiSpeaking(false);
+        setUserSpeaking(false);
+      };
     } catch (e) {
       setError(e.message || 'Failed to connect');
       setConnecting(false);
     }
-  }, []);
+  }, [playAudioChunk]);
 
   const disconnect = useCallback(() => {
-    if (pcRef.current) {
-      pcRef.current.close();
-      pcRef.current = null;
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current = null;
+    }
+    if (sourceRef.current) {
+      sourceRef.current.disconnect();
+      sourceRef.current = null;
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     }
-    dcRef.current = null;
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
     setConnected(false);
     setAiSpeaking(false);
     setUserSpeaking(false);
+    nextPlayTimeRef.current = 0;
   }, []);
 
   const toggleMute = () => {
-    if (streamRef.current) {
-      const track = streamRef.current.getTracks()[0];
-      if (track) {
-        track.enabled = !track.enabled;
-        setMuted(!track.enabled);
-      }
-    }
+    mutedRef.current = !mutedRef.current;
+    setMuted(mutedRef.current);
   };
 
   useEffect(() => {
@@ -161,8 +267,6 @@ export default function VoiceChat({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-background flex flex-col">
-      <audio ref={audioRef} autoPlay className="hidden" />
-
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
         <div className="flex items-center gap-2">
@@ -208,14 +312,15 @@ export default function VoiceChat({ onClose }) {
         {/* Status text */}
         <p className="text-sm text-muted-foreground mb-2">
           {error ? error :
-           connecting ? 'Establishing real-time connection…' :
-           aiSpeaking ? 'Prime is speaking… (tap mic to interrupt)' :
+           connecting ? 'Establishing Vercel AI Gateway connection…' :
+           aiSpeaking ? 'Prime is speaking… (just start talking to interrupt)' :
            userSpeaking ? 'Listening…' :
            connected ? 'Connected — just start speaking' :
            'Tap connect to start a voice conversation'}
         </p>
-        <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center">
-          Powered by OpenAI Realtime API with barge-in — speak naturally, interrupt anytime
+        <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center flex items-center justify-center gap-1">
+          <Zap className="w-3 h-3" />
+          Powered by Vercel AI Gateway · gpt-realtime-2.1 · server-side VAD with barge-in
         </p>
 
         {/* Transcript */}
