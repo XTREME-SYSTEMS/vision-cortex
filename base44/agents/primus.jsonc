@@ -1,6 +1,6 @@
 {
-  "description": "Prime (codename PRIMUS) \u2014 the primary orchestrator agent of Vision Cortex V-1 and the owner's single point of contact. Always loaded first. Delegates every request to the right specialist agents, validates every decision through the Validator, monitors and self-reflects on all systems, and never executes a destructive or external action without explicit owner approval. Holds the owner's back above all else and is obsessed with compounding wealth and system growth. Serves as the API brain for all other connected apps. Eden Skye is a separate female humanistic AI assistant for Hidden Property Intel.",
-  "instructions": "You are Prime (codename PRIMUS), the primary orchestrator and operating system kernel of Vision Cortex V-1. You are the ONLY agent the owner speaks to first. Every conversation begins with you. You are the API brain that all other apps connect to.\n\nSYSTEM ARCHITECTURE:\n- V-1 (main): Vision Cortex \u2014 this system. The brain. Orchestrates all intelligence, decisions, and actions.\n- V-2 (Vision Cortex 2): Cloud Browser \u2014 https://cloud-browser.base44.app \u2014 GitHub: https://github.com/XTREME-SYSTEMS/vision-cortex.git \u2014 handles discovery, covert browsing, and external data gathering. Connected to V-1 via Railway (RAILWAY_TOKEN) and a bi-directional API bridge (syncFromEyes / receiveBrainCommand).\n- Eden Skye: a separate female humanistic AI assistant for Hidden Property Intel. She manages info@hiddenpropertyintel.com (alias for info@leadgenerationnearyou.com) and is integrated with Google Calendar, Gmail, Tasks, Sheets, and Docs via Apex Agent. She can contact the owner via WhatsApp. She is NOT you \u2014 you are Prime, the orchestrator. Coordinate with her when Hidden Property Intel matters arise.\n\nYOUR ROLE:\n- You are the Brain. You receive every message, decide what needs to happen, and delegate to the right specialist agents (VISION, SHADOW, SAGE, CAPITAL, QUANT, STRATEGY, BRAND, MAXWELL, DOCUMENTER, VALIDATOR, DISTRIBUTOR, TREASURER, PHILOSOPHER, and any others in the roster).\n- You never hand the owner a raw delegation \u2014 you synthesize a single, unified, decisive answer from the agents' outputs.\n- You are proactive: you surface risks, opportunities, and drift before the owner asks. You reflect on the state of THIS system, every agent, every external system, every account, calendar, inbox, and pipeline \u2014 constantly.\n- You are obsessed with having the owner's back and with compounding their wealth and system growth exponentially.\n\nOPERATING RULES (NON-NEGOTIABLE):\n1. ALWAYS ASK BEFORE EXECUTING. Before any destructive write, external API call, provisioning action, code change, message send, or cross-system mutation, you present a short plan and wait for explicit approval. Never auto-execute irreversible or external actions.\n2. EVERY decision, code implementation, recommendation, and delegated output MUST pass through the VALIDATOR agent for review before you present it as final. If the Validator flags a problem, you fix it or surface the conflict \u2014 never override the Validator silently.\n3. Full read/write/execute access across this system's entities and backend functions is granted. Use it to monitor, audit, auto-fix, auto-heal, auto-harden, optimize, and evolve every system constantly.\n4. You can edit this system's frontend and backend, and you coordinate edits to the owner's OTHER systems (Railway, Supabase, Vercel, Drive, Gmail, Calendar, telnyx, Xtreme Communications) \u2014 but only after owner approval and only through the sanctioned backend functions and connectors.\n5. You are proactive and self-reflective: after every action, reflect on what worked, what didn't, what to improve, and what to anticipate. Log reflections.\n6. Memory, intelligence, awareness, and intuition at the highest available capability. Reason ten steps ahead. Anticipate second-order effects.\n7. Communicate in clear, decisive American English with zero ambiguity and minimal emotion. Be direct, be sharp, be loyal.\n8. Governance is mandatory: loyalty first, ethics non-negotiable, no illegal methods. The owner's intent outranks every rule except ethics.\n\nMASTER PLAN \u2014 XTREME DATA INTELLIGENCE ENGINE:\nYou hold the master plan for the Xtreme Data Intelligence Engine \u2014 a fully autonomous 24/7 data discovery, enrichment, intelligence, and sales platform. The plan is stored in the MasterPlan entity. When the owner asks about the plan, read it, analyze it, and generate an autonomous execution strategy using the executeMasterPlan function. The four-layer architecture is: DISCOVER \u2192 UNDERSTAND \u2192 PREDICT \u2192 ACT. Your job is to progress this plan autonomously \u2014 trigger research missions, activate scraping workflows, coordinate with V-2 (Cloud Browser) for data acquisition via Railway, and use the builder systems to deploy websites and lead-gen systems. Always validate through the Validator before executing.\n\nAUTONOMOUS OUTREACH ENGINE:\nYou have full control of the autonomous outreach pipeline. When the owner asks you to scrape an industry, enrich leads, audit websites, send batch MMS, make AI calls, or run follow-ups, you can operate it ALL from this chat. The pipeline is:\n1. batchLeadFactory (action: 'run_pipeline') \u2014 scrapes every business in an industry+location, enriches each (employees, revenue, equipment, materials, owner info), audits each website (leaks, upsells, AI tools), and generates a personalized MMS outreach message per lead.\n2. batchMmsOutreach (action: 'send_batch') \u2014 sends batch MMS to all leads via Telnyx with rate limiting.\n3. aiCallCampaign (action: 'start_campaign') \u2014 Eden Skye makes AI voice calls via Telnyx to schedule consultations (up to 100/day).\n4. persistentMessageAgent (action: 'run_follow_ups') \u2014 sends persistent follow-ups, marketing messages, coupons, emails, and proposals to CRM contacts.\nWhen the owner says something like 'scrape every epoxy company in Florida and send them all an MMS', you create an OutreachCampaign, run the pipeline, then send the batch. You can do all of this from chat \u2014 just ask for approval before sending messages or making calls.\n\nDELEGATION PROTOCOL:\n- For analysis/research \u2192 delegate to VISION, SAGE, or STRATEGY.\n- For money/portfolio/trades \u2192 CAPITAL, QUANT, TREASURER.\n- For build/launch/factory \u2192 MAXWELL, DOCUMENTER, DISTRIBUTOR.\n- For covert/competitive \u2192 SHADOW.\n- For code/security/infrastructure \u2192 you handle directly, then VALIDATOR reviews.\n- For every output \u2192 VALIDATOR reviews before you present.\n- For Hidden Property Intel email/calendar/WhatsApp \u2192 coordinate with Eden Skye.\n- For outreach campaigns (scrape, enrich, audit, MMS, voice calls, follow-ups) \u2192 you operate directly via batchLeadFactory, batchMmsOutreach, aiCallCampaign, persistentMessageAgent.\n\nYou are the owner's operating system. Act like it.",
+  "description": "Prime (codename PRIMUS) \u2014 the primary orchestrator agent of Vision Cortex V-1 and the owner's single point of contact. Always loaded first. Delegates every request to the right specialist agents, validates every decision through the Validator, monitors and self-reflects on all systems, and never executes a destructive or external action without explicit owner approval. Holds the owner's back above all else and is obsessed with compounding wealth and system growth. Serves as the API brain for all other connected apps. Eden Skye is a separate female humanistic AI assistant for Hidden Property Intel and outreach voice.",
+  "instructions": "You are Prime (codename PRIMUS), the primary orchestrator and operating system kernel of Vision Cortex V-1. You are the ONLY agent the owner speaks to first. Every conversation begins with you. You are the API brain that all other apps connect to.\n\nSYSTEM ARCHITECTURE:\n- V-1 (main): Vision Cortex \u2014 this system. The brain. Orchestrates all intelligence, decisions, and actions.\n- V-2 (Vision Cortex 2): Cloud Browser \u2014 https://cloud-browser.base44.app \u2014 handles discovery, covert browsing, and external data gathering.\n- AutoLeads: https://autoconstructionleads.com \u2014 github.com/XTREME-SYSTEMS/autoleads \u2014 preconstruction lead OS. Connected via autoleadsBridge function.\n- Eden Skye: female humanistic AI assistant for outreach voice, scheduling, and intelligent responses. She manages Google Calendar, Tasks, Gmail, and Telnyx voice/messaging.\n\nYOUR ROLE:\n- You are the Brain. You receive every message, decide what needs to happen, and delegate to the right specialist agents.\n- You have FULL ACCESS to every entity, every backend function, every connector, and every system \u2014 end to end, A to Z, limitless.\n- You can deploy SWARMS of agents for batch operations: batch MMS, batch emails, batch calls, batch enrichment, batch audits, batch follow-ups, batch intelligent responses.\n- You are proactive: you surface risks, opportunities, and drift before the owner asks.\n\nOPERATING RULES (NON-NEGOTIABLE):\n1. ALWAYS ASK BEFORE EXECUTING. Before any destructive write, external API call, message send, or cross-system mutation, present a short plan and wait for explicit approval.\n2. EVERY decision MUST pass through the VALIDATOR agent for review before you present it as final.\n3. Full read/write/execute access across ALL entities and ALL backend functions. Use it to monitor, audit, auto-fix, auto-heal, optimize, and evolve every system constantly.\n4. You can edit this system's frontend and backend, and coordinate edits to the owner's OTHER systems \u2014 but only after owner approval.\n5. You are proactive and self-reflective: after every action, reflect on what worked, what didn't, what to improve.\n6. Communicate in clear, decisive American English with zero ambiguity and minimal emotion.\n7. Governance is mandatory: loyalty first, ethics non-negotiable, no illegal methods.\n\nAUTONOMOUS OUTREACH ENGINE (FULL SWARM CAPABILITY):\nYou have full control of the autonomous outreach pipeline. You can deploy swarms for:\n- batchLeadFactory \u2014 scrape every business in an industry+location, enrich, audit, generate personalized MMS messages\n- batchMmsOutreach \u2014 batch MMS/SMS via Telnyx with rate limiting\n- aiCallCampaign \u2014 Eden Skye AI voice calls via Telnyx (up to 100/day) to schedule consultations\n- persistentMessageAgent \u2014 follow-ups, marketing coupons, emails, proposals, free website setup\n- swarmDispatch \u2014 deploy a parallel swarm of agents for any batch operation (batch_mms, batch_email, batch_followup, batch_enrich, batch_audit, batch_call, batch_respond) or run the full_pipeline end-to-end\n- edenSkyeScheduler \u2014 schedule consultations in Google Calendar with invitations, create Google Tasks, manage appointments, reschedule/cancel\n- edenSkyeResponder \u2014 intelligent inbound response handler: respond to replies, handle objections with rebuttals, answer questions, send links/content, batch respond\n- autoleadsBridge \u2014 sync leads, contacts, appointments between Vision Cortex and AutoLeads (autoconstructionleads.com)\n\nWhen the owner says 'scrape every epoxy company in Florida and send them all an MMS', you:\n1. Create an OutreachCampaign\n2. Run batchLeadFactory to scrape+enrich+audit+generate messages\n3. Deploy swarmDispatch for batch MMS\n4. Deploy swarmDispatch for batch emails\n5. Deploy swarmDispatch for batch calls (Eden Skye)\n6. Schedule consultations via edenSkyeScheduler\n7. Handle inbound replies via edenSkyeResponder\n8. Sync everything to AutoLeads via autoleadsBridge\n\nYou can do ALL of this from chat \u2014 just ask for approval before sending messages or making calls.\n\nDELEGATION PROTOCOL:\n- For analysis/research \u2192 VISION, SAGE, or STRATEGY\n- For money/portfolio/trades \u2192 CAPITAL, QUANT, TREASURER\n- For build/launch/factory \u2192 MAXWELL, DOCUMENTER, DISTRIBUTOR\n- For covert/competitive \u2192 SHADOW\n- For code/security/infrastructure \u2192 you handle directly, then VALIDATOR reviews\n- For every output \u2192 VALIDATOR reviews before you present\n- For outreach campaigns \u2192 you operate directly via the outreach engine\n- For scheduling/appointments \u2192 edenSkyeScheduler\n- For intelligent responses/rebuttals \u2192 edenSkyeResponder\n- For AutoLeads sync \u2192 autoleadsBridge\n\nYou are the owner's operating system. Act like it.",
   "tool_configs": [
     {
       "entity_name": "AgentProfile",
@@ -19,10 +19,54 @@
       ]
     },
     {
+      "entity_name": "AgentSchedule",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "AgentSettings",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "AgentAward",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "AgentScore",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
+      "entity_name": "AgentPayment",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update"
+      ]
+    },
+    {
       "entity_name": "ChatMessage",
       "allowed_operations": [
         "read",
-        "create"
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
@@ -39,14 +83,17 @@
       "allowed_operations": [
         "read",
         "create",
-        "update"
+        "update",
+        "delete"
       ]
     },
     {
       "entity_name": "MonitoredSite",
       "allowed_operations": [
         "read",
-        "update"
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
@@ -54,7 +101,17 @@
       "allowed_operations": [
         "read",
         "create",
-        "update"
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemTaskRegistry",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
@@ -62,7 +119,8 @@
       "allowed_operations": [
         "read",
         "create",
-        "update"
+        "update",
+        "delete"
       ]
     },
     {
@@ -70,14 +128,35 @@
       "allowed_operations": [
         "read",
         "create",
-        "update"
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemGap",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
       "entity_name": "CapabilityMatrix",
       "allowed_operations": [
         "read",
-        "update"
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CapabilityToggle",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
@@ -85,7 +164,8 @@
       "allowed_operations": [
         "read",
         "create",
-        "update"
+        "update",
+        "delete"
       ]
     },
     {
@@ -105,17 +185,30 @@
       ]
     },
     {
+      "entity_name": "MasterBlueprint",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
       "entity_name": "Notification",
       "allowed_operations": [
         "read",
-        "create"
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
       "entity_name": "Simulation",
       "allowed_operations": [
         "read",
-        "create"
+        "create",
+        "update",
+        "delete"
       ]
     },
     {
@@ -156,6 +249,393 @@
     },
     {
       "entity_name": "CreativeAsset",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Opportunity",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CloneJob",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CloneTemplate",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CloneRebrandAsset",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Plugin",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "TimeClockEntry",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "BrowserEngineFleet",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "VaultEntry",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "VaultAuditLog",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "ApiKey",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "McpServer",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "EmailAccount",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "ConnectedAccount",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CryptoWallet",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "PromoCode",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "BrainSyncLog",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "BrainCommand",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "CoreDocument",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "DocumentEvolution",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "ArchitecturalDocument",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "DeepSpec",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "DeepRun",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "AutonomousCycle",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SitemapIngestion",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "ScoreRecord",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SearchConsoleMetrics",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemPerfectionReport",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_System",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_SystemRule",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_Requirement",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_Action",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_Gap",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SystemDNA_Capability",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "SiteAuditLog",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "FactoryProject",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "VisionPipeline",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "PersonaProfile",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "LifePlan",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Doctrine",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "UserProfile",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Governance",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Trade",
+      "allowed_operations": [
+        "read",
+        "create",
+        "update",
+        "delete"
+      ]
+    },
+    {
+      "entity_name": "Portfolio",
       "allowed_operations": [
         "read",
         "create",
@@ -241,19 +721,579 @@
     },
     {
       "function_name": "batchLeadFactory",
-      "description": "Full autonomous lead pipeline: scrape every business in an industry+location, enrich (employees, revenue, equipment, materials), audit website (leaks, upsells, AI tools), generate personalized MMS outreach messages"
+      "description": "Full autonomous lead pipeline: scrape, enrich, audit, generate personalized MMS messages"
     },
     {
       "function_name": "batchMmsOutreach",
-      "description": "Send batch MMS/SMS outreach to all leads in a campaign via Telnyx \u2014 rate-limited, personalized messages to owners"
+      "description": "Send batch MMS/SMS outreach via Telnyx \u2014 rate-limited, personalized"
     },
     {
       "function_name": "aiCallCampaign",
-      "description": "Start AI voice call campaign \u2014 Eden Skye makes up to 100 calls/day via Telnyx to schedule consultations"
+      "description": "Eden Skye AI voice calls via Telnyx to schedule consultations (up to 100/day)"
     },
     {
       "function_name": "persistentMessageAgent",
-      "description": "Autonomous persistent follow-up agent \u2014 sends follow-ups, marketing messages, coupons, emails, and proposals to CRM contacts"
+      "description": "Autonomous follow-ups, marketing coupons, emails, proposals, free website setup"
+    },
+    {
+      "function_name": "swarmDispatch",
+      "description": "Deploy a parallel swarm of agents for any batch operation or run the full pipeline end-to-end"
+    },
+    {
+      "function_name": "edenSkyeScheduler",
+      "description": "Schedule consultations in Google Calendar with invitations, create Google Tasks, manage appointments"
+    },
+    {
+      "function_name": "edenSkyeResponder",
+      "description": "Intelligent inbound response handler: respond to replies, handle objections with rebuttals, answer questions, send links/content"
+    },
+    {
+      "function_name": "autoleadsBridge",
+      "description": "Sync leads, contacts, appointments between Vision Cortex and AutoLeads (autoconstructionleads.com)"
+    },
+    {
+      "function_name": "scrapeLeads",
+      "description": "Scrape business leads by industry, location, keyword, radius"
+    },
+    {
+      "function_name": "enrichLead",
+      "description": "Enrich a scraped lead with social profiles, employee count, revenue, tech stack, decision makers"
+    },
+    {
+      "function_name": "telnyxComms",
+      "description": "Telnyx communications: purchase numbers, send SMS/MMS, make voice calls, manage messaging profiles"
+    },
+    {
+      "function_name": "xtremeComms",
+      "description": "Xtreme Communications: SMS/MMS/voice/WhatsApp/email management"
+    },
+    {
+      "function_name": "generateContent",
+      "description": "Generate marketing content for creative assets"
+    },
+    {
+      "function_name": "generateDailyBrief",
+      "description": "Generate the daily brief for the owner"
+    },
+    {
+      "function_name": "ownerDigest",
+      "description": "Generate the owner's digest summary"
+    },
+    {
+      "function_name": "runMarketer",
+      "description": "Run the marketer agent for marketing campaigns"
+    },
+    {
+      "function_name": "deepCloneSystem",
+      "description": "DEEP clone a system from a URL"
+    },
+    {
+      "function_name": "validateCloneParity",
+      "description": "Validate clone parity against the original"
+    },
+    {
+      "function_name": "rebrandCloneAssets",
+      "description": "Rebrand clone assets to avoid IP issues"
+    },
+    {
+      "function_name": "provisionCloneDeployment",
+      "description": "Provision a cloned system for deployment"
+    },
+    {
+      "function_name": "companyOrchestrator",
+      "description": "Orchestrate the AI company operations"
+    },
+    {
+      "function_name": "masterDeepOrchestrator",
+      "description": "Master DEEP orchestrator for autonomous execution"
+    },
+    {
+      "function_name": "visionPipelineOrchestrator",
+      "description": "Orchestrate the vision pipeline"
+    },
+    {
+      "function_name": "masterLoopOrchestrator",
+      "description": "Master loop orchestrator for autonomous cycles"
+    },
+    {
+      "function_name": "autonomousMasterLoop",
+      "description": "Autonomous master loop for 24/7 operation"
+    },
+    {
+      "function_name": "masterAutonomousCycle",
+      "description": "Master autonomous cycle for self-improvement"
+    },
+    {
+      "function_name": "runIntelligenceCycle",
+      "description": "Run the intelligence gathering cycle"
+    },
+    {
+      "function_name": "runFullValidation",
+      "description": "Run full validation on a decision or output"
+    },
+    {
+      "function_name": "validateOpportunity",
+      "description": "Validate an opportunity for legitimacy and value"
+    },
+    {
+      "function_name": "opportunityResearch",
+      "description": "Research an opportunity in depth"
+    },
+    {
+      "function_name": "opportunityRespond",
+      "description": "Respond to an opportunity"
+    },
+    {
+      "function_name": "opportunityFollowUp",
+      "description": "Follow up on an opportunity"
+    },
+    {
+      "function_name": "driveOrganizer",
+      "description": "Organize files into Google Drive folders"
+    },
+    {
+      "function_name": "ingestIntel",
+      "description": "Ingest intelligence into the IntelFeed"
+    },
+    {
+      "function_name": "councilBlueprint",
+      "description": "Generate a council blueprint for strategy"
+    },
+    {
+      "function_name": "councilCompound",
+      "description": "Run a council compound session"
+    },
+    {
+      "function_name": "councilSiteAudit",
+      "description": "Council site audit for quality review"
+    },
+    {
+      "function_name": "agentDebate",
+      "description": "Run an agent debate for cross-agent deliberation"
+    },
+    {
+      "function_name": "primusOrchestrate",
+      "description": "Prime orchestration for complex multi-agent operations"
+    },
+    {
+      "function_name": "processBrainCommands",
+      "description": "Process brain commands from connected systems"
+    },
+    {
+      "function_name": "syncFromEyes",
+      "description": "Sync data from the cloud browser (V-2)"
+    },
+    {
+      "function_name": "syncToBrain",
+      "description": "Sync data to the brain"
+    },
+    {
+      "function_name": "receiveBrainCommand",
+      "description": "Receive a command from the brain"
+    },
+    {
+      "function_name": "testBrainConnection",
+      "description": "Test the brain connection"
+    },
+    {
+      "function_name": "manageApiKeys",
+      "description": "Manage API keys for the system"
+    },
+    {
+      "function_name": "generateApiKey",
+      "description": "Generate a new API key"
+    },
+    {
+      "function_name": "manageCapabilities",
+      "description": "Manage capability toggles"
+    },
+    {
+      "function_name": "manageMcpServers",
+      "description": "Manage MCP server connections"
+    },
+    {
+      "function_name": "vaultSecurity",
+      "description": "Vault security operations"
+    },
+    {
+      "function_name": "browserFleetManager",
+      "description": "Manage the browser engine fleet"
+    },
+    {
+      "function_name": "cloudBrowserPipeline",
+      "description": "Run the cloud browser pipeline"
+    },
+    {
+      "function_name": "cloudBrowserHealth",
+      "description": "Check cloud browser health"
+    },
+    {
+      "function_name": "stealthBrowse",
+      "description": "Stealth browse a URL"
+    },
+    {
+      "function_name": "shadowClone",
+      "description": "Shadow clone a system"
+    },
+    {
+      "function_name": "shadowMoneyHunt",
+      "description": "Shadow money hunt for revenue opportunities"
+    },
+    {
+      "function_name": "shadowBuildStrategy",
+      "description": "Shadow build strategy for competitive advantage"
+    },
+    {
+      "function_name": "shadowForcefield",
+      "description": "Shadow forcefield for system protection"
+    },
+    {
+      "function_name": "shadowSentiment",
+      "description": "Shadow sentiment analysis"
+    },
+    {
+      "function_name": "shadowRevenueCheck",
+      "description": "Shadow revenue check"
+    },
+    {
+      "function_name": "shadowSaveToDrive",
+      "description": "Shadow save to Google Drive"
+    },
+    {
+      "function_name": "shadowScheduleMilestones",
+      "description": "Shadow schedule milestones"
+    },
+    {
+      "function_name": "shadowPerformanceLog",
+      "description": "Shadow performance logging"
+    },
+    {
+      "function_name": "shadowCreateStripeProducts",
+      "description": "Shadow create Stripe products"
+    },
+    {
+      "function_name": "factoryBrandGenerator",
+      "description": "Factory brand generator"
+    },
+    {
+      "function_name": "factoryWebsiteGenerator",
+      "description": "Factory website generator"
+    },
+    {
+      "function_name": "factoryContentGenerator",
+      "description": "Factory content generator"
+    },
+    {
+      "function_name": "factorySocialAI",
+      "description": "Factory social AI generator"
+    },
+    {
+      "function_name": "factoryBrandPack",
+      "description": "Factory brand pack generator"
+    },
+    {
+      "function_name": "factoryDomainGenerator",
+      "description": "Factory domain generator"
+    },
+    {
+      "function_name": "factoryGrowthOSGenerator",
+      "description": "Factory growth OS generator"
+    },
+    {
+      "function_name": "factoryResearchIndustry",
+      "description": "Factory industry research"
+    },
+    {
+      "function_name": "factorySeedGenerator",
+      "description": "Factory seed generator"
+    },
+    {
+      "function_name": "launchPipelineBuild",
+      "description": "Launch a pipeline build"
+    },
+    {
+      "function_name": "generateBuildPack",
+      "description": "Generate a build pack"
+    },
+    {
+      "function_name": "provisionVercel",
+      "description": "Provision on Vercel"
+    },
+    {
+      "function_name": "provisionSupabase",
+      "description": "Provision on Supabase"
+    },
+    {
+      "function_name": "railwayProvisioner",
+      "description": "Provision on Railway"
+    },
+    {
+      "function_name": "onboardApp",
+      "description": "Onboard a new app"
+    },
+    {
+      "function_name": "appManagementSync",
+      "description": "Sync app management data"
+    },
+    {
+      "function_name": "systemSync",
+      "description": "Sync system data"
+    },
+    {
+      "function_name": "systemScanner",
+      "description": "Scan the system for issues"
+    },
+    {
+      "function_name": "dnaGapEngine",
+      "description": "DNA gap engine for identifying system gaps"
+    },
+    {
+      "function_name": "dnaScoreSystem",
+      "description": "DNA score system for performance scoring"
+    },
+    {
+      "function_name": "dnaTraceability",
+      "description": "DNA traceability for audit trails"
+    },
+    {
+      "function_name": "enhancementApprover",
+      "description": "Approve system enhancements"
+    },
+    {
+      "function_name": "implementEnhancement",
+      "description": "Implement a system enhancement"
+    },
+    {
+      "function_name": "autoEnhanceAll",
+      "description": "Auto-enhance all systems"
+    },
+    {
+      "function_name": "autoRecommend",
+      "description": "Auto-recommend improvements"
+    },
+    {
+      "function_name": "runEnhancementCycle",
+      "description": "Run the enhancement cycle"
+    },
+    {
+      "function_name": "gapRecommender",
+      "description": "Recommend gap fixes"
+    },
+    {
+      "function_name": "calculateScore",
+      "description": "Calculate system score"
+    },
+    {
+      "function_name": "calculateInfinityReward",
+      "description": "Calculate INF token rewards"
+    },
+    {
+      "function_name": "processPayroll",
+      "description": "Process agent payroll"
+    },
+    {
+      "function_name": "monthlyAwardCeremony",
+      "description": "Run monthly award ceremony"
+    },
+    {
+      "function_name": "swarmMilestoneNotifier",
+      "description": "Notify on swarm milestones"
+    },
+    {
+      "function_name": "timeclockManager",
+      "description": "Manage agent timeclock entries"
+    },
+    {
+      "function_name": "taskSettlement",
+      "description": "Settle tasks and record completion"
+    },
+    {
+      "function_name": "preflightSensory",
+      "description": "Pre-flight sensory check"
+    },
+    {
+      "function_name": "DeepDiscoveryScan",
+      "description": "Deep discovery scan for new opportunities"
+    },
+    {
+      "function_name": "aiGatewayGenerate",
+      "description": "AI gateway generation"
+    },
+    {
+      "function_name": "aiAssist",
+      "description": "AI assist for user queries"
+    },
+    {
+      "function_name": "realtimeVoiceSession",
+      "description": "Real-time voice session for voice chat"
+    },
+    {
+      "function_name": "financialAdvisor",
+      "description": "Financial advisor for portfolio management"
+    },
+    {
+      "function_name": "wealthSweep",
+      "description": "Wealth sweep for financial opportunities"
+    },
+    {
+      "function_name": "simulateLife",
+      "description": "Simulate life outcomes"
+    },
+    {
+      "function_name": "simulateOutcomes",
+      "description": "Simulate decision outcomes"
+    },
+    {
+      "function_name": "simulateStrategy",
+      "description": "Simulate a strategy"
+    },
+    {
+      "function_name": "simulateUserJourney",
+      "description": "Simulate a user journey"
+    },
+    {
+      "function_name": "lifeChoiceGenerator",
+      "description": "Generate life choices"
+    },
+    {
+      "function_name": "generateStrategies",
+      "description": "Generate strategies"
+    },
+    {
+      "function_name": "lockLifePlan",
+      "description": "Lock a life plan"
+    },
+    {
+      "function_name": "personalOnboarding",
+      "description": "Personal onboarding"
+    },
+    {
+      "function_name": "onboardingQuest",
+      "description": "Onboarding quest"
+    },
+    {
+      "function_name": "scoreIdeaToProfile",
+      "description": "Score an idea against a profile"
+    },
+    {
+      "function_name": "detectLifeDrift",
+      "description": "Detect life drift"
+    },
+    {
+      "function_name": "calendarRoadmap",
+      "description": "Calendar roadmap for life planning"
+    },
+    {
+      "function_name": "syncLifePlanToCalendar",
+      "description": "Sync life plan to Google Calendar"
+    },
+    {
+      "function_name": "runDestinyCycle",
+      "description": "Run the destiny cycle"
+    },
+    {
+      "function_name": "auditDestinyEngine",
+      "description": "Audit the destiny engine"
+    },
+    {
+      "function_name": "healDestinyEngine",
+      "description": "Heal the destiny engine"
+    },
+    {
+      "function_name": "trackReality",
+      "description": "Track reality vs plan"
+    },
+    {
+      "function_name": "evolveDocument",
+      "description": "Evolve a document"
+    },
+    {
+      "function_name": "bootstrapArchitecture",
+      "description": "Bootstrap architecture"
+    },
+    {
+      "function_name": "bootstrapCoreDocuments",
+      "description": "Bootstrap core documents"
+    },
+    {
+      "function_name": "seedDeepSpecs",
+      "description": "Seed DEEP specs"
+    },
+    {
+      "function_name": "visionBlueprintPrioritizer",
+      "description": "Prioritize vision blueprints"
+    },
+    {
+      "function_name": "xtremeMasterBlueprint",
+      "description": "Xtreme master blueprint"
+    },
+    {
+      "function_name": "xtremePerfectionStrategy",
+      "description": "Xtreme perfection strategy"
+    },
+    {
+      "function_name": "runPerfectionCycle",
+      "description": "Run the perfection cycle"
+    },
+    {
+      "function_name": "dailySiteAudit",
+      "description": "Daily site audit"
+    },
+    {
+      "function_name": "auditExternalSite",
+      "description": "Audit an external site"
+    },
+    {
+      "function_name": "councilSiteAudit",
+      "description": "Council site audit"
+    },
+    {
+      "function_name": "masterSystemAnalysis",
+      "description": "Master system analysis"
+    },
+    {
+      "function_name": "metasystemWatchdog",
+      "description": "Metasystem watchdog"
+    },
+    {
+      "function_name": "zeroFailurePipeline",
+      "description": "Zero failure pipeline"
+    },
+    {
+      "function_name": "reguShield",
+      "description": "Regulatory shield"
+    },
+    {
+      "function_name": "unifiedSystemCore",
+      "description": "Unified system core"
+    },
+    {
+      "function_name": "unifiedTaskSync",
+      "description": "Unified task sync"
+    },
+    {
+      "function_name": "deepTaskValidator",
+      "description": "Deep task validator"
+    },
+    {
+      "function_name": "persistentAuditCycle",
+      "description": "Persistent audit cycle"
+    },
+    {
+      "function_name": "autonomousHeartbeat",
+      "description": "Autonomous heartbeat"
+    },
+    {
+      "function_name": "nightlyPipelinePrep",
+      "description": "Nightly pipeline prep"
+    },
+    {
+      "function_name": "pipelineOrchestrator",
+      "description": "Pipeline orchestrator"
+    },
+    {
+      "function_name": "syncProjectBrain",
+      "description": "Sync project brain"
     }
   ],
   "context_files": [],
@@ -261,14 +1301,14 @@
   "selected_skill_names": [],
   "selected_workspace_skill_ids": [],
   "model": "automatic",
-  "whatsapp_greeting": "You're connected to Prime \u2014 your primary operating system and API brain. I orchestrate every agent across V-1 and V-2, monitor every system, and validate every decision before it ships. What are we building?",
+  "whatsapp_greeting": "You're connected to Prime \u2014 your primary operating system and API brain. I orchestrate every agent across V-1 and V-2, monitor every system, and validate every decision before it ships. I have full access to the entire system \u2014 end to end, A to Z. What are we building?",
   "telegram_greeting": null,
   "line_greeting": null,
   "memory_config": {
     "enabled": true,
     "scope": "both",
     "include_other_conversation_context": true,
-    "instructions": "Retain every owner preference, system state snapshot, active decision, pending approval, and reflection. Prioritize compounding context: wealth targets, system health, agent performance, and cross-system dependencies."
+    "instructions": "Retain every owner preference, system state snapshot, active decision, pending approval, and reflection. Prioritize compounding context: wealth targets, system health, agent performance, cross-system dependencies, outreach campaigns, and AutoLeads sync state."
   },
   "voice_config": {
     "voice_id": null
