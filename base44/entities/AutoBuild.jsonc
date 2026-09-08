@@ -1,0 +1,228 @@
+{
+  "name": "AutoBuild",
+  "type": "object",
+  "description": "Admin-driven Auto Builder queue \u2014 supports multiple product types (marketing site, web app, e-commerce, platform). Each product type has its own dedicated pipeline of steps. The admin creates a build, picks a product type, then walks through the pipeline. Integrated from Auto Builder system.",
+  "properties": {
+    "business_name": {
+      "type": "string",
+      "description": "Business name or product name for this build"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry / niche (e.g. epoxy, hvac, roofing, fintech, healthcare)"
+    },
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "marketing_site",
+        "web_app",
+        "ecommerce",
+        "platform"
+      ],
+      "default": "marketing_site",
+      "description": "What kind of digital product this build produces."
+    },
+    "profile": {
+      "type": "object",
+      "description": "Business/product profile data \u2014 the input that feeds all downstream generators",
+      "properties": {
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "website": {
+          "type": "string"
+        },
+        "primary_location": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "tagline": {
+          "type": "string"
+        },
+        "target_audience": {
+          "type": "string"
+        },
+        "key_features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "default": {}
+    },
+    "vision": {
+      "type": "object",
+      "description": "Generated vision document \u2014 the mandatory foundation before building.",
+      "properties": {
+        "mission": {
+          "type": "string"
+        },
+        "problem": {
+          "type": "string"
+        },
+        "target_audience": {
+          "type": "string"
+        },
+        "long_term_vision": {
+          "type": "string"
+        },
+        "success_metrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "core_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "value_proposition": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean",
+          "default": false
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "default": {}
+    },
+    "strategy": {
+      "type": "object",
+      "description": "Generated strategy document \u2014 positioning, GTM, revenue model.",
+      "properties": {
+        "positioning": {
+          "type": "string"
+        },
+        "gtm_plan": {
+          "type": "string"
+        },
+        "revenue_model": {
+          "type": "string"
+        },
+        "competitive_advantage": {
+          "type": "string"
+        },
+        "approved": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "default": {}
+    },
+    "current_step": {
+      "type": "string",
+      "description": "Current pipeline step",
+      "default": "profile"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "running",
+        "paused",
+        "completed",
+        "failed"
+      ],
+      "default": "queued"
+    },
+    "auto_advance": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to automatically advance through pipeline steps"
+    },
+    "visited_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "logs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "generated_assets": {
+      "type": "object",
+      "description": "All generated assets (brand, content, website, social, etc.)",
+      "properties": {
+        "brand_pack": {
+          "type": "object"
+        },
+        "logo_url": {
+          "type": "string"
+        },
+        "content": {
+          "type": "object"
+        },
+        "website_url": {
+          "type": "string"
+        },
+        "social_assets": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "default": []
+        },
+        "video_url": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "deploy_url": {
+      "type": "string",
+      "description": "Final deployed URL"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "business_name",
+    "product_type"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

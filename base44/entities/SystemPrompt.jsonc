@@ -1,0 +1,154 @@
+{
+  "name": "SystemPrompt",
+  "type": "object",
+  "description": "Master prompt library for Vision Cortex \u2014 stores optimized prompts for all system operations including audits, healing, optimization, code generation, communication, and intelligence gathering. Designed by the world's most renowned prompt engineering principles.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Prompt name (human-readable identifier)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "audit",
+        "heal",
+        "harden",
+        "optimize",
+        "manage",
+        "build",
+        "intelligence",
+        "communication",
+        "prediction",
+        "simulation",
+        "strategy",
+        "governance",
+        "reflection",
+        "coding",
+        "memory",
+        "discovery",
+        "scraping",
+        "clone",
+        "provision",
+        "other"
+      ],
+      "default": "other",
+      "description": "Prompt category for organization"
+    },
+    "sub_category": {
+      "type": "string",
+      "description": "More specific sub-category within the main category"
+    },
+    "prompt_text": {
+      "type": "string",
+      "description": "The full prompt text with [BRACKETED] placeholders for dynamic values"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this prompt does and when to use it"
+    },
+    "target_model": {
+      "type": "string",
+      "enum": [
+        "automatic",
+        "gemini_3_flash",
+        "gpt_5_mini",
+        "claude_sonnet_5",
+        "claude_opus_5",
+        "gpt_5_4",
+        "gemini_3_1_pro"
+      ],
+      "default": "automatic",
+      "description": "Recommended model for this prompt"
+    },
+    "response_json_schema": {
+      "type": "object",
+      "description": "JSON schema for structured output (if applicable)",
+      "additionalProperties": true
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "default": [],
+      "description": "Variables that should be injected into the prompt"
+    },
+    "effectiveness_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 effectiveness score based on output quality tracking"
+    },
+    "usage_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "How many times this prompt has been used"
+    },
+    "success_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 percentage of uses that produced satisfactory results"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "created_by_agent": {
+      "type": "string",
+      "description": "Which agent created or last optimized this prompt"
+    },
+    "last_optimized_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "optimization_notes": {
+      "type": "string",
+      "description": "Notes from the last optimization cycle"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "prompt_text"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

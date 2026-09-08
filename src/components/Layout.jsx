@@ -9,7 +9,7 @@ import {
   Cpu, Factory, Brain,
   MessagesSquare, MessageCircle, Activity, LineChart, ListTodo, BookOpen, FileCode,
   EyeOff, Server, Lock, Zap, Building2, Network, Settings, Puzzle,
-  Search, Briefcase, Send, Square,
+  Search, Briefcase, Send, Square, Eye, Hammer,
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -97,6 +97,8 @@ const navGroups = [
       { to: '/xtreme-factory', label: 'Factory Blueprint', icon: Factory },
       { to: '/xtreme-perfection', label: 'Xtreme Perfection', icon: Brain },
       { to: '/quote', label: 'Floor Quote Flow', icon: Square },
+      { to: '/visualizer', label: 'Floor Visualizer', icon: Eye },
+      { to: '/auto-builder', label: 'Auto Builder', icon: Hammer },
     ],
   },
   {
@@ -115,6 +117,7 @@ const navGroups = [
       { to: '/queue', label: 'Queue', icon: ListTodo },
       { to: '/playbook', label: 'Playbook', icon: BookOpen },
       { to: '/codebase', label: 'Codebase', icon: FileCode },
+      { to: '/prompt-library', label: 'Prompt Library', icon: BookOpen },
     ],
   },
 ];

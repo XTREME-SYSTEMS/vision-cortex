@@ -76,6 +76,9 @@ import XtremeCrm from '@/pages/XtremeCrm';
 import Comms from '@/pages/Comms';
 import AutonomousOutreach from '@/pages/AutonomousOutreach';
 import FloorQuoteFlow from '@/pages/FloorQuoteFlow';
+import AutoBuilder from '@/pages/AutoBuilder';
+import PromptLibrary from '@/pages/PromptLibrary';
+import FloorVisualizer from '@/pages/FloorVisualizer';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -171,6 +174,9 @@ const AuthenticatedApp = () => {
           <Route path="/comms" element={<Comms />} />
           <Route path="/outreach" element={<AutonomousOutreach />} />
           <Route path="/quote" element={<FloorQuoteFlow />} />
+          <Route path="/auto-builder" element={<AutoBuilder />} />
+          <Route path="/prompt-library" element={<PromptLibrary />} />
+          <Route path="/visualizer" element={<FloorVisualizer />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

@@ -1,0 +1,155 @@
+{
+  "name": "VisualizerSession",
+  "type": "object",
+  "description": "Floor visualizer sessions \u2014 users can visualize flooring options (colors, finishes, systems) on their space. Integrated from Xtreme Visualizer system.",
+  "properties": {
+    "session_name": {
+      "type": "string",
+      "description": "User-friendly session name"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "user_phone": {
+      "type": "string"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "room_type": {
+      "type": "string",
+      "enum": [
+        "garage",
+        "basement",
+        "living_room",
+        "kitchen",
+        "bathroom",
+        "patio",
+        "driveway",
+        "warehouse",
+        "retail",
+        "office",
+        "restaurant",
+        "other"
+      ],
+      "default": "garage"
+    },
+    "room_dimensions": {
+      "type": "object",
+      "properties": {
+        "length_ft": {
+          "type": "number"
+        },
+        "width_ft": {
+          "type": "number"
+        },
+        "height_ft": {
+          "type": "number"
+        }
+      },
+      "default": {}
+    },
+    "floor_system": {
+      "type": "string",
+      "description": "FloorSystem name applied"
+    },
+    "finish_type": {
+      "type": "string",
+      "enum": [
+        "metallic",
+        "flake",
+        "solid",
+        "quartz",
+        "polished",
+        "matte",
+        "gloss"
+      ],
+      "default": "flake"
+    },
+    "color_choice": {
+      "type": "string",
+      "description": "ColorChart name selected"
+    },
+    "color_hex": {
+      "type": "string",
+      "description": "Hex color code"
+    },
+    "base_image_url": {
+      "type": "string",
+      "description": "Original room photo (if uploaded)"
+    },
+    "result_image_url": {
+      "type": "string",
+      "description": "Generated visualization result"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "properties": {
+        "recommended_systems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "estimated_cost": {
+          "type": "number"
+        },
+        "estimated_timeline": {
+          "type": "string"
+        },
+        "design_notes": {
+          "type": "string"
+        }
+      },
+      "default": {}
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "visualizing",
+        "completed",
+        "shared",
+        "converted"
+      ],
+      "default": "draft"
+    },
+    "lead_id": {
+      "type": "string",
+      "description": "PcuLead ID if converted to a lead"
+    },
+    "shared_with": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Email addresses this session was shared with"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "session_name"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
