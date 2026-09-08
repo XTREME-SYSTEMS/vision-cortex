@@ -58,19 +58,24 @@ export async function sendTelnyxMessage(to, from, text, mediaUrls = [], profileI
   return { ok: r.ok, data: data?.data, error: data?.errors?.[0]?.detail };
 }
 
-// Telnyx from-numbers mapped to their companies (from Telnyx connection names)
+// Telnyx from-numbers mapped to their companies
 // Each number is dedicated to a specific company — NOT round-robin
 export const COMPANY_NUMBERS = {
-  ai_assistant: '+19548848885',      // ai-assistant connection — Eden Skye / Vision Cortex AI voice
-  xtreme_comms: '+18337001239',      // XTREME COMMS Voice — Xtreme Communications (primary toll-free)
-  xtreme_comms_2: '+18334843799',    // XTREME COMMS Voice — Xtreme Communications (secondary toll-free)
+  strategic_minds: '+19548848885',   // Strategic Minds — AI voice / Eden Skye
+  property_intel: '+18337001239',    // Property Intel — toll-free
+  xps: '+18334843799',              // XPS (Xtreme Polishing Systems) — toll-free
 };
 
+// Reverse lookup: number -> company key
+export const COMPANY_BY_NUMBER = Object.fromEntries(
+  Object.entries(COMPANY_NUMBERS).map(([k, v]) => [v, k])
+);
+
 // Default number for AI voice campaigns (Eden Skye)
-export const DEFAULT_VOICE_NUMBER = COMPANY_NUMBERS.ai_assistant;
+export const DEFAULT_VOICE_NUMBER = COMPANY_NUMBERS.strategic_minds;
 
 // Default number for SMS/MMS outreach
-export const DEFAULT_MESSAGING_NUMBER = COMPANY_NUMBERS.xtreme_comms;
+export const DEFAULT_MESSAGING_NUMBER = COMPANY_NUMBERS.property_intel;
 
 // Get the from-number for a given company key
 export function getFromNumberForCompany(company) {

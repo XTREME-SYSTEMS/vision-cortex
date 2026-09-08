@@ -1,0 +1,176 @@
+{
+  "name": "CallRecording",
+  "type": "object",
+  "description": "Telnyx call recordings with AI transcription and call-quality validation. Used by the call validator agent to review calls, score performance, and generate improvement feedback.",
+  "properties": {
+    "recording_id": {
+      "type": "string",
+      "description": "Telnyx recording ID"
+    },
+    "call_control_id": {
+      "type": "string",
+      "description": "Telnyx call control ID"
+    },
+    "call_session_id": {
+      "type": "string",
+      "description": "Telnyx call session ID"
+    },
+    "from_number": {
+      "type": "string",
+      "description": "The number that made the call"
+    },
+    "to_number": {
+      "type": "string",
+      "description": "The number that was called"
+    },
+    "company": {
+      "type": "string",
+      "enum": [
+        "strategic_minds",
+        "property_intel",
+        "xps",
+        "unknown"
+      ],
+      "default": "unknown",
+      "description": "Which company this call belongs to"
+    },
+    "duration_secs": {
+      "type": "number",
+      "default": 0
+    },
+    "recording_url": {
+      "type": "string",
+      "description": "Telnyx download URL for the recording"
+    },
+    "transcript": {
+      "type": "string",
+      "description": "Full transcription of the call"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "transcribing",
+        "validating",
+        "validated",
+        "failed",
+        "no_recording"
+      ],
+      "default": "pending"
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "overall_score": {
+          "type": "number",
+          "description": "0-100 overall call quality score"
+        },
+        "greeting_score": {
+          "type": "number",
+          "description": "0-100 greeting quality"
+        },
+        "value_prop_score": {
+          "type": "number",
+          "description": "0-100 value proposition clarity"
+        },
+        "objection_handling_score": {
+          "type": "number",
+          "description": "0-100 objection handling quality"
+        },
+        "closing_score": {
+          "type": "number",
+          "description": "0-100 call-to-action / closing quality"
+        },
+        "tone_score": {
+          "type": "number",
+          "description": "0-100 warmth and professionalism"
+        },
+        "strengths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "weaknesses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "improvement_suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "objections_raised": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "scheduled",
+            "interested",
+            "not_interested",
+            "voicemail",
+            "no_answer",
+            "callback_requested",
+            "unknown"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "description": "Brief summary of the call"
+        },
+        "better_script_suggestion": {
+          "type": "string",
+          "description": "AI-suggested improved script for this call type"
+        }
+      },
+      "default": {}
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "Linked XtremeCrmContact ID"
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Linked OutreachCampaign ID"
+    },
+    "validated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "recording_id"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
