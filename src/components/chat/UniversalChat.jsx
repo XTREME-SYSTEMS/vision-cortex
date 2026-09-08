@@ -4,6 +4,8 @@ import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip,
 import { cn } from '@/lib/utils';
 import VoiceChat from '@/components/chat/VoiceChat';
 
+const LOGO_URL = 'https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png';
+
 const MODELS = [
   { id: 'auto', label: 'Auto', icon: Zap, description: 'Heuristic — picks best model per request' },
   { id: 'openai/gpt-5.6-sol', label: 'GPT-5.6 Sol', icon: null, description: 'Fast & capable — daily driver' },
@@ -183,9 +185,7 @@ export default function UniversalChat({ activeAgents }) {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
-            <div className="w-12 h-12 rounded-full bg-foreground text-background grid place-items-center mb-3">
-              <Bot className="w-6 h-6" />
-            </div>
+            <img src={LOGO_URL} alt="Vision Cortex" className="w-12 h-12 rounded-full object-cover mb-3" />
             <p className="text-sm font-medium text-foreground">Prime is online.</p>
             <p className="text-xs mt-1 max-w-xs">Your primary orchestrator. It delegates to the right agents and asks before executing anything.</p>
             <p className="text-[10px] mt-2 text-muted-foreground/70">Type a message. Use the + menu for attachments, dictation, voice, and validation.</p>
@@ -224,9 +224,13 @@ export default function UniversalChat({ activeAgents }) {
           }
           return (
             <div key={i} className={cn('flex gap-3', m.delegated && 'opacity-70')}>
-              <div className={cn('w-7 h-7 rounded-full grid place-items-center shrink-0 mt-0.5', isPrimary ? 'bg-foreground text-background' : 'bg-muted')}>
-                {m.author === 'System' ? <AlertCircle className="w-3.5 h-3.5 text-amber-500" /> : <Bot className="w-3.5 h-3.5" />}
-              </div>
+              {m.author === 'System' ? (
+                <div className="w-7 h-7 rounded-full bg-muted grid place-items-center shrink-0 mt-0.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                </div>
+              ) : (
+                <img src={LOGO_URL} alt="Vision Cortex" className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5" />
+              )}
               <div className="flex-1 min-w-0 pt-0.5">
                 {m.author !== 'System' && (
                   <div className="flex items-center gap-2 mb-1">
