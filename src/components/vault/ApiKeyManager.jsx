@@ -36,7 +36,8 @@ export default function ApiKeyManager() {
   const loadKeys = useCallback(async () => {
     try {
       const res = await base44.functions.invoke('manageApiKeys', { action: 'list' });
-      setKeys(res.keys || []);
+      const data = res.data || res;
+      setKeys(data.keys || []);
     } catch (e) {
       console.error('Failed to load keys:', e);
     } finally {
@@ -59,7 +60,9 @@ export default function ApiKeyManager() {
         permissions: genPermissions,
         notes: genNotes
       });
-      setGeneratedKey(res);
+      const data = res.data || res;
+      if (data.error) throw new Error(data.error);
+      setGeneratedKey(data);
       setGenName(''); setGenNotes(''); setGenPermissions(['read', 'write']);
       setShowGenerate(false);
       loadKeys();
@@ -88,7 +91,8 @@ export default function ApiKeyManager() {
     setActionLoading({ ...actionLoading, [`rotate_${keyId}`]: true });
     try {
       const res = await base44.functions.invoke('manageApiKeys', { action: 'rotate', key_id: keyId });
-      setGeneratedKey({ ...res, key_name: name });
+      const data = res.data || res;
+      setGeneratedKey({ ...data, key_name: name });
       loadKeys();
     } catch (e) { alert('Failed: ' + e.message); }
     finally { setActionLoading({ ...actionLoading, [`rotate_${keyId}`]: false }); }
