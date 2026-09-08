@@ -171,7 +171,7 @@ export default function Layout() {
       <aside className="hidden md:flex w-56 shrink-0 border-r border-border/60 flex-col bg-sidebar">
         <div className="px-3 py-3 border-b border-border/60">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src={LOGO_URL} alt="Vision Cortex" className="h-7 w-7 rounded-lg object-cover" />
+            <img src={LOGO_URL} alt="Vision Cortex" className="h-10 w-10 rounded-xl object-cover" />
             <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
             <span className="text-[9px] font-mono text-muted-foreground/60 tracking-wider">V-1</span>
           </Link>
@@ -222,7 +222,7 @@ export default function Layout() {
             <Menu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={goHome} className="flex items-center gap-2">
-            <img src={LOGO_URL} alt="Vision Cortex" className="h-6 w-6 rounded-lg object-cover" />
+            <img src={LOGO_URL} alt="Vision Cortex" className="h-9 w-9 rounded-xl object-cover" />
             <span className="font-display text-xs tracking-[0.15em] uppercase">Vision Cortex</span>
           </Link>
           <div className="flex items-center gap-1">
@@ -292,7 +292,7 @@ export default function Layout() {
             >
               <div className="px-3 py-3 border-b border-border/60 flex items-center justify-between">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5">
-                  <img src={LOGO_URL} alt="Vision Cortex" className="h-7 w-7 rounded-lg object-cover" />
+                  <img src={LOGO_URL} alt="Vision Cortex" className="h-10 w-10 rounded-xl object-cover" />
                   <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">

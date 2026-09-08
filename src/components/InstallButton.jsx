@@ -33,7 +33,7 @@ export default function InstallButton({ className, variant = 'outline', size = '
         setDeferred(null);
       }}
     >
-      <img src={LOGO_URL} alt="Vision Cortex" className="w-4 h-4 rounded" /> Install app
+      <img src={LOGO_URL} alt="Vision Cortex" className="w-5 h-5 rounded" /> Install app
     </Button>
   );
 }

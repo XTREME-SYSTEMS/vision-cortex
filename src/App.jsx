@@ -79,7 +79,7 @@ const AuthenticatedApp = () => {
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background">
-        <img src="https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png" alt="Vision Cortex" className="h-12 w-12 rounded-xl object-cover animate-pulse" />
+        <img src="https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png" alt="Vision Cortex" className="h-20 w-20 rounded-2xl object-cover animate-pulse" />
       </div>
     );
   }
