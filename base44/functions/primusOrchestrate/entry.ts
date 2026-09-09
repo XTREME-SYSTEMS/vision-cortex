@@ -178,6 +178,19 @@ export default async function (req) {
     const historyLines = history.map((h) => (h.author_type === 'user' ? 'Owner' : h.author) + ': ' + h.content).join('\n');
     const historyBlock = historyLines ? '\nRecent conversation:\n' + historyLines + '\n' : '';
 
+    // ── RAG: retrieve relevant context from documents, blueprints, and intel ──
+    let ragContext = '';
+    try {
+      const ragRes = await base44.asServiceRole.functions.invoke('ragRetrieval', {
+        action: 'retrieve',
+        query: message,
+        top_k: 5,
+      });
+      const ragData = ragRes?.data || ragRes;
+      if (ragData?.context) ragContext = ragData.context;
+    } catch {}
+    const ragBlock = ragContext ? '\n\nRelevant knowledge from system memory (documents, blueprints, intel):\n"""\n' + ragContext + '\n"""\nUse this to ground your response in what already exists.\n' : '';
+
     // ── Executable backend functions the swarm can dispatch to ──
     const EXECUTABLE_FUNCTIONS = {
       intelligence: ['intelligenceGatherer', 'DeepDiscoveryScan', 'freeIntelligenceGatherer', 'scrapeLeads', 'enrichLead', 'cloudBrowserIntel'],
@@ -200,6 +213,7 @@ export default async function (req) {
       'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n' + personalizationBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
+      ragBlock +
       '\nAvailable specialist agents: ' + specialistNames.join(', ') + '\n' +
       '\nExecutable backend functions (categorized):\n' + functionCatalog + '\n\n' +
       'Respond ONLY with a compact JSON object:\n' +
@@ -310,6 +324,7 @@ export default async function (req) {
       'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n' + personalizationBlock + pluginBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
+      ragBlock +
       '\n' + delegationLine + '\n' +
       outputsBlock +
       executionBlock +

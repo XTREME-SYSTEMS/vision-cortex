@@ -79,6 +79,7 @@ import FloorQuoteFlow from '@/pages/FloorQuoteFlow';
 import AutoBuilder from '@/pages/AutoBuilder';
 import PromptLibrary from '@/pages/PromptLibrary';
 import FloorVisualizer from '@/pages/FloorVisualizer';
+import SwarmPerformance from '@/pages/SwarmPerformance';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -177,6 +178,7 @@ const AuthenticatedApp = () => {
           <Route path="/auto-builder" element={<AutoBuilder />} />
           <Route path="/prompt-library" element={<PromptLibrary />} />
           <Route path="/visualizer" element={<FloorVisualizer />} />
+          <Route path="/swarm-performance" element={<SwarmPerformance />} />
         </Route>
         <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
           <Route path="/build/:id" element={<BuildPortal />} />

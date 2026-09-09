@@ -418,11 +418,7 @@ export default function UniversalChat({ activeAgents }) {
             </button>
           </div>
 
-          <div className="flex items-center justify-center mt-2">
-            <p className="text-[10px] text-muted-foreground">
-              Prime orchestrates · {activeAgents.length > 0 ? 'delegation hints: ' + activeAgents.join(' · ') : 'auto-delegate'}
-            </p>
-          </div>
+
         </div>
       </div>
       {voiceChatOpen && <VoiceChat onClose={() => setVoiceChatOpen(false)} />}
