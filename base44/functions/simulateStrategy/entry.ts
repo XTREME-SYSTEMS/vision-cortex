@@ -1,4 +1,5 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.44";
+import { enhancedInvoke } from "../../shared/aiEnhancement.ts";
 
 // ═══════════════════════════════════════════════════════════════
 // simulateStrategy — the Simulation Engine.
@@ -26,7 +27,8 @@ export default async function (req) {
     const profiles = await base44.entities.UserProfile.filter({ user_id: user.id }).catch(() => []);
     const profile = profiles && profiles[0];
 
-    const res = await core.InvokeLLM({
+    const res = await enhancedInvoke(base44, {
+      category: 'simulation',
       prompt: `You are the Simulation Engine for Vision Cortex. Forecast this strategy as a line-item financial model.
 STRATEGY: ${strategy_name}
 HORIZON (days): ${horizon_days}
@@ -44,7 +46,7 @@ Return JSON:
   "reverse_feasible": <bool>
 }
 Be realistic and conservative. Every assumption is a line item with downstream financial impact.`,
-      response_json_schema: {
+      schema: {
         type: "object",
         properties: {
           forecast: {
