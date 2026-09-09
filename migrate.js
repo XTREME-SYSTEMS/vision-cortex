@@ -1,11 +1,14 @@
 const { Client } = require('pg');
+const http = require('http');
+
+let migrationStatus = 'pending';
+let migrationError = null;
+let tablesCreated = [];
 
 const SQL_SCHEMA = `
--- Vision Cortex Entity Schema
 CREATE TABLE IF NOT EXISTS ideas (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  title TEXT NOT NULL,
-  one_liner TEXT, industry TEXT, sub_industry TEXT,
+  title TEXT NOT NULL, one_liner TEXT, industry TEXT, sub_industry TEXT,
   problem TEXT, solution TEXT, target_users TEXT,
   monetization TEXT[], tech_stack TEXT[], automation_plan TEXT,
   moat TEXT, hidden_opportunity TEXT,
@@ -120,7 +123,6 @@ CREATE TABLE IF NOT EXISTS system_enhancements (
   max_fix_attempts INTEGER DEFAULT 3, blocked_reason TEXT,
   last_action_at TIMESTAMPTZ, created_at TIMESTAMPTZ DEFAULT NOW()
 );
--- Enable RLS
 ALTER TABLE ideas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE agent_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE agent_logs ENABLE ROW LEVEL SECURITY;
@@ -133,48 +135,63 @@ ALTER TABLE governance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vision_pipelines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE build_queue ENABLE ROW LEVEL SECURITY;
 ALTER TABLE system_enhancements ENABLE ROW LEVEL SECURITY;
--- Public read policies
 CREATE POLICY IF NOT EXISTS "Public read ideas" ON ideas FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read agent_profiles" ON agent_profiles FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read agent_logs" ON agent_logs FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read chat_messages" ON chat_messages FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read intel_feed" ON intel_feed FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read doctrines" ON doctrines FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read governance" ON governance FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read vision_pipelines" ON vision_pipelines FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read build_queue" ON build_queue FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Public read system_enhancements" ON system_enhancements FOR SELECT USING (true);
--- Update trigger
+CREATE POLICY IF NOT EXISTS "Public read ap" ON agent_profiles FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read al" ON agent_logs FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read cm" ON chat_messages FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read if" ON intel_feed FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read d" ON doctrines FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read g" ON governance FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read vp" ON vision_pipelines FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read bq" ON build_queue FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Public read se" ON system_enhancements FOR SELECT USING (true);
 CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ LANGUAGE plpgsql;
-CREATE TRIGGER IF NOT EXISTS update_ideas_updated_at BEFORE UPDATE ON ideas FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER IF NOT EXISTS update_agent_profiles_updated_at BEFORE UPDATE ON agent_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER IF NOT EXISTS update_vision_pipelines_updated_at BEFORE UPDATE ON vision_pipelines FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER IF NOT EXISTS update_build_queue_updated_at BEFORE UPDATE ON build_queue FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER IF NOT EXISTS update_system_enhancements_updated_at BEFORE UPDATE ON system_enhancements FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER IF NOT EXISTS trg_ideas ON ideas BEFORE UPDATE FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER IF NOT EXISTS trg_ap ON agent_profiles BEFORE UPDATE FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER IF NOT EXISTS trg_vp ON vision_pipelines BEFORE UPDATE FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER IF NOT EXISTS trg_bq ON build_queue BEFORE UPDATE FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER IF NOT EXISTS trg_se ON system_enhancements BEFORE UPDATE FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 `;
 
 async function runMigration() {
-  const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
-  if (!connectionString) {
-    console.error('ERROR: DATABASE_URL or SUPABASE_DB_URL not set');
-    process.exit(1);
+  const dbUrl = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+  if (!dbUrl) {
+    migrationStatus = 'failed';
+    migrationError = 'DATABASE_URL not set';
+    console.error('DATABASE_URL not set');
+    return;
   }
-  console.log('Connecting to Supabase Postgres...');
-  const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
+  console.log('Connecting to Supabase:', dbUrl.replace(/:[^:@]+@/, ':****@'));
+  const client = new Client({ connectionString: dbUrl, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
-    console.log('Connected. Executing schema migration...');
+    console.log('Connected. Running migration...');
     await client.query(SQL_SCHEMA);
-    console.log('SUCCESS: All 13 tables created with RLS policies and triggers.');
-    // Verify tables exist
-    const res = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;");
-    console.log('Tables in database:', res.rows.map(r => r.tablename).join(', '));
+    const res = await client.query("SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename");
+    tablesCreated = res.rows.map(r => r.tablename);
+    migrationStatus = 'success';
+    console.log('Migration SUCCESS! Tables:', tablesCreated.join(', '));
   } catch (err) {
-    console.error('Migration failed:', err.message);
-    process.exit(1);
+    migrationStatus = 'failed';
+    migrationError = err.message;
+    console.error('Migration FAILED:', err.message);
   } finally {
     await client.end();
   }
 }
 
-runMigration();
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({
+    status: migrationStatus,
+    error: migrationError,
+    tables: tablesCreated,
+    timestamp: new Date().toISOString()
+  }, null, 2));
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Migration server on port ${PORT}`);
+  runMigration();
+});
