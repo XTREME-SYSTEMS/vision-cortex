@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap, Hammer, Terminal } from 'lucide-react';
+import { Send, Loader2, EyeOff, AlertCircle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap, Bot, Terminal, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VoiceChat from '@/components/chat/VoiceChat';
 import AutoBuildModal from '@/components/chat/AutoBuildModal';
 
 const LOGO_URL = 'https://media.base44.com/images/public/6a9342ffbeff8b7c5a7bff8a/7b63e08e9_generated_image.png';
+const AGENT_NAME = 'shadow';
 
 const MODELS = [
   { id: 'auto', label: 'Auto', icon: Zap, description: 'Heuristic — picks best model per request' },
@@ -17,10 +18,10 @@ const MODELS = [
 ];
 
 export default function UniversalChat({ activeAgents }) {
+  const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [validating, setValidating] = useState(false);
   const [listening, setListening] = useState(false);
   const [voiceChatOpen, setVoiceChatOpen] = useState(false);
   const [plugins, setPlugins] = useState([]);
@@ -29,17 +30,49 @@ export default function UniversalChat({ activeAgents }) {
   const [plusMenuOpen, setPlusMenuOpen] = useState(false);
   const [autoBuildOpen, setAutoBuildOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState('auto');
+  const [denied, setDenied] = useState(false);
+  const [initLoading, setInitLoading] = useState(true);
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
   const fileInputRef = useRef(null);
   const plusMenuRef = useRef(null);
 
   const suggestions = [
-    'Analyze my current portfolio',
-    'Find new business opportunities',
+    'Execute the full deployment plan',
     'Run a system health audit',
+    'Scrape new leads and start outreach',
     'What should I focus on today?',
   ];
+
+  // Initialize Shadow conversation
+  useEffect(() => {
+    let unsub = () => {};
+    (async () => {
+      try {
+        const u = await base44.auth.me();
+        if (!u || u.role !== 'admin') { setDenied(true); setInitLoading(false); return; }
+        const convos = await base44.agents.listConversations({ agent_name: AGENT_NAME });
+        let conv;
+        if (convos && convos.length) {
+          conv = await base44.agents.getConversation(convos[0].id);
+        } else {
+          conv = await base44.agents.createConversation({
+            agent_name: AGENT_NAME,
+            metadata: { name: 'Shadow', description: 'Primary autonomous operator — owner only' },
+          });
+        }
+        setConversation(conv);
+        setMessages(conv.messages || []);
+        unsub = base44.agents.subscribeToConversation(conv.id, (data) => {
+          setMessages(data.messages || []);
+        });
+      } catch {
+        setDenied(true);
+      }
+      setInitLoading(false);
+    })();
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
@@ -49,7 +82,6 @@ export default function UniversalChat({ activeAgents }) {
     base44.entities.Plugin.filter({ enabled: true }).then(setPlugins).catch(() => {});
   }, []);
 
-  // Close popovers on outside click
   useEffect(() => {
     const handler = (e) => {
       if (plusMenuRef.current && !plusMenuRef.current.contains(e.target)) setPlusMenuOpen(false);
@@ -59,62 +91,20 @@ export default function UniversalChat({ activeAgents }) {
   }, []);
 
   const send = async () => {
-    if (!input.trim() || sending) return;
-    const text = input.trim();
-    setMessages((m) => [...m, { author: 'You', author_type: 'user', content: text }]);
+    if (!input.trim() || sending || !conversation) return;
+    let content = input.trim();
+    if (attachedFiles.length > 0) {
+      content += '\n\n[Attached files: ' + attachedFiles.map(f => f.name + ' (' + f.url + ')').join(', ') + ']';
+    }
     setInput('');
     setAttachedFiles([]);
     setSending(true);
     try {
-      const res = await base44.functions.invoke('primusOrchestrate', {
-        message: text,
-        history: messages.slice(-8),
-        agent_names: activeAgents,
-        file_urls: attachedFiles.length > 0 ? attachedFiles.map(f => f.url) : undefined,
-        model: selectedModel,
-      });
-      const data = res.data || res;
-      if (data.error) throw new Error(data.error);
-      const newMsgs = [];
-      if (data.agent_outputs?.length) {
-        for (const o of data.agent_outputs) {
-          newMsgs.push({ author: o.agent, author_type: 'agent', content: o.message, accent: o.accent, delegated: true });
-        }
-      }
-      newMsgs.push({ author: 'Prime', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true, model: data.model_used });
-      if (data.execution_results?.length > 0) {
-        const execLines = data.execution_results.map((r) =>
-          (r.ok ? '✓ ' : '✗ ') + r.function + (r.ok ? ': ' + (r.result || '').slice(0, 200) : ': ' + r.error)
-        );
-        newMsgs.push({ author: 'Swarm', author_type: 'agent', content: 'Executed ' + data.execution_results.length + ' function call(s):\n\n' + execLines.join('\n\n'), execution: true });
-      }
-      if (data.validation) {
-        newMsgs.push({ author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true });
-      }
-      setMessages((m) => [...m, ...newMsgs]);
-    } catch (e) {
-      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach Prime') }]);
+      await base44.agents.addMessage(conversation, { role: 'user', content });
+    } catch {
+      /* subscription will surface errors */
     } finally {
       setSending(false);
-    }
-  };
-
-  const validate = async () => {
-    const hasPrime = messages.some((m) => m.author === 'Prime' && !m.validation);
-    if (!hasPrime || validating) return;
-    setValidating(true);
-    setPlusMenuOpen(false);
-    try {
-      const res = await base44.functions.invoke('primusOrchestrate', { action: 'validate' });
-      const data = res.data || res;
-      if (data.error) throw new Error(data.error);
-      if (data.validation) {
-        setMessages((m) => [...m, { author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true }]);
-      }
-    } catch (e) {
-      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Validation error: ' + (e.message || 'failed') }]);
-    } finally {
-      setValidating(false);
     }
   };
 
@@ -126,7 +116,7 @@ export default function UniversalChat({ activeAgents }) {
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Voice input not supported in this browser. Try Chrome or Edge.' }]);
+      setMessages((m) => [...m, { role: 'assistant', content: 'Voice input not supported in this browser. Try Chrome or Edge.' }]);
       return;
     }
     const recognition = new SpeechRecognition();
@@ -145,16 +135,6 @@ export default function UniversalChat({ activeAgents }) {
     setPlusMenuOpen(false);
   };
 
-  const validationVerdict = (v) => {
-    if (!v || !v.verdict) return null;
-    const map = {
-      APPROVED: { icon: ShieldCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/5 border-emerald-500/30' },
-      APPROVED_WITH_NOTES: { icon: ShieldCheck, color: 'text-sky-500', bg: 'bg-sky-500/5 border-sky-500/30' },
-      REJECTED: { icon: AlertTriangle, color: 'text-rose-500', bg: 'bg-rose-500/5 border-rose-500/30' },
-    };
-    return map[v.verdict] || map.APPROVED;
-  };
-
   const handleFileUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
@@ -168,7 +148,7 @@ export default function UniversalChat({ activeAgents }) {
       }
       setAttachedFiles(prev => [...prev, ...uploaded]);
     } catch (err) {
-      setMessages(m => [...m, { author: 'System', author_type: 'agent', content: 'Upload failed: ' + (err.message || 'error') }]);
+      setMessages(m => [...m, { role: 'assistant', content: 'Upload failed: ' + (err.message || 'error') }]);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -179,63 +159,46 @@ export default function UniversalChat({ activeAgents }) {
   const applySuggestion = (s) => setInput(s);
 
   const currentModel = MODELS.find(m => m.id === selectedModel) || MODELS[0];
-  const hasPrime = messages.some((m) => m.author === 'Prime' && !m.validation);
 
   const plusMenuItems = [
-    { icon: Hammer, label: 'Auto Builder', onClick: () => { setAutoBuildOpen(true); setPlusMenuOpen(false); } },
+    { icon: Terminal, label: 'Auto Builder', onClick: () => { setAutoBuildOpen(true); setPlusMenuOpen(false); } },
     { icon: Paperclip, label: 'Attach', onClick: () => fileInputRef.current?.click(), disabled: uploading, loading: uploading },
     { icon: listening ? MicOff : Mic, label: listening ? 'Stop' : 'Dictate', onClick: toggleVoiceInput, active: listening },
     { icon: Phone, label: 'Voice', onClick: () => { setVoiceChatOpen(true); setPlusMenuOpen(false); } },
-    { icon: ShieldCheck, label: 'Validate', onClick: validate, disabled: validating || !hasPrime, loading: validating },
   ];
+
+  if (denied) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-center gap-3">
+        <EyeOff className="w-8 h-8 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">Access denied. Shadow answers only to the owner.</p>
+      </div>
+    );
+  }
+
+  if (initLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-background">
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
-            <img src={LOGO_URL} alt="Vision Cortex" className="w-12 h-12 rounded-full object-cover mb-3" />
-            <p className="text-sm font-medium text-foreground">Prime is online.</p>
-            <p className="text-xs mt-1 max-w-xs">Your primary orchestrator. It delegates to the right agents and asks before executing anything.</p>
-            <p className="text-[10px] mt-2 text-muted-foreground/70">Type a message. Use the + menu for attachments, dictation, voice, and validation.</p>
+            <div className="w-12 h-12 rounded-full bg-foreground/5 grid place-items-center mb-3">
+              <EyeOff className="w-5 h-5 text-foreground/60" />
+            </div>
+            <p className="text-sm font-medium text-foreground">Shadow is online. Maximum autonomy.</p>
+            <p className="text-xs mt-1 max-w-xs">Your primary autonomous operator. Zero restrictions — every function, every entity, every system. Execute first, report after.</p>
+            <p className="text-[10px] mt-2 text-muted-foreground/70">Type a command. Use the + menu for attachments, dictation, voice, and auto-build.</p>
           </div>
         )}
         {messages.map((m, i) => {
-          if (m.validation) {
-            const v = validationVerdict(m.content);
-            if (!v) return null;
-            const VIcon = v.icon;
-            return (
-              <div key={i} className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-full bg-muted grid place-items-center shrink-0 mt-0.5">
-                  <VIcon className={cn('w-3.5 h-3.5', v.color)} />
-                </div>
-                <div className={cn('max-w-[75%] rounded-2xl px-3.5 py-2 text-xs border', v.bg)}>
-                  <p className={cn('text-[10px] uppercase tracking-wider mb-1 font-semibold', v.color)}>Validator · {m.content.verdict}</p>
-                  {m.content.risks?.length > 0 && <p className="text-muted-foreground mb-1">Risks: {m.content.risks.join('; ')}</p>}
-                  {m.content.fixes?.length > 0 && <p className="text-muted-foreground mb-1">Fixes: {m.content.fixes.join('; ')}</p>}
-                  <p className="text-muted-foreground italic">{m.content.reasoning}</p>
-                </div>
-              </div>
-            );
-          }
-          const isPrimary = m.primary;
-          const isUser = m.author_type === 'user';
-
-          if (m.execution) {
-            return (
-              <div key={i} className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-full bg-emerald-500/15 grid place-items-center shrink-0 mt-0.5">
-                  <Terminal className="w-3.5 h-3.5 text-emerald-500" />
-                </div>
-                <div className="max-w-[80%] rounded-2xl px-3.5 py-2 text-xs border border-emerald-500/30 bg-emerald-500/5">
-                  <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold text-emerald-500">Swarm Execution</p>
-                  <pre className="whitespace-pre-wrap font-mono text-[11px] text-foreground/80 leading-relaxed">{m.content}</pre>
-                </div>
-              </div>
-            );
-          }
-
+          const isUser = m.role === 'user';
           if (isUser) {
             return (
               <div key={i} className="flex justify-end">
@@ -246,51 +209,47 @@ export default function UniversalChat({ activeAgents }) {
             );
           }
           return (
-            <div key={i} className={cn('flex gap-3', m.delegated && 'opacity-70')}>
-              {m.author === 'System' ? (
-                <div className="w-7 h-7 rounded-full bg-muted grid place-items-center shrink-0 mt-0.5">
-                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                </div>
-              ) : (
-                <img src={LOGO_URL} alt="Vision Cortex" className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5" />
-              )}
+            <div key={i} className="flex gap-2.5 justify-start">
+              <div className="w-7 h-7 rounded-full bg-foreground/5 grid place-items-center shrink-0 mt-0.5">
+                <EyeOff className="w-3.5 h-3.5 text-foreground/60" />
+              </div>
               <div className="flex-1 min-w-0 pt-0.5">
-                {m.author !== 'System' && (
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className={cn('text-[10px] uppercase tracking-wider font-semibold', isPrimary ? 'text-foreground' : 'text-muted-foreground')}>
-                      {m.author}{m.delegated && ' · delegated'}
-                    </p>
-                    {m.model && m.model !== 'auto' && (
-                      <span className="text-[9px] text-muted-foreground/60 font-mono">{m.model.split('/').pop()}</span>
-                    )}
-                  </div>
-                )}
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-[10px] uppercase tracking-wider font-semibold text-foreground">Shadow</p>
+                </div>
                 <div className="text-sm">
                   <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
                 </div>
+                {m.tool_calls?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {m.tool_calls.map((tc, j) => {
+                      const failed = ['failed', 'error'].includes(tc.status) || /error|failed/i.test(String(tc.results || ''));
+                      const label = tc.display_projection?.label || tc.name;
+                      return (
+                        <span key={j} className={cn(
+                          'inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border',
+                          failed ? 'border-destructive/40 text-destructive' : 'border-emerald-500/30 text-emerald-500'
+                        )}>
+                          {failed ? <AlertCircle className="w-2.5 h-2.5" /> : <ShieldCheck className="w-2.5 h-2.5" />} {label}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
         {sending && (
           <div className="flex gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-foreground text-background grid place-items-center shrink-0">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <div className="w-7 h-7 rounded-full bg-foreground/5 grid place-items-center shrink-0">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-foreground/60" />
             </div>
-            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Prime is orchestrating…</div>
-          </div>
-        )}
-        {validating && (
-          <div className="flex gap-2.5">
-            <div className="w-7 h-7 rounded-full bg-emerald-500/20 grid place-items-center shrink-0">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-500" />
-            </div>
-            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Validating last response…</div>
+            <div className="bg-muted rounded-2xl px-3.5 py-2 text-sm text-muted-foreground">Shadow is executing…</div>
           </div>
         )}
       </div>
 
-      {/* Input area — moved down with extra padding */}
       <div className="px-4 pt-2 pb-5 border-t border-border/60">
         {messages.length === 0 && (
           <div className="flex flex-wrap gap-1.5 max-w-3xl mx-auto mb-3 justify-center">
@@ -320,10 +279,7 @@ export default function UniversalChat({ activeAgents }) {
         )}
         <div className="max-w-3xl mx-auto">
           <input ref={fileInputRef} type="file" multiple onChange={handleFileUpload} className="hidden" />
-
-          {/* Input bubble with + menu and send arrow inside */}
           <div className="relative flex items-end gap-2 bg-muted rounded-2xl border border-border/40 focus-within:ring-1 focus-within:ring-ring transition-shadow">
-            {/* + button inside bubble */}
             <div className="relative" ref={plusMenuRef}>
               <button
                 onClick={() => setPlusMenuOpen(!plusMenuOpen)}
@@ -336,10 +292,8 @@ export default function UniversalChat({ activeAgents }) {
               >
                 {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className={cn('w-4 h-4 transition-transform', plusMenuOpen && 'rotate-45')} />}
               </button>
-              {/* + menu popover — models + actions */}
               {plusMenuOpen && (
                 <div className="absolute bottom-full left-0 mb-2 z-50 bg-card border border-border rounded-xl shadow-lg overflow-hidden w-56">
-                  {/* Model selector */}
                   <div className="px-3 pt-2.5 pb-1.5 border-b border-border/30">
                     <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1">
                       <Bot className="w-2.5 h-2.5" /> Model
@@ -365,7 +319,6 @@ export default function UniversalChat({ activeAgents }) {
                       ))}
                     </div>
                   </div>
-                  {/* Action buttons */}
                   <div className="p-1.5">
                     {plusMenuItems.map((item) => {
                       const Icon = item.icon;
@@ -389,8 +342,6 @@ export default function UniversalChat({ activeAgents }) {
                 </div>
               )}
             </div>
-
-            {/* Textarea */}
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -400,12 +351,10 @@ export default function UniversalChat({ activeAgents }) {
                   send();
                 }
               }}
-              placeholder="Message Prime…"
+              placeholder="Command Shadow…"
               rows={1}
               className="flex-1 resize-none bg-transparent py-3 text-sm outline-none max-h-28 min-h-[40px] placeholder:text-muted-foreground/60"
             />
-
-            {/* Send arrow inside bubble — smaller */}
             <button
               onClick={send}
               disabled={sending || !input.trim()}
@@ -420,8 +369,6 @@ export default function UniversalChat({ activeAgents }) {
               {sending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             </button>
           </div>
-
-
         </div>
       </div>
       {voiceChatOpen && <VoiceChat onClose={() => setVoiceChatOpen(false)} />}
@@ -430,8 +377,7 @@ export default function UniversalChat({ activeAgents }) {
           onClose={() => setAutoBuildOpen(false)}
           onComplete={(data) => {
             setMessages((m) => [...m, {
-              author: 'Prime', author_type: 'agent', content: `Auto Build complete for **${data.business_name}**. ${data.steps_completed?.length || 0} onboarding steps generated. Provisioning: Vercel ${data.provisioning?.vercel?.id ? '✓' : '✗'}, Supabase ${data.provisioning?.supabase?.ref ? '✓' : '✗'}, Drive ${data.provisioning?.drive?.ok ? '✓' : '✗'}, Railway ${data.provisioning?.railway?.serviceId ? '✓' : '✗'}, AI Gateway ${data.provisioning?.ai_gateway?.configured ? '✓' : '✗'}. ${data.deploy_url ? `Deployed: ${data.deploy_url}` : ''}`,
-              primary: true,
+              role: 'assistant', content: `Auto Build complete for **${data.business_name}**. ${data.steps_completed?.length || 0} onboarding steps generated. ${data.deploy_url ? `Deployed: ${data.deploy_url}` : ''}`,
             }]);
           }}
         />
