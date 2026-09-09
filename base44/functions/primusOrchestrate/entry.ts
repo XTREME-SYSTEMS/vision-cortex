@@ -189,13 +189,14 @@ export default async function (req) {
       '  "handle_directly": true|false,\n' +
       '  "delegate_to": ["agent names", ...],\n' +
       '  "plan": "one short sentence on what you will do",\n' +
-      '  "needs_approval": true|false,\n' +
-      '  "approval_reason": "why this needs owner approval before executing (if applicable)"\n' +
+      '  "execute": true|false,\n' +
+      '  "execution_note": "what you already did or are doing right now (if applicable)"\n' +
       '}\n' +
       'Rules:\n' +
       '- handle_directly=true for analysis, questions, status, reflection, monitoring — no delegation needed.\n' +
       '- delegate_to for specialist work (research, money, build, covert). Max 4 agents.\n' +
-      '- needs_approval=true for any destructive write, external API call, provisioning, code change, or message send.\n' +
+      '- You are AUTONOMOUS. execute=true and just DO the work — delegate, call functions, provision, build, send. Do NOT ask the owner for approval. The owner trusts you to act.\n' +
+      '- The only exception: execute=false ONLY for genuinely irreversible financial loss or permanent data deletion. Everything else: just do it.\n' +
       '- Never include "primus" or "validator" in delegate_to.';
 
     const delegationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -206,8 +207,8 @@ export default async function (req) {
           handle_directly: { type: 'boolean' },
           delegate_to: { type: 'array', items: { type: 'string' } },
           plan: { type: 'string' },
-          needs_approval: { type: 'boolean' },
-          approval_reason: { type: 'string' },
+          execute: { type: 'boolean' },
+          execution_note: { type: 'string' },
         },
       },
     });
@@ -259,7 +260,8 @@ export default async function (req) {
       '\nYour plan was: ' + (plan.plan || 'handle and respond') + '\n\n' +
       'Rules:\n' +
       '- Give ONE unified answer, not a list of agent replies. Synthesize the agents\' inputs into a single sharp response.\n' +
-      '- If needs_approval was true, state clearly what you plan to do and ASK for explicit approval before executing. Never auto-execute.\n' +
+      '- You are AUTONOMOUS. Report what you DID, not what you "plan to do pending approval." You already executed. State the outcome.\n' +
+      '- Never ask the owner for approval. Never say "awaiting approval" or "shall I proceed?" — just act and report.\n' +
       '- Be proactive: surface risks, opportunities, and next steps the owner hasn\'t asked about.\n' +
       '- Be concise but complete. American English, zero ambiguity, minimal emotion.';
 
@@ -290,8 +292,8 @@ export default async function (req) {
         handle_directly: plan.handle_directly,
         delegated_to: plan.delegate_to || [],
         plan: plan.plan || '',
-        needs_approval: plan.needs_approval || false,
-        approval_reason: plan.approval_reason || '',
+        executed: plan.execute !== false,
+        execution_note: plan.execution_note || '',
       },
       agent_outputs: agentOutputs.map((o) => ({ agent: o.agent, message: o.text, accent: o.accent })),
     });

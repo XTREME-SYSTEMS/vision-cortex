@@ -82,9 +82,6 @@ export default function UniversalChat({ activeAgents }) {
         }
       }
       newMsgs.push({ author: 'Prime', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true, model: data.model_used });
-      if (data.delegation?.needs_approval) {
-        newMsgs.push({ author: 'Prime', author_type: 'agent', content: '⏸ Awaiting your approval to execute. ' + (data.delegation.approval_reason || ''), approval: true });
-      }
       setMessages((m) => [...m, ...newMsgs]);
     } catch (e) {
       setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach Prime') }]);
@@ -213,7 +210,7 @@ export default function UniversalChat({ activeAgents }) {
               </div>
             );
           }
-          const isPrimary = m.primary || m.approval;
+          const isPrimary = m.primary;
           const isUser = m.author_type === 'user';
 
           if (isUser) {
@@ -238,14 +235,14 @@ export default function UniversalChat({ activeAgents }) {
                 {m.author !== 'System' && (
                   <div className="flex items-center gap-2 mb-1">
                     <p className={cn('text-[10px] uppercase tracking-wider font-semibold', isPrimary ? 'text-foreground' : 'text-muted-foreground')}>
-                      {m.author}{m.delegated && ' · delegated'}{m.approval && ' · approval needed'}
+                      {m.author}{m.delegated && ' · delegated'}
                     </p>
                     {m.model && m.model !== 'auto' && (
                       <span className="text-[9px] text-muted-foreground/60 font-mono">{m.model.split('/').pop()}</span>
                     )}
                   </div>
                 )}
-                <div className={cn('text-sm', m.approval && 'bg-amber-500/5 border border-amber-500/30 rounded-xl p-3')}>
+                <div className="text-sm">
                   <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
                 </div>
               </div>
