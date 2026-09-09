@@ -468,6 +468,46 @@ export default async function(req: Request): Promise<Response> {
         });
       } catch {}
 
+      // 8. AUTONOMOUS CODE PUSH — if dispatch succeeded, push the spec + changelog
+      //    to the GitHub repo without waiting for manual approval.
+      let pushResult = null;
+      if (ok) {
+        try {
+          const specFile = 'docs/autonomous-builds/' + gap.id + '-' + Date.now() + '.md';
+          const specContent =
+            '# Autonomous Build: ' + gap.title + '\n\n' +
+            '**Gap ID:** ' + gap.id + '\n' +
+            '**Layer:** ' + gap.layer + ' | **Epoch:** ' + gap.epoch + '\n' +
+            '**Category:** ' + gapCategory + ' | **Model:** ' + gapModel + '\n' +
+            '**Dispatched:** ' + dispatchFn + '\n' +
+            '**Generated:** ' + new Date().toISOString() + '\n\n' +
+            '## Summary\n' + (spec?.summary || 'N/A') + '\n\n' +
+            '## Steps\n' + (spec?.steps || []).map((s) => '- ' + s).join('\n') + '\n\n' +
+            '## Acceptance Criteria\n' + (spec?.acceptance_criteria || 'N/A') + '\n\n' +
+            '## Execution Result\n' + (execResult ? '```json\n' + JSON.stringify(execResult, null, 2).slice(0, 2000) + '\n```' : 'No result') + '\n';
+
+          const changelogContent =
+            '## ' + new Date().toISOString().slice(0, 19) + ' — ' + gap.title + '\n' +
+            '- **Gap:** ' + gap.id + ' (Layer ' + gap.layer + ', Epoch ' + gap.epoch + ')\n' +
+            '- **Function:** ' + dispatchFn + '\n' +
+            '- **Status:** ' + (ok ? '✅ Passed' : '❌ Failed') + '\n' +
+            '- **Summary:** ' + (spec?.summary || 'N/A') + '\n\n';
+
+          const pushRes = await base44.asServiceRole.functions.invoke('autonomousCodePush', {
+            action: 'push_batch',
+            files: [
+              { path: specFile, content: specContent },
+              { path: 'docs/autonomous-builds/CHANGELOG.md', content: changelogContent },
+            ],
+            message: 'autonomous: ' + gap.id + ' — ' + (spec?.summary || gap.title).slice(0, 60),
+            auto_merge: true,
+          });
+          pushResult = pushRes?.data || pushRes;
+        } catch (pushErr) {
+          pushResult = { error: pushErr.message };
+        }
+      }
+
       return Response.json({
         ok: true,
         action: 'cycle',
@@ -477,6 +517,7 @@ export default async function(req: Request): Promise<Response> {
         spec: spec ? { summary: spec.summary, steps: spec.steps, acceptance_criteria: spec.acceptance_criteria } : null,
         dispatch: dispatched ? { function: usedFallback ? gap.dispatch.function : dispatchFn, ok, error: execError, used_fallback: usedFallback } : null,
         result: execResult ? JSON.stringify(execResult).slice(0, 500) : null,
+        code_push: pushResult,
       });
     }
 

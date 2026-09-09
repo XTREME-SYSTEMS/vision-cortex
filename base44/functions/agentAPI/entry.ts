@@ -160,6 +160,35 @@ export default async function(req: Request): Promise<Response> {
       });
     }
 
+    // ── PUSH_CODE: agent autonomously pushes code to the GitHub repo ──
+    if (action === 'push_code') {
+      const agentName = (body?.agent || '').trim();
+      const files = body?.files || [];
+      const message = body?.message || 'Autonomous agent code push';
+      if (!agentName || !files.length) return Response.json({ error: 'agent and files required' }, { status: 400 });
+
+      const agents = await sr.AgentProfile.list('order', 100);
+      const agent = agents.find((a) =>
+        a.name.toLowerCase() === agentName.toLowerCase() ||
+        (a.codename || '').toLowerCase() === agentName.toLowerCase()
+      );
+      if (!agent) return Response.json({ error: 'Agent not found' }, { status: 404 });
+
+      const skills = inferSkills(agent);
+      if (!skills.includes('coding') && !skills.includes('build') && !skills.includes('ops')) {
+        return Response.json({ error: 'Agent does not have code-writing skills', agent: agent.name, skills }, { status: 403 });
+      }
+
+      const pushRes = await base44.asServiceRole.functions.invoke('autonomousCodePush', {
+        action: 'push_batch',
+        files,
+        message: '[' + agent.name + '] ' + message,
+        agent: agent.name,
+        auto_merge: true,
+      });
+      return Response.json({ ok: true, agent: agent.name, push: pushRes?.data || pushRes });
+    }
+
     // ── MANIFEST: return the full agent API manifest for external registration ──
     if (action === 'manifest') {
       const agents = await sr.AgentProfile.list('order', 100);
@@ -176,7 +205,7 @@ export default async function(req: Request): Promise<Response> {
           callable: true,
           travel_enabled: true,
         })),
-        actions: ['list', 'invoke', 'execute', 'manifest'],
+        actions: ['list', 'invoke', 'execute', 'push_code', 'manifest'],
         skill_categories: Object.keys(EXECUTABLE_FUNCTIONS),
       };
       return Response.json({ ok: true, manifest });
