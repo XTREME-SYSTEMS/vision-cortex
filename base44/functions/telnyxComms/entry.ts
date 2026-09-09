@@ -14,14 +14,25 @@ const TELNYX_BASE = 'https://api.telnyx.com/v2';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-
     const body = await req.json().catch(() => ({}));
+
+    // Telnyx webhooks don't carry user auth — allow them through without login
+    const isWebhook = !!(body?.data?.event_type && body?.data?.payload);
+    if (!isWebhook) {
+      const user = await base44.auth.me();
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const apiKey = secrets.get('TELNYX_API_KEY');
+    const headers = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
 
     // ── INBOUND WEBHOOK HANDLING ──
     // Telnyx webhook events have { data: { event_type, payload } } structure
-    if (body?.data?.event_type && body?.data?.payload) {
+    if (isWebhook) {
       const eventType = body.data.event_type;
       const payload = body.data.payload;
 
@@ -99,19 +110,12 @@ export default async function(req) {
 
     const action = body?.action || 'status';
 
-    const apiKey = secrets.get('TELNYX_API_KEY');
     if (!apiKey) {
       return Response.json({
         error: 'TELNYX_API_KEY not set. Add it in Settings → Secrets.',
         configured: false,
       }, { status: 400 });
     }
-
-    const headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
 
     const telnyx = async (method, path, payload = null) => {
       const opts = { method, headers };
