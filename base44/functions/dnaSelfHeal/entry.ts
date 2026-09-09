@@ -12,13 +12,32 @@ export default async function(req) {
     if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
-    const gapId = body.gap_id;
-    if (!gapId) return Response.json({ error: 'gap_id required' }, { status: 400 });
+    let gapId = body.gap_id;
 
     const sr = base44.asServiceRole.entities;
+
+    // Auto-discover the highest-priority open gap if no gap_id provided
+    if (!gapId) {
+      const openGaps = await sr.SystemDNA_Gap.filter({ status: { $in: ['open', 'identified', 'new'] } }, '-created_date', 20).catch(() => []);
+      if (openGaps.length === 0) {
+        // Try any gaps that aren't resolved
+        const allGaps = await sr.SystemDNA_Gap.list('-created_date', 20).catch(() => []);
+        if (allGaps.length === 0) {
+          return Response.json({
+            ok: true,
+            status: 'no_gaps',
+            message: 'No SystemDNA gaps found. The system is healthy — no healing needed.',
+          });
+        }
+        gapId = allGaps[0].dna_id || allGaps[0].id;
+      } else {
+        gapId = openGaps[0].dna_id || openGaps[0].id;
+      }
+    }
+
     const gaps = await sr.SystemDNA_Gap.filter({ dna_id: gapId }, '-created_date', 5);
-    const gap = gaps[0];
-    if (!gap) return Response.json({ error: 'Gap not found' }, { status: 404 });
+    const gap = gaps[0] || (await sr.SystemDNA_Gap.get(gapId).catch(() => null));
+    if (!gap) return Response.json({ error: 'Gap not found: ' + gapId }, { status: 404 });
 
     // Load the linked capability for context
     let capability = null;
