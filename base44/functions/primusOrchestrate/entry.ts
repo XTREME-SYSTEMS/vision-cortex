@@ -355,6 +355,50 @@ export default async function (req) {
       detail: JSON.stringify({ plan: plan.plan, agent_count: agentOutputs.length }),
     });
 
+    // ── AUTO-VALIDATION: automatically review the response when functions were executed ──
+    let autoValidation = null;
+    if (executionResults.length > 0) {
+      try {
+        const validationPrompt =
+          'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime\'s response and execution below. Do not rubber-stamp.\n\n' +
+          'Prime\'s response:\n"""' + primusReply + '"""\n\n' +
+          'Execution results:\n' + executionResults.map((r) => r.function + ': ' + (r.ok ? '✓ ' + r.result : '✗ ' + r.error)).join('\n') + '\n\n' +
+          'Respond ONLY with JSON:\n' +
+          '{\n' +
+          '  "verdict": "APPROVED" | "APPROVED_WITH_NOTES" | "REJECTED",\n' +
+          '  "risks": ["..."],\n' +
+          '  "fixes": ["..."],\n' +
+          '  "reasoning": "one or two sentences"\n' +
+          '}';
+        const validationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
+          prompt: validationPrompt,
+          response_json_schema: {
+            type: 'object',
+            properties: {
+              verdict: { type: 'string' },
+              risks: { type: 'array', items: { type: 'string' } },
+              fixes: { type: 'array', items: { type: 'string' } },
+              reasoning: { type: 'string' },
+            },
+          },
+        });
+        autoValidation = validationRes || null;
+        // Only surface validation if there are actual risks (don't clutter APPROVED with no notes)
+        if (autoValidation && autoValidation.verdict === 'APPROVED' && (!autoValidation.risks || autoValidation.risks.length === 0)) {
+          autoValidation = null;
+        }
+        if (autoValidation) {
+          await base44.asServiceRole.entities.AgentLog.create({
+            agent_name: 'VALIDATOR',
+            category: 'validation',
+            level: autoValidation.verdict === 'REJECTED' ? 'error' : 'info',
+            message: 'Auto-validation: ' + autoValidation.verdict,
+            detail: JSON.stringify({ verdict: autoValidation.verdict, risks: autoValidation.risks }),
+          });
+        }
+      } catch {}
+    }
+
     return Response.json({
       reply: primusReply,
       agent: 'Prime',
@@ -368,6 +412,7 @@ export default async function (req) {
       },
       execution_results: executionResults,
       agent_outputs: agentOutputs.map((o) => ({ agent: o.agent, message: o.text, accent: o.accent })),
+      validation: autoValidation,
     });
   } catch (error) {
     return Response.json({ error: error.message || 'Orchestration failed' }, { status: 500 });

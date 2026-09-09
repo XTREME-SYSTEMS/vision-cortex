@@ -88,6 +88,9 @@ export default function UniversalChat({ activeAgents }) {
         );
         newMsgs.push({ author: 'Swarm', author_type: 'agent', content: 'Executed ' + data.execution_results.length + ' function call(s):\n\n' + execLines.join('\n\n'), execution: true });
       }
+      if (data.validation) {
+        newMsgs.push({ author: 'VALIDATOR', author_type: 'agent', content: data.validation, validation: true });
+      }
       setMessages((m) => [...m, ...newMsgs]);
     } catch (e) {
       setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach Prime') }]);

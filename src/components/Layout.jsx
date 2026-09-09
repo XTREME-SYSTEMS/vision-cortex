@@ -217,6 +217,18 @@ export default function Layout() {
             <UniversalChat activeAgents={[]} />
           </div>
 
+          {/* Floating chat quick-button — visible on all non-home pages */}
+          {!isHome && (
+            <button
+              onClick={goHome}
+              className="fixed bottom-5 right-5 z-[55] flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-3 shadow-lg hover:scale-105 transition-transform"
+              title="Back to chat"
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-sm font-medium pr-1">Chat</span>
+            </button>
+          )}
+
           {/* Overlay: page — full-screen on mobile, in-flow on desktop */}
           {!isHome && (
             <div className="fixed inset-0 z-50 bg-background flex flex-col md:absolute md:inset-0 md:z-auto">
