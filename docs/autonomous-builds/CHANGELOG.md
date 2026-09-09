@@ -1,6 +1,6 @@
-## 2026-09-09T09:40:32 — Core infrastructure connectors authorized
+## 2026-09-09T09:50:57 — Core infrastructure connectors authorized
 - **Gap:** L1_connectors (Layer 1, Epoch 1)
 - **Function:** appManagementSync
 - **Status:** ✅ Passed
-- **Summary:** Build a unified Google Workspace connector service that validates and health-checks the authorized Drive, Calendar, Gmail, Sheets, Tasks, and Search Console integrations under the Discover layer.
+- **Summary:** Build a unified Google Workspace connector health-check and sync orchestrator that validates and refreshes all authorized core infrastructure connectors (Drive, Calendar, Gmail, Sheets, Tasks, Search Console).
 
