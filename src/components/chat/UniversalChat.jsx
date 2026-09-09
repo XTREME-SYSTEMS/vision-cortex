@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap, Hammer } from 'lucide-react';
+import { Send, Loader2, Bot, AlertCircle, ShieldCheck, AlertTriangle, Paperclip, X, Lightbulb, Mic, MicOff, Phone, Plus, ChevronDown, Check, Zap, Hammer, Terminal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VoiceChat from '@/components/chat/VoiceChat';
 import AutoBuildModal from '@/components/chat/AutoBuildModal';
@@ -82,6 +82,12 @@ export default function UniversalChat({ activeAgents }) {
         }
       }
       newMsgs.push({ author: 'Prime', author_type: 'agent', content: data.reply, accent: 'foreground', primary: true, model: data.model_used });
+      if (data.execution_results?.length > 0) {
+        const execLines = data.execution_results.map((r) =>
+          (r.ok ? '✓ ' : '✗ ') + r.function + (r.ok ? ': ' + (r.result || '').slice(0, 200) : ': ' + r.error)
+        );
+        newMsgs.push({ author: 'Swarm', author_type: 'agent', content: 'Executed ' + data.execution_results.length + ' function call(s):\n\n' + execLines.join('\n\n'), execution: true });
+      }
       setMessages((m) => [...m, ...newMsgs]);
     } catch (e) {
       setMessages((m) => [...m, { author: 'System', author_type: 'agent', content: 'Error: ' + (e.message || 'Failed to reach Prime') }]);
@@ -212,6 +218,20 @@ export default function UniversalChat({ activeAgents }) {
           }
           const isPrimary = m.primary;
           const isUser = m.author_type === 'user';
+
+          if (m.execution) {
+            return (
+              <div key={i} className="flex gap-2.5 justify-start">
+                <div className="w-7 h-7 rounded-full bg-emerald-500/15 grid place-items-center shrink-0 mt-0.5">
+                  <Terminal className="w-3.5 h-3.5 text-emerald-500" />
+                </div>
+                <div className="max-w-[80%] rounded-2xl px-3.5 py-2 text-xs border border-emerald-500/30 bg-emerald-500/5">
+                  <p className="text-[10px] uppercase tracking-wider mb-1 font-semibold text-emerald-500">Swarm Execution</p>
+                  <pre className="whitespace-pre-wrap font-mono text-[11px] text-foreground/80 leading-relaxed">{m.content}</pre>
+                </div>
+              </div>
+            );
+          }
 
           if (isUser) {
             return (
