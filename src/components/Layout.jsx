@@ -36,6 +36,7 @@ const navGroups = [
       { to: '/sim', label: 'Ops Floor', icon: Activity },
       { to: '/swarms', label: 'Swarms', icon: Network },
       { to: '/swarm-performance', label: 'Swarm Performance', icon: Gauge },
+      { to: '/swarm-matrix', label: 'Swarm Matrix', icon: Target },
       { to: '/preflight', label: 'Pre-Flight', icon: Activity },
       { to: '/registry', label: 'System Registry', icon: ListChecks },
       { to: '/vision', label: 'Vision', icon: Radar },
