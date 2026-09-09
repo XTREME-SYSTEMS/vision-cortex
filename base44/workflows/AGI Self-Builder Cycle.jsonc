@@ -1,4 +1,23 @@
 {
+  "name": "AGI Self-Builder Cycle",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "*/5 * * * *",
+      "one_time_date": null,
+      "timezone": "America/New_York",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "description": "Autonomously builds Vision Cortex against the AGI Architecture Blueprint \u2014 audits the system, finds the next gap, retrieves RAG context, generates a spec with the best model for the category, and dispatches real code/build work to close it. Runs every 5 minutes.",
   "definition": {
     "document": {
       "dsl": "1.0.0",
@@ -16,32 +35,29 @@
               "action": "cycle"
             }
           },
-          "then": "end",
+          "then": "ml_learn",
           "x-base44": {
             "title": "AGI self-build cycle",
-            "description": "Audit blueprint + dispatch next gap"
+            "description": "Audit blueprint + RAG + dispatch next gap"
+          }
+        }
+      },
+      {
+        "ml_learn": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "mlFeedbackEngine",
+            "args": {
+              "action": "learn"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "ML feedback loop",
+            "description": "Auto-tune models per category"
           }
         }
       }
     ]
-  },
-  "description": "Autonomously builds Vision Cortex against the AGI Architecture Blueprint \u2014 audits the system, finds the next gap, generates a spec, and dispatches real code/build work to close it. Runs every 6 hours.",
-  "trigger": {
-    "condition": null,
-    "config": {
-      "trigger_type": "scheduled",
-      "events": [],
-      "schedule_mode": "recurring",
-      "cron_expression": "0 */6 * * *",
-      "one_time_date": null,
-      "timezone": "America/New_York",
-      "interval_value": null,
-      "interval_unit": null,
-      "interval_anchor": null,
-      "ends_type": "never",
-      "ends_on_date": null,
-      "ends_after_count": null
-    }
-  },
-  "name": "AGI Self-Builder Cycle"
+  }
 }

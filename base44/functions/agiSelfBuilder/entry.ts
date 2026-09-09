@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { bestModelForCategory, categoryForLayer } from '../../shared/bestModels.ts';
 
 // ============================================================================
 // agiSelfBuilder — The autonomous loop that turns the AGI Architecture
@@ -317,13 +318,29 @@ export default async function(req: Request): Promise<Response> {
         });
       }
 
-      // 3. Generate a precise implementation spec for the gap
+      // 3. RAG: retrieve relevant context from the knowledge base
+      const gapCategory = categoryForLayer(gap.layer);
+      const gapModel = bestModelForCategory(gapCategory);
+      let ragContext = '';
+      try {
+        const ragRes = await base44.asServiceRole.functions.invoke('ragRetrieval', {
+          action: 'retrieve',
+          query: gap.title + ' ' + gap.description,
+          category: gapCategory,
+          top_k: 5,
+        });
+        const ragData = ragRes?.data || ragRes;
+        if (ragData?.context) ragContext = ragData.context;
+      } catch {}
+
+      // 4. Generate a precise implementation spec for the gap (best model + RAG)
       const specPrompt =
         'You are the AGI Self-Builder, the autonomous code-generation arm of Vision Cortex. ' +
         'A gap has been found in the system architecture.\n\n' +
         'Gap: ' + gap.title + '\n' +
         'Description: ' + gap.description + '\n' +
-        'Layer: ' + gap.layer + ' | Epoch: ' + gap.epoch + '\n\n' +
+        'Layer: ' + gap.layer + ' | Epoch: ' + gap.epoch + ' | Category: ' + gapCategory + '\n\n' +
+        (ragContext ? 'Relevant knowledge from the system memory:\n"""\n' + ragContext + '\n"""\n\nUse this context to ground your spec in what already exists.\n\n' : '') +
         'Generate a precise, actionable implementation spec as JSON:\n' +
         '{\n' +
         '  "summary": "one sentence on what to build/fix",\n' +
@@ -337,6 +354,7 @@ export default async function(req: Request): Promise<Response> {
       try {
         spec = await base44.asServiceRole.integrations.Core.InvokeLLM({
           prompt: specPrompt,
+          model: gapModel,
           response_json_schema: {
             type: 'object',
             properties: {
@@ -438,10 +456,24 @@ export default async function(req: Request): Promise<Response> {
         });
       } catch {}
 
+      // 7. ML feedback: record the outcome so mlFeedbackEngine can learn
+      try {
+        await sr.AgentLog.create({
+          agent_name: 'PRIMUS',
+          category: 'ml_feedback',
+          level: ok ? 'success' : 'warn',
+          message: 'ML sample: ' + gapCategory + ' / ' + gapModel + ' → ' + (ok ? 'success' : 'failure'),
+          detail: JSON.stringify({ gap: gap.id, category: gapCategory, model: gapModel, function: dispatchFn, ok, rag_used: !!ragContext }).slice(0, 300),
+          auto_action: 'ml_sample',
+        });
+      } catch {}
+
       return Response.json({
         ok: true,
         action: 'cycle',
-        gap: { id: gap.id, title: gap.title, layer: gap.layer, epoch: gap.epoch },
+        gap: { id: gap.id, title: gap.title, layer: gap.layer, epoch: gap.epoch, category: gapCategory },
+        model_used: gapModel,
+        rag_context_chunks: ragContext ? ragContext.split('---').length : 0,
         spec: spec ? { summary: spec.summary, steps: spec.steps, acceptance_criteria: spec.acceptance_criteria } : null,
         dispatch: dispatched ? { function: usedFallback ? gap.dispatch.function : dispatchFn, ok, error: execError, used_fallback: usedFallback } : null,
         result: execResult ? JSON.stringify(execResult).slice(0, 500) : null,
