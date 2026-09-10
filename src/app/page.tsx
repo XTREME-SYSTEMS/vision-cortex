@@ -1,87 +1,130 @@
-import { supabase } from '@/lib/supabase'
-import { Activity, Bot, Database, MessageSquare, Zap, Globe } from 'lucide-react'
+'use client'
 
-async function getStats() {
-  try {
-    const [ideas, agents, logs, messages, intel, pipelines] = await Promise.all([
-      supabase.from('ideas').select('*', { count: 'exact', head: true }),
-      supabase.from('agent_profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('agent_logs').select('*', { count: 'exact', head: true }),
-      supabase.from('chat_messages').select('*', { count: 'exact', head: true }),
-      supabase.from('intel_feed').select('*', { count: 'exact', head: true }),
-      supabase.from('vision_pipelines').select('*', { count: 'exact', head: true }),
-    ])
-    return {
-      ideas: ideas.count || 0,
-      agents: agents.count || 0,
-      logs: logs.count || 0,
-      messages: messages.count || 0,
-      intel: intel.count || 0,
-      pipelines: pipelines.count || 0,
+import { useState, useEffect } from 'react'
+import { supabase, insertRow } from '@/lib/supabase'
+import { Plus, Search, MoreVertical, Globe, Database, Zap, Settings, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
+
+export default function DashboardPage() {
+  const [apps, setApps] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreate, setShowCreate] = useState(false)
+  const [newAppName, setNewAppName] = useState('')
+  const [newAppDesc, setNewAppDesc] = useState('')
+  const [search, setSearch] = useState('')
+
+  const loadApps = async () => {
+    setLoading(true)
+    try {
+      const { data } = await supabase.from('ideas').select('*').order('created_at', { ascending: false }).limit(50)
+      setApps(data || [])
+    } catch {
+      setApps([])
+    } finally {
+      setLoading(false)
     }
-  } catch {
-    return { ideas: 0, agents: 0, logs: 0, messages: 0, intel: 0, pipelines: 0 }
   }
-}
 
-export default async function DashboardPage() {
-  const stats = await getStats()
-  const cards = [
-    { label: 'Ideas', value: stats.ideas, icon: Zap, color: 'text-yellow-500' },
-    { label: 'Agents', value: stats.agents, icon: Bot, color: 'text-blue-500' },
-    { label: 'Agent Logs', value: stats.logs, icon: Activity, color: 'text-green-500' },
-    { label: 'Chat Messages', value: stats.messages, icon: MessageSquare, color: 'text-purple-500' },
-    { label: 'Intel Items', value: stats.intel, icon: Globe, color: 'text-orange-500' },
-    { label: 'Pipelines', value: stats.pipelines, icon: Database, color: 'text-cyan-500' },
-  ]
+  useEffect(() => { loadApps() }, [])
+
+  const createApp = async () => {
+    if (!newAppName.trim()) return
+    try {
+      const app = await insertRow('ideas', {
+        title: newAppName,
+        one_liner: newAppDesc,
+        stage: 'discovered',
+        discovered_by: 'user',
+      })
+      setShowCreate(false)
+      setNewAppName('')
+      setNewAppDesc('')
+      window.location.href = `/app/${app.id}`
+    } catch (e) {
+      alert('Failed to create app: ' + (e instanceof Error ? e.message : 'unknown'))
+    }
+  }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Vision Cortex — Autonomous AI Business Operating System</p>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {cards.map(card => (
-          <div key={card.label} className="bg-secondary/30 border border-border rounded-xl p-4">
-            <card.icon className={`w-6 h-6 ${card.color} mb-2`} />
-            <div className="text-2xl font-bold">{card.value}</div>
-            <div className="text-xs text-muted-foreground">{card.label}</div>
+    <div className="min-h-screen">
+      {/* Top Bar */}
+      <header className="flex items-center justify-between px-6 py-3 border-b border-zinc-800">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span className="font-bold text-lg">Base44</span>
+          <span className="text-xs text-zinc-500 ml-2">AI App Builder</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowCreate(true)} className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+            <Plus className="w-4 h-4" /> New App
+          </button>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">U</div>
+        </div>
+      </header>
+
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">Your Apps</h1>
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search apps..."
+              className="pl-9 pr-4 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-sm focus:outline-none focus:border-indigo-600 w-64" />
           </div>
-        ))}
+        </div>
+
+        {loading ? (
+          <div className="text-center py-20 text-zinc-500">Loading your apps...</div>
+        ) : apps.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-900 flex items-center justify-center mx-auto mb-4">
+              <Plus className="w-8 h-8 text-zinc-600" />
+            </div>
+            <h3 className="text-lg font-semibold mb-1">No apps yet</h3>
+            <p className="text-zinc-500 text-sm mb-4">Create your first AI-powered app</p>
+            <button onClick={() => setShowCreate(true)} className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">Create App</button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {apps.filter(a => !search || a.title?.toLowerCase().includes(search.toLowerCase())).map(app => (
+              <Link key={app.id} href={`/app/${app.id}`}
+                className="group bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 hover:border-indigo-600 transition-colors">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                    {app.title?.[0]?.toUpperCase() || 'A'}
+                  </div>
+                  <MoreVertical className="w-4 h-4 text-zinc-600 opacity-0 group-hover:opacity-100" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1 truncate">{app.title}</h3>
+                <p className="text-xs text-zinc-500 line-clamp-2">{app.one_liner || 'No description'}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <span className="text-xs px-2 py-0.5 bg-zinc-800 rounded-full text-zinc-400">{app.stage || 'draft'}</span>
+                  <span className="text-xs text-zinc-600">{new Date(app.created_at).toLocaleDateString()}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
-      <div className="mt-8 grid grid-cols-2 gap-4">
-        <div className="bg-secondary/30 border border-border rounded-xl p-6">
-          <h3 className="font-semibold mb-2">System Status</h3>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Supabase</span>
-              <span className="text-green-500">● Connected</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">AI Gateway</span>
-              <span className="text-green-500">● Active</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Railway Workers</span>
-              <span className="text-green-500">● Running</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">GitHub</span>
-              <span className="text-green-500">● Synced</span>
+
+      {/* Create Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" onClick={() => setShowCreate(false)}>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Create New App</h2>
+            <div className="space-y-3">
+              <input value={newAppName} onChange={(e) => setNewAppName(e.target.value)} placeholder="App name (e.g. Task Manager)"
+                className="w-full px-4 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-sm focus:outline-none focus:border-indigo-600" />
+              <textarea value={newAppDesc} onChange={(e) => setNewAppDesc(e.target.value)} placeholder="Describe what it does..." rows={3}
+                className="w-full px-4 py-2.5 bg-zinc-800 border border-zinc-700 rounded-lg text-sm focus:outline-none focus:border-indigo-600 resize-none" />
+              <div className="flex gap-2 pt-2">
+                <button onClick={() => setShowCreate(false)} className="flex-1 py-2.5 bg-zinc-800 rounded-lg text-sm hover:bg-zinc-700">Cancel</button>
+                <button onClick={createApp} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">Create</button>
+              </div>
             </div>
           </div>
         </div>
-        <div className="bg-secondary/30 border border-border rounded-xl p-6">
-          <h3 className="font-semibold mb-2">Quick Actions</h3>
-          <div className="space-y-2">
-            <a href="/chat" className="block text-sm text-primary hover:underline">→ Open AI Chat</a>
-            <a href="/builder" className="block text-sm text-primary hover:underline">→ System Generator</a>
-            <a href="/entities" className="block text-sm text-primary hover:underline">→ Manage Entities</a>
-            <a href="/clone" className="block text-sm text-primary hover:underline">→ Clone Factory</a>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
