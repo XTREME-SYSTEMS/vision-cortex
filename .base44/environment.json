@@ -1,0 +1,32 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_URL",
+      "description": "Supabase project URL (https://<project>.supabase.co) from Supabase dashboard > Project Settings > API",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "description": "Supabase anon/public key from Supabase dashboard > Project Settings > API",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "description": "Supabase service_role key (server-only, never exposed to the browser) from Supabase dashboard > Project Settings > API",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "AI_GATEWAY_API_KEY",
+      "description": "API key for the AI gateway used by the chat feature (defaults to https://ai-gateway.vercel.sh/v1). Optional — only needed to use the in-app chat.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_AI_GATEWAY_URL",
+      "description": "Optional custom AI gateway base URL (defaults to https://ai-gateway.vercel.sh/v1).",
+      "requiredAtBoot": false
+    }
+  ]
+}
