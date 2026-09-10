@@ -17,6 +17,7 @@ import KanbanBoard from '@/components/dashboard/KanbanBoard';
 import AutoRunStatus from '@/components/dashboard/AutoRunStatus';
 import SwarmProgressTimeline from '@/components/dashboard/SwarmProgressTimeline';
 import GoogleCalendarEmbed from '@/components/GoogleCalendarEmbed';
+import CreditFreeLoopPanel from '@/components/dashboard/CreditFreeLoopPanel';
 
 export default function Dashboard() {
   const [ideas, setIdeas] = useState(null);
@@ -62,6 +63,10 @@ export default function Dashboard() {
       </div>
 
       <AutoRunStatus />
+
+      <div className="rounded-2xl border border-border/60 bg-card p-4">
+        <CreditFreeLoopPanel />
+      </div>
 
       <SwarmProgressTimeline />
 

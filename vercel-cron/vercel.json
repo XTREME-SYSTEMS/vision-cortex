@@ -1,16 +1,12 @@
 {
   "crons": [
     {
-      "path": "/api/heartbeat",
-      "schedule": "*/10 * * * *"
-    },
-    {
-      "path": "/api/swarm-discover",
+      "path": "/api/deep-cycle",
       "schedule": "*/5 * * * *"
     },
     {
-      "path": "/api/autonomous-loop",
-      "schedule": "0 */2 * * *"
+      "path": "/api/status",
+      "schedule": "*/2 * * * *"
     }
   ]
 }
