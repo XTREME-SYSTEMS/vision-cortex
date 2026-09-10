@@ -1,38 +1,39 @@
+'use client'
+
 import { create } from 'zustand'
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  model?: string
-  timestamp: string
-  actions?: any[]
+interface AppState {
+  currentApp: any | null
+  currentView: 'pages' | 'entities' | 'functions' | 'workflows' | 'settings' | 'chat' | 'deploy'
+  selectedItem: any | null
+  setApp: (app: any) => void
+  setView: (view: AppState['currentView']) => void
+  setSelected: (item: any) => void
 }
 
-interface ChatStore {
-  messages: Message[]
+export const useAppStore = create<AppState>((set) => ({
+  currentApp: null,
+  currentView: 'pages',
+  selectedItem: null,
+  setApp: (app) => set({ currentApp: app }),
+  setView: (view) => set({ currentView: view, selectedItem: null }),
+  setSelected: (item) => set({ selectedItem: item }),
+}))
+
+interface ChatState {
+  messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; model?: string }>
   isStreaming: boolean
-  selectedModel: string
-  sidebarOpen: boolean
-  addMessage: (msg: Message) => void
-  updateMessage: (id: string, updates: Partial<Message>) => void
-  clearMessages: () => void
+  addMessage: (msg: any) => void
+  updateMessage: (id: string, updates: any) => void
+  clear: () => void
   setStreaming: (v: boolean) => void
-  setModel: (m: string) => void
-  toggleSidebar: () => void
 }
 
-export const useChatStore = create<ChatStore>((set) => ({
+export const useChat = create<ChatState>((set) => ({
   messages: [],
   isStreaming: false,
-  selectedModel: 'auto',
-  sidebarOpen: true,
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
-  updateMessage: (id, updates) => set((s) => ({
-    messages: s.messages.map((m) => m.id === id ? { ...m, ...updates } : m)
-  })),
-  clearMessages: () => set({ messages: [] }),
+  updateMessage: (id, updates) => set((s) => ({ messages: s.messages.map((m) => m.id === id ? { ...m, ...updates } : m) })),
+  clear: () => set({ messages: [] }),
   setStreaming: (v) => set({ isStreaming: v }),
-  setModel: (m) => set({ selectedModel: m }),
-  toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
 }))
