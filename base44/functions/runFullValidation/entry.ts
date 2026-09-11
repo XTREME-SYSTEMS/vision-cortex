@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const SUPABASE_URL = () => (secrets.get('SUPABASE_URL') || '').replace(/\/$/, '');
 const SUPABASE_KEY = () => secrets.get('SUPABASE_SERVICE_ROLE_KEY') || '';

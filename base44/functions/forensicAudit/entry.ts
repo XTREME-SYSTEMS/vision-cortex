@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // forensicAudit — cross-references the user's simulation results and life plan
 // against their vision statement, highlighting exactly where choices drift from

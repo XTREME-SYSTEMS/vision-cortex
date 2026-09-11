@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // dispatchToBuilder — BRAIN → HANDS bridge.
 // Takes an approved Idea from Vision Cortex (the brain) and POSTs it to the

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // ============================================================================
 // UNIFIED SYSTEM CORE — The unified memory, intelligence, and communication

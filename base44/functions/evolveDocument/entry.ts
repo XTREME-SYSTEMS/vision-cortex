@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Document Evolution Cascade Engine
 // When a CoreDocument changes, this function finds all dependent documents
@@ -12,13 +11,13 @@ import { secrets } from 'base44:runtime';
 // A rate limit on Groq no longer halts the document evolution cascade.
 // ============================================================================
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'openai/gpt-oss-120b';
+const GROQ_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
+const GROQ_MODEL = 'google/gemini-3-flash';
 
 async function routeLLM(prompt, systemContext, base44Client, jsonMode) {
   // Provider 1: Groq (fastest, cheapest)
   try {
-    const key = secrets.get('GROQ_API_KEY');
+    const key = secrets.get('AI_GATEWAY_API_KEY');
     if (key) {
       const body = {
         model: GROQ_MODEL,

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 const str = (v, max) => String(v ?? '').slice(0, max);
 

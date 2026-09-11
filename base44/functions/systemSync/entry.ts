@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Bi-directional sync endpoint for all connected systems.
 // Other apps authenticate with VISION_CORTEX_EYES_API_KEY and use actions:

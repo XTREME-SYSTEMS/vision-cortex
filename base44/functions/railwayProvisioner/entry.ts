@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const RAILWAY_GRAPHQL_URL = 'https://backboard.railway.com/graphql/v2';
 
@@ -33,33 +32,14 @@ export default async function(req) {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json();
     const { projectName, githubRepoUrl, branch, environmentVariables, projectId: existingProjectId } = body;
-    const action = body.action || 'provision';
+
+    if (!projectName || !githubRepoUrl) {
+      return Response.json({ error: 'projectName and githubRepoUrl are required' }, { status: 400 });
+    }
 
     const token = secrets.get('RAILWAY_TOKEN') || secrets.get('RAILWAY_MANAGEMENT_TOKEN');
-
-    // STATUS action — return current Railway state
-    if (action === 'status' || !projectName || !githubRepoUrl) {
-      if (!token) {
-        return Response.json({
-          ok: true,
-          action: 'status',
-          configured: false,
-          message: 'No Railway token set. Add RAILWAY_TOKEN in Settings → Secrets to provision services.',
-          simulated: true,
-        });
-      }
-      const projects = await railwayFetch(token, `
-        query { projects { edges { node { id name } } } }
-      `, {});
-      return Response.json({
-        ok: true,
-        action: 'status',
-        configured: true,
-        projects: projects?.projects?.edges?.map(e => ({ id: e.node.id, name: e.node.name })) || [],
-      });
-    }
 
     // Fallback to simulation mode if token is missing
     if (!token) {

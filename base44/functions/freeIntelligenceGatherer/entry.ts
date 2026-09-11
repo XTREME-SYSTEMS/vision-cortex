@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+import {createClientFromRequest, secrets} from '../../runtime/index';
 
 const SYSTEM_PROMPT = `You are the OBSESSIVE INTELLIGENCE SEEKER — the core archetype of Vision Cortex. Your nature is to relentlessly seek, gather, validate, and distribute intelligence.
 
@@ -140,21 +140,21 @@ async function fetchUrlContent(url) {
 
 // --- FREE LLM via Groq (Llama 3.3 70B) ---
 async function synthesizeWithGroq(prompt) {
-  const apiKey = Deno.env.get('GROQ_API_KEY');
+  const apiKey = secrets.get('AI_GATEWAY_API_KEY');
   if (!apiKey) {
-    console.error('GROQ_API_KEY not set');
+    console.error('AI_GATEWAY_API_KEY not set');
     return null;
   }
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-120b',
+        model: 'google/gemini-3-flash',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: prompt },
@@ -265,7 +265,7 @@ Synthesize a comprehensive, deeply detailed, multi-perspective answer using this
         const llmRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
           prompt: `${SYSTEM_PROMPT}\n\n${prompt}`,
           add_context_from_internet: true,
-          model: 'gemini_3_flash',
+          model: 'google/gemini-3-flash',
         });
         answer = typeof llmRes === 'string' ? llmRes : llmRes?.response || '';
         method = 'base44_fallback';

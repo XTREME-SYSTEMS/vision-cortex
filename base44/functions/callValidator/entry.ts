@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 import { COMPANY_BY_NUMBER } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================

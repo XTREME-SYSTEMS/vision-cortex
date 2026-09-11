@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { browseSession, str } from '../../shared/cloudBrowser.ts';
 
 // Covert browse: drives the cloud browser, returns content ONLY to the caller.

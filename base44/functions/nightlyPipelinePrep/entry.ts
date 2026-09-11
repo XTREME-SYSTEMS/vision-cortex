@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { buildRoster } from '../../shared/councilDebate.ts';
 
 // Nightly ritual: reads the owner's vision statement + recent ideas, has the

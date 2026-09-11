@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Full API Key lifecycle management:
 // generate, list, revoke, rotate, update, delete, log_usage

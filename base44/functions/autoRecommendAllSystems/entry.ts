@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // autoRecommendAllSystems — persistent gap generation with implementation code.
 // Scans all systems, identifies what's missing, generates recommendations WITH

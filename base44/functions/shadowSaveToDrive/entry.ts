@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowSaveToDrive — saves a Shadow agent method's architecture and strategy
 // playbook to a dedicated "Vision Cortex Shadow" folder in Google Drive as a

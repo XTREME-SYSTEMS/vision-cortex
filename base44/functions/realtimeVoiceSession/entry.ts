@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Vercel AI Gateway — highest realtime model: openai/gpt-realtime-2.1
 const GATEWAY_BASE = 'https://ai-gateway.vercel.sh';

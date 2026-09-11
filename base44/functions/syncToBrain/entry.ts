@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Eyes → Brain push: sends scored intelligence items to the Brain (V-1) app.
 // The Brain receives these at /functions/syncFromEyes with header x-eyes-api-key.

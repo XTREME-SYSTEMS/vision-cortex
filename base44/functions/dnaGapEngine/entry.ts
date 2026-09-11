@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // dnaGapEngine — scans capabilities + requirements and creates SystemDNA_Gap
 // records for anything below the benchmark bar. Deduplicates against existing

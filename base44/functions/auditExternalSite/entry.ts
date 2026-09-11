@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // auditExternalSite — monitors an external deployed site + its GitHub repo.
 // Modes: audit | fix | heal | optimize | enhance

@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // ============================================================================
 // telnyxComms — Direct Telnyx API integration for Vision Cortex
@@ -14,108 +13,25 @@ const TELNYX_BASE = 'https://api.telnyx.com/v2';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await req.json().catch(() => ({}));
-
-    // Telnyx webhooks don't carry user auth — allow them through without login
-    const isWebhook = !!(body?.data?.event_type && body?.data?.payload);
-    if (!isWebhook) {
-      const user = await base44.auth.me();
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const apiKey = secrets.get('TELNYX_API_KEY');
-    const headers = {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-
-    // ── INBOUND WEBHOOK HANDLING ──
-    // Telnyx webhook events have { data: { event_type, payload } } structure
-    if (isWebhook) {
-      const eventType = body.data.event_type;
-      const payload = body.data.payload;
-
-      // Handle inbound SMS/MMS
-      if (eventType === 'message.received' || eventType === 'message.finalized') {
-        const from = payload.from?.phone_number || payload.from;
-        const to = payload.to?.phone_number || payload.to;
-        const text = payload.text || '';
-        const media = payload.media || [];
-
-        // Log the inbound message
-        await base44.asServiceRole.entities.AgentLog.create({
-          agent_name: 'PRIMUS',
-          category: 'inbound_message',
-          level: 'info',
-          message: `Inbound ${eventType} from ${from} to ${to}: ${text?.slice(0, 200) || '(media)'}`,
-          detail: JSON.stringify({ from, to, text: text?.slice(0, 500), media_count: media?.length || 0 }),
-          auto_action: 'inbound_sms',
-        }).catch(() => {});
-
-        // Trigger the swarm to process the inbound message
-        base44.asServiceRole.functions.invoke('primusOrchestrate', {
-          message: `Inbound message from ${from}: "${text}". Process this lead/response appropriately.`,
-          auto: true,
-        }).catch(() => {});
-
-        return Response.json({ ok: true, event: eventType, processed: true });
-      }
-
-      // Handle inbound voice calls
-      if (eventType === 'call.initiated') {
-        const from = payload.from?.phone_number || payload.from;
-        const to = payload.to?.phone_number || payload.to;
-        const callControlId = payload.call_control_id;
-
-        await base44.asServiceRole.entities.AgentLog.create({
-          agent_name: 'PRIMUS',
-          category: 'inbound_call',
-          level: 'info',
-          message: `Inbound call from ${from} to ${to}`,
-          detail: JSON.stringify({ from, to, call_control_id }),
-          auto_action: 'inbound_call',
-        }).catch(() => {});
-
-        // Answer the call
-        if (callControlId) {
-          await fetch(`${TELNYX_BASE}/calls/${callControlId}/actions/answer`, {
-            method: 'POST', headers,
-            body: JSON.stringify({}),
-          }).catch(() => {});
-        }
-
-        return Response.json({ ok: true, event: eventType, processed: true });
-      }
-
-      // Handle call answered
-      if (eventType === 'call.answered') {
-        const callControlId = payload.call_control_id;
-        // Start AI conversation using gather_using_ai
-        if (callControlId) {
-          await fetch(`${TELNYX_BASE}/calls/${callControlId}/actions/gather_using_ai`, {
-            method: 'POST', headers,
-            body: JSON.stringify({
-              greeting: 'Hello, this is Vision Cortex. How can I help you today?',
-              parameters: { type: 'object', properties: { intent: { type: 'string' } }, required: ['intent'] },
-            }),
-          }).catch(() => {});
-        }
-        return Response.json({ ok: true, event: eventType, processed: true });
-      }
-
-      // Default: acknowledge any other webhook event
-      return Response.json({ ok: true, event: eventType, acknowledged: true });
-    }
-
     const action = body?.action || 'status';
 
+    const apiKey = secrets.get('TELNYX_API_KEY');
     if (!apiKey) {
       return Response.json({
         error: 'TELNYX_API_KEY not set. Add it in Settings → Secrets.',
         configured: false,
       }, { status: 400 });
     }
+
+    const headers = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
 
     const telnyx = async (method, path, payload = null) => {
       const opts = { method, headers };

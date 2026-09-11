@@ -1,0 +1,15 @@
+{
+  "name": "visioncortex-worker",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node dist/worker.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  }
+}

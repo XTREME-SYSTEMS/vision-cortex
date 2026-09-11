@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 import { getNextFromNumber } from "../../shared/telnyxHelpers.ts";
 
 // ============================================================================
@@ -73,27 +72,6 @@ Return JSON: {"script": "the full call script", "voicemail": "short voicemail if
 
   switch (action) {
 
-    // ── TEST CALL — verify voice system works ──────────────────
-    case 'test_call': {
-      const { to, from: fromArg } = body;
-      const from = fromArg || getNextFromNumber();
-      const toNum = normalizePhone(to) || normalizePhone('+18337001239'); // fallback to our own number
-      if (!toNum) return Response.json({ error: 'No valid destination number' }, { status: 400 });
-
-      const r = await fetch(`${TELNYX_BASE}/calls`, {
-        method: 'POST', headers: telnyxHeaders,
-        body: JSON.stringify({ to: toNum, from, timeout_secs: 30 }),
-      });
-      const data = await r.json().catch(() => ({}));
-      return Response.json({
-        ok: r.ok,
-        call_id: data?.data?.id,
-        call_control_id: data?.data?.call_control_id,
-        is_alive: data?.data?.is_alive,
-        error: r.ok ? null : (data?.errors?.[0]?.detail || 'Call failed'),
-      });
-    }
-
     // ── START CALL CAMPAIGN ───────────────────────────────────
     case 'start_campaign': {
       const { campaign_id, from: fromArg, max_calls = 100, contact_ids = [], webhook_url } = body;
@@ -131,13 +109,7 @@ Return JSON: {"script": "the full call script", "voicemail": "short voicemail if
         contacts = await base44.entities.XtremeCrmContact.filter({ id: { $in: contact_ids } });
       }
 
-      if (contacts.length === 0) {
-        return Response.json({
-          ok: false,
-          error: 'No contacts with phone numbers to call. Provide campaign_id with contacts, or contact_ids array.',
-          hint: 'Use action=test_call to verify voice system without contacts.',
-        }, { status: 400 });
-      }
+      if (contacts.length === 0) return Response.json({ error: 'No contacts with phone numbers to call' }, { status: 400 });
 
       let callsMade = 0;
       let callsFailed = 0;

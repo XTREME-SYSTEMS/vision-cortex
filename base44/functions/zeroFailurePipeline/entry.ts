@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // ============================================================================
 // zeroFailurePipeline — Deterministic Fault-Isolation Hot-Swap Engine

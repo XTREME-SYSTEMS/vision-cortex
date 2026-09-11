@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import {
   MORTALITY, LIFE_EVENTS, GOOD_CHOICES, BAD_CHOICES,
   CHILDHOOD_PRESETS, EDUCATION_PRESETS, CAREER_PRESETS, MARRIAGE_PRESETS,

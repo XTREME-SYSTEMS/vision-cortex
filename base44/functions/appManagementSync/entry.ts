@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // App Management Sync — the master command center audit.
 // Checks all connected accounts (Vercel, Supabase, Railway, Groq, Stripe, Cloud Browser),
@@ -55,7 +54,7 @@ export default async function(req: any) {
       })(),
       // Groq
       (async () => {
-        const r = await fetch('https://api.groq.com/openai/v1/models', { headers: { Authorization: `Bearer ${secrets.get('GROQ_API_KEY')}` } });
+        const r = await fetch('https://ai-gateway.vercel.sh/v1/models', { headers: { Authorization: `Bearer ${secrets.get('AI_GATEWAY_API_KEY')}` } });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const d = await r.json();
         return { account_type: 'groq', status: 'connected', health_score: 100, last_error: '', details: { models: d.data?.length || 0 } };

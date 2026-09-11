@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // dnaScoreSystem — recalculates every system's verified current_score from its
 // capabilities using the multi-score model. CRITICAL RULE (spec §27): the aggregate

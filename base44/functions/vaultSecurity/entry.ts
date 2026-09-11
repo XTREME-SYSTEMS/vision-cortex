@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Vault Security System
 // Audit log retrieval, security scan, access verification, threat detection

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowSentiment — monitors social media and news to score market excitement
 // for each niche identified by the Shadow money hunt. Uses LLM with web search

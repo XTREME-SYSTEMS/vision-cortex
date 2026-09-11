@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { buildDebateSystemPrompt, buildLlmPayload, parseDebate, MAX_AGENTS, MAX_PROMPT } from '../../shared/councilDebate.ts';
 
 export default async function(req) {

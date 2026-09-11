@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import {
   getGoogleToken, listCalendarEvents, createCalendarEvent, updateCalendarEvent,
   deleteCalendarEvent, getOrCreateTaskList, createTask, listTasks, updateTask, completeTask,

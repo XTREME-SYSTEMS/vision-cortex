@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { browseSession, str } from '../../shared/cloudBrowser.ts';
 
 // xtremePerfectionStrategy — Deep architectural perfection audit for the Xtreme AI v2 system.

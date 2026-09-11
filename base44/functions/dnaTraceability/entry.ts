@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // dnaTraceability — detects orphaned records and auto-creates actions for
 // unresolved gaps (rule 9: every gap requires a disposition). Returns a report

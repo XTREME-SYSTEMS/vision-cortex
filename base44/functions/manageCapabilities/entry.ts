@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Capability Toggle Management
 // toggle, list, configure, seed defaults

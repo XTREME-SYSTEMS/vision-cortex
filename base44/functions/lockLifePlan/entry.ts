@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // lockLifePlan — turns a loved simulation into an actionable, dated Life Plan.
 // Creates a real Idea from the chosen strategy (so the build/launch pipeline can

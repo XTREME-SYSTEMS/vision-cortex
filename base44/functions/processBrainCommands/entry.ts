@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 import { browseSession, browseStealth, str } from '../../shared/cloudBrowser.ts';
 
 // Processes pending Brain commands — executes scrape_url, add_seed, run_cycle, etc.

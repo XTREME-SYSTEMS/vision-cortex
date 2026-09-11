@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // seedDeepSpecs — codifies the entire Vision Cortex system into DEEP state machines.
 // Each spec is the machine-readable SOP for one system operation.
@@ -25,8 +25,8 @@ const SPECS = [
       { id: 'update_site', name: 'Update MonitoredSite Scores', entry_condition: 'report persisted', transition: 'exit', gate: 'site_updated' },
     ],
     llm_slots: [
-      { name: 'audit_research', state_id: 'audit_research', model: 'gemini_3_flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['scores', 'system_type', 'issues'] } },
-      { name: 'synthesize', state_id: 'synthesize', model: 'gemini_3_flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['dimension_analysis', 'overall_summary', 'launch_readiness_verdict'] } },
+      { name: 'audit_research', state_id: 'audit_research', model: 'google/gemini-3-flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['scores', 'system_type', 'issues'] } },
+      { name: 'synthesize', state_id: 'synthesize', model: 'google/gemini-3-flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['dimension_analysis', 'overall_summary', 'launch_readiness_verdict'] } },
     ],
     gates: [
       { name: 'audit_score_85', state_id: 'audit_research', min_score: 0.85, on_fail: 'retry', max_retries: 3 },
@@ -134,7 +134,7 @@ const SPECS = [
     ],
     llm_slots: [
       { name: 'score', state_id: 'score', model: 'groq:llama-3.3-70b-versatile', token_budget: 1000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['commercial_value_score'] } },
-      { name: 'enrich', state_id: 'enrich', model: 'gemini_3_flash', token_budget: 2000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['enrichment_data'] } },
+      { name: 'enrich', state_id: 'enrich', model: 'google/gemini-3-flash', token_budget: 2000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['enrichment_data'] } },
     ],
     gates: [
       { name: 'scored', state_id: 'score', min_score: 0.75, on_fail: 'retry', max_retries: 2 },
@@ -275,9 +275,9 @@ const SPECS = [
       { id: 'persist', name: 'Persist Build Pack to FactoryProject', entry_condition: 'all generated', transition: 'exit', gate: 'persisted' },
     ],
     llm_slots: [
-      { name: 'research_industry', state_id: 'research_industry', model: 'gemini_3_flash', token_budget: 3000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['industry_analysis'] } },
-      { name: 'generate_brand', state_id: 'generate_brand', model: 'gemini_3_flash', token_budget: 2000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['brand_identity'] } },
-      { name: 'generate_content', state_id: 'generate_content', model: 'gemini_3_flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['pages'] } },
+      { name: 'research_industry', state_id: 'research_industry', model: 'google/gemini-3-flash', token_budget: 3000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['industry_analysis'] } },
+      { name: 'generate_brand', state_id: 'generate_brand', model: 'google/gemini-3-flash', token_budget: 2000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['brand_identity'] } },
+      { name: 'generate_content', state_id: 'generate_content', model: 'google/gemini-3-flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['pages'] } },
     ],
     gates: [
       { name: 'brand_valid', state_id: 'generate_brand', min_score: 0.85, on_fail: 'retry', max_retries: 3 },
@@ -326,7 +326,7 @@ const SPECS = [
       { id: 'persist', name: 'Persist ScoreRecord + Update SystemPerfectionReport', entry_condition: 'parity checked', transition: 'exit', gate: 'persisted' },
     ],
     llm_slots: [
-      { name: 'execute_prompts', state_id: 'execute_prompts', model: 'gemini_3_flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['improvements'] } },
+      { name: 'execute_prompts', state_id: 'execute_prompts', model: 'google/gemini-3-flash', token_budget: 4000, input_schema: { type: 'object' }, output_schema: { type: 'object', required: ['improvements'] } },
     ],
     gates: [
       { name: 'parity_checked', state_id: 'check_parity', min_score: 1.0, on_fail: 'retry', max_retries: 3 },

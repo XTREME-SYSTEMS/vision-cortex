@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // autonomousMasterLoop — the unified 8-phase autonomous self-reflection engine.
 // Runs entirely on Groq (zero Base44 credits). Triggered by Vercel cron every 2 hours.
@@ -14,13 +13,13 @@ import { secrets } from 'base44:runtime';
 // 7. OPTIMIZE — Groq adds performance optimizations
 // 8. PUSH — stages code in SystemEnhancement records, marks as live-ready
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'openai/gpt-oss-120b';
+const GROQ_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
+const GROQ_MODEL = 'google/gemini-3-flash';
 const MAX_PRIORITIES = 3;
 
 async function groq(prompt: string, maxTokens = 1500): Promise<string | null> {
-  const key = secrets.get('GROQ_API_KEY');
-  if (!key) throw new Error('GROQ_API_KEY not set');
+  const key = secrets.get('AI_GATEWAY_API_KEY');
+  if (!key) throw new Error('AI_GATEWAY_API_KEY not set');
   const res = await fetch(GROQ_URL, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },

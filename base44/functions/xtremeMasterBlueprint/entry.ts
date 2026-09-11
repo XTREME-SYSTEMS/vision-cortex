@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 const BLUEPRINT_PROMPT = `You are the Vision Cortex Master Strategist — an elite business architect, financial analyst, and systems engineer.
 

@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // ============================================================================
 // VALIDATION LOOP — Strategy agent cross-references proposed opportunities
@@ -125,17 +124,17 @@ Respond as JSON with this exact schema:
   // 4. Try Groq LLM first, then fallback to Core.InvokeLLM
   let llmResult = { validated: false, confidence: 0, reasoning: 'LLM unavailable', industry_fit: 'unknown' };
 
-  const groqKey = secrets.get('GROQ_API_KEY') || process.env.GROQ_API_KEY;
+  const groqKey = secrets.get('AI_GATEWAY_API_KEY') || (secrets.get('AI_GATEWAY_API_KEY') || '');
   if (groqKey) {
     try {
-      const llmRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const llmRes = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${groqKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
+          model: 'google/gemini-3-flash',
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.3,
           response_format: { type: 'json_object' }

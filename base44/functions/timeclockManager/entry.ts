@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Timeclock Manager — tracks agent work time via Google Tasks integration.
 // When a task starts: clock_in creates a TimeClockEntry + Google Task.

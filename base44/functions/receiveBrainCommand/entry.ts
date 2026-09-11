@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Brain → Eyes webhook: the Brain pushes commands here.
 // Authenticated via x-brain-api-key header matching VISION_CORTEX_INBOUND_API_KEY.

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Deep Discovery Scan — competitive intelligence for a clone target niche.
 // Uses LLM + web context to profile the top competitors, pricing, and a financial
