@@ -1,8 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { enhancedInvoke } from '../../shared/aiEnhancement.ts';
+import { createClientFromRequest } from '../../runtime/index';
 
-// Wraps Core.InvokeLLM with best-model routing + optional self-critique.
-// The category param controls which model is used (defaults to content_generation).
+// Wraps Core.InvokeLLM so the client can generate content (agent prompts, templates,
+// marketing copy, creative assets, etc.) without a direct Core integration call.
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -10,13 +9,14 @@ export default async function(req) {
     const prompt = body.prompt;
     if (!prompt) return Response.json({ error: "Prompt required" }, { status: 400 });
 
-    const res = await enhancedInvoke(base44, {
+    const useWebContext = body.add_context_from_internet || false;
+    const params = {
       prompt,
-      category: body.category || 'content_generation',
-      schema: body.response_json_schema,
-      add_context_from_internet: body.add_context_from_internet || false,
-      self_critique: body.self_critique || false,
-    });
+      ...(useWebContext ? { add_context_from_internet: true, model: "gemini_3_flash" } : {}),
+      ...(body.response_json_schema ? { response_json_schema: body.response_json_schema } : {}),
+    };
+
+    const res = await base44.asServiceRole.integrations.Core.InvokeLLM(params);
     return Response.json({ output: res });
   } catch (error) {
     console.error("generateContent error:", error);

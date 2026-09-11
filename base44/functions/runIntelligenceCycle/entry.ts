@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Zero-Credit Intelligence Cycle — the decoupled fabric driver.
 // Reads the next pending target from Supabase, scrapes it via microlink.io (free),
@@ -7,8 +6,8 @@ import { secrets } from 'base44:runtime';
 // the result back to Supabase. No Base44 Core.InvokeLLM, no Base44 entity calls —
 // zero integration credit consumption.
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'openai/gpt-oss-120b';
+const GROQ_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
+const GROQ_MODEL = 'google/gemini-3-flash';
 
 function supabaseUrl() { return secrets.get('SUPABASE_URL'); }
 function supabaseKey() { return secrets.get('SUPABASE_SERVICE_ROLE_KEY') || secrets.get('SUPABASE_TOKEN'); }
@@ -34,8 +33,8 @@ async function supabaseFetch(path, options = {}) {
 }
 
 async function groqEvaluate(domain, vertical, rawMeta) {
-  const key = secrets.get('GROQ_API_KEY');
-  if (!key) throw new Error('GROQ_API_KEY not set');
+  const key = secrets.get('AI_GATEWAY_API_KEY');
+  if (!key) throw new Error('AI_GATEWAY_API_KEY not set');
 
   const res = await fetch(GROQ_URL, {
     method: 'POST',

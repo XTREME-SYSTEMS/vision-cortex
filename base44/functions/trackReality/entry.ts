@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // trackReality — the calibration engine. Compares what actually happened to what
 // the simulation predicted, computes a running calibration score (Brier-style mean

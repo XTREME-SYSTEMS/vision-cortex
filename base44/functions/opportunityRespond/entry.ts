@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { str } from '../../shared/cloudBrowser.ts';
 
 // Sends the pre-drafted humanistic response email to the opportunity contact.

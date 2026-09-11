@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // searchConsoleSync — pulls search performance, top queries/pages, and sitemap
 // indexing status from Google Search Console for a tracked site, then persists

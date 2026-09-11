@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // wealthSweep — the wealth enhancement search engine. Continuously searches the
 // web for wealth-enhancing digital programs, algorithms, digital secrets,

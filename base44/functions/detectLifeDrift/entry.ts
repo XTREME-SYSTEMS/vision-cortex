@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // detectLifeDrift — the automated drift sentinel. Compares the user's real-time
 // reality log against their simulation milestones, detects significant drift

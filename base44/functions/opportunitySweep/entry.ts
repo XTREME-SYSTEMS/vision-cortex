@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { str } from '../../shared/cloudBrowser.ts';
 
 // Uses LLM with web search (add_context_from_internet) to find people requesting

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowScheduleMilestones — creates Google Calendar events for the critical
 // deadlines and launch milestones of a Shadow-launched project. Schedules:

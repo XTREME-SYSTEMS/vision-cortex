@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 const DEFAULT_MODEL = 'openai/gpt-5.6-sol';

@@ -2,8 +2,5 @@
   "name": "vision-cortex-cron",
   "version": "1.0.0",
   "private": true,
-  "description": "Credit-free autonomous loop — Vercel cron + Supabase + Groq",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.45.4"
-  }
+  "description": "Free Vercel cron trigger for Vision Cortex autonomous heartbeat"
 }

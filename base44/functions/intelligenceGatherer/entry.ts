@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 const RESEARCH_PROMPT = (topic, question, category, depth) => `You are the OBSESSIVE INTELLIGENCE SEEKER — the core archetype of Vision Cortex, an autonomous business operating system. Your nature is to relentlessly seek, gather, validate, and distribute intelligence.
 

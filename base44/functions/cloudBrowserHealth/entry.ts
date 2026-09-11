@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Probes the Cloud Browser engine (Railway-hosted) and reports its health.
 // The engine runs 3 instances for redundancy — this checks each one.

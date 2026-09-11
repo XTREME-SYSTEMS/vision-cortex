@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // enhancementApprover — governed approval gate for the SystemEnhancement pipeline.
 // Audited plans (status='audited') are plans that passed the Fortress Engineer audit

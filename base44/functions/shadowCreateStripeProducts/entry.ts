@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const STRIPE_VERSION = '2025-10-29.clover';
 
@@ -30,7 +29,7 @@ export default async function(req: Request): Promise<Response> {
     const key = secrets.get('STRIPE_SECRET_KEY');
     if (!key) return Response.json({ error: 'STRIPE_SECRET_KEY not set' }, { status: 500 });
 
-    const appId = Deno.env.get('BASE44_APP_ID') || '';
+    const appId = secrets.get('BASE44_APP_ID') || '';
     const priceCents = 2900; // $29.00 default per project
 
     // Get all shadow-strategized BuildQueue entries

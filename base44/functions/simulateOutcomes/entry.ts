@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // simulateOutcomes — takes a single strategy (+ optional goal) and generates
 // three simulated futures (conservative, base, aggressive), each with a

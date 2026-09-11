@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowRevenueCheck — verifies monetization status by checking Stripe for
 // actual revenue from Shadow-launched systems. Lists recent payments, checks

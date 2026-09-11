@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
+import { createClientFromRequest } from '../../runtime/index';
 
 // MCP Server CRUD — create, list, update, delete, test connection
 // Stores server definitions + tool schemas. The MCP config is generated from these records.

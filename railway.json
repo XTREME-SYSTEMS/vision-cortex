@@ -1,9 +1,1 @@
-{
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": { "builder": "NIXPACKS" },
-  "deploy": {
-    "startCommand": "node migrate.js",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 3
-  }
-}
+{"infra":{"$id":"78d4b96b-98d4-4146-bf9c-6ab35a11c0cf","name":"vision-cortex","source":"api"},"env":{}}

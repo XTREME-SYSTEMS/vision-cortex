@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const API = 'https://api.vercel.com';
 const auth = () => ({ Authorization: `Bearer ${secrets.get('VERCEL_TOKEN')}`, 'Content-Type': 'application/json' });

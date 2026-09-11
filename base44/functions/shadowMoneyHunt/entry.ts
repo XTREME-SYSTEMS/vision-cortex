@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowMoneyHunt — the Shadow agent's money-hunting protocol. Follows the money:
 // billionaire AI deals, algorithmic trading secrets, data markets, hidden wealth

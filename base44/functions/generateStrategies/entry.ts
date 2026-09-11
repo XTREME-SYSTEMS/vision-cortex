@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // generateStrategies — takes a vision sentence (+ optional goal) and generates
 // 210 distinct, launchable business strategies across 7 archetypes (30 each),

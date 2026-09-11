@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Enriches a scraped lead with additional data based on selected enrichment options.
 // options: ["social_profiles", "employee_count", "revenue", "tech_stack", "contact_info", "competitors"]

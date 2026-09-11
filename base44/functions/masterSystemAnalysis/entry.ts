@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // masterSystemAnalysis — scans ALL Vision Cortex systems for failures,
 // stagnation, missing features, and improvement opportunities.

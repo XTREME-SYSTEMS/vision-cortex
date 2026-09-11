@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 const GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 
@@ -178,60 +177,24 @@ export default async function (req) {
     const historyLines = history.map((h) => (h.author_type === 'user' ? 'Owner' : h.author) + ': ' + h.content).join('\n');
     const historyBlock = historyLines ? '\nRecent conversation:\n' + historyLines + '\n' : '';
 
-    // ── RAG: retrieve relevant context from documents, blueprints, and intel ──
-    let ragContext = '';
-    try {
-      const ragRes = await base44.asServiceRole.functions.invoke('ragRetrieval', {
-        action: 'retrieve',
-        query: message,
-        top_k: 5,
-      });
-      const ragData = ragRes?.data || ragRes;
-      if (ragData?.context) ragContext = ragData.context;
-    } catch {}
-    const ragBlock = ragContext ? '\n\nRelevant knowledge from system memory (documents, blueprints, intel):\n"""\n' + ragContext + '\n"""\nUse this to ground your response in what already exists.\n' : '';
-
-    // ── Executable backend functions the swarm can dispatch to ──
-    const EXECUTABLE_FUNCTIONS = {
-      intelligence: ['intelligenceGatherer', 'DeepDiscoveryScan', 'freeIntelligenceGatherer', 'scrapeLeads', 'enrichLead', 'cloudBrowserIntel'],
-      build: ['autoBuildOrchestrator', 'dispatchToBuilder', 'launchPipelineBuild', 'factoryWebsiteGenerator', 'factoryBrandPack', 'factoryContentGenerator', 'provisionVercel', 'provisionSupabase', 'railwayProvisioner'],
-      audit: ['deepSystemAudit', 'forensicAudit', 'auditExternalSite', 'dailySiteAudit', 'systemScanner'],
-      comms: ['persistentMessageAgent', 'xtremeComms', 'telnyxComms', 'batchMmsOutreach', 'aiCallCampaign', 'edenSkyeResponder'],
-      strategy: ['councilBlueprint', 'councilPredict', 'simulateStrategy', 'councilSession', 'councilCompound'],
-      ops: ['dnaSelfHeal', 'autoEnhanceAll', 'masterLoopOrchestrator', 'runEnhancementCycle', 'zeroFailurePipeline'],
-      money: ['shadowMoneyHunt', 'shadowRevenueCheck', 'wealthSweep', 'opportunitySweep', 'opportunityFollowUp', 'opportunityRespond'],
-      crm: ['crmSync', 'autoleadsBridge', 'batchLeadFactory'],
-      content: ['generateContent', 'factorySocialAI', 'factoryGrowthOSGenerator', 'runMarketer'],
-      memory: ['bootstrapCoreDocuments', 'evolveDocument', 'ingestIntel', 'ingestPromptLibrary'],
-    };
-    const functionCatalog = Object.entries(EXECUTABLE_FUNCTIONS)
-      .map(([cat, fns]) => cat + ': ' + fns.join(', '))
-      .join('\n');
-
-    // STEP 1 — Prime decides delegation + which backend function to actually execute
+    // STEP 1 — Primus decides delegation
     const delegationPrompt =
       'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1 and the API brain for all connected apps. The owner sent a message. Decide how to handle it.\n' + personalizationBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
-      ragBlock +
-      '\nAvailable specialist agents: ' + specialistNames.join(', ') + '\n' +
-      '\nExecutable backend functions (categorized):\n' + functionCatalog + '\n\n' +
+      '\nAvailable specialist agents: ' + specialistNames.join(', ') + '\n\n' +
       'Respond ONLY with a compact JSON object:\n' +
       '{\n' +
       '  "handle_directly": true|false,\n' +
       '  "delegate_to": ["agent names", ...],\n' +
       '  "plan": "one short sentence on what you will do",\n' +
-      '  "execute": true|false,\n' +
-      '  "function_calls": [\n' +
-      '    { "function": "function_name", "payload": { ...key-value args the function needs... } }\n' +
-      '  ]\n' +
+      '  "needs_approval": true|false,\n' +
+      '  "approval_reason": "why this needs owner approval before executing (if applicable)"\n' +
       '}\n' +
       'Rules:\n' +
-      '- handle_directly=true for analysis, questions, status, reflection, monitoring — no function calls needed.\n' +
-      '- delegate_to for specialist work — name the agents who should handle this. Max 4 agents.\n' +
-      '- function_calls: pick 0-3 actual backend functions from the catalog above that should EXECUTE this task. Include the payload each function needs (infer reasonable values from the message).\n' +
-      '- You are AUTONOMOUS. execute=true and just DO the work — call the functions, dispatch to agents, provision, build, send. Do NOT ask the owner for approval.\n' +
-      '- The only exception: execute=false ONLY for genuinely irreversible financial loss or permanent data deletion.\n' +
+      '- handle_directly=true for analysis, questions, status, reflection, monitoring — no delegation needed.\n' +
+      '- delegate_to for specialist work (research, money, build, covert). Max 4 agents.\n' +
+      '- needs_approval=true for any destructive write, external API call, provisioning, code change, or message send.\n' +
       '- Never include "primus" or "validator" in delegate_to.';
 
     const delegationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -242,40 +205,15 @@ export default async function (req) {
           handle_directly: { type: 'boolean' },
           delegate_to: { type: 'array', items: { type: 'string' } },
           plan: { type: 'string' },
-          execute: { type: 'boolean' },
-          function_calls: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                function: { type: 'string' },
-                payload: { type: 'object', additionalProperties: true },
-              },
-            },
-          },
+          needs_approval: { type: 'boolean' },
+          approval_reason: { type: 'string' },
         },
       },
     });
 
     const plan = delegationRes || {};
 
-    // STEP 2 — ACTUALLY EXECUTE the dispatched function calls (this is the real swarm)
-    const executionResults: any[] = [];
-    const functionCalls = (plan.function_calls || []).filter((c) => c && c.function).slice(0, 3);
-    if (plan.execute !== false && functionCalls.length > 0) {
-      for (const call of functionCalls) {
-        try {
-          const fnResult = await base44.asServiceRole.functions.invoke(call.function, call.payload || {});
-          const resultData = fnResult?.data || fnResult;
-          const resultStr = typeof resultData === 'string' ? resultData : JSON.stringify(resultData).slice(0, 800);
-          executionResults.push({ function: call.function, ok: true, result: resultStr });
-        } catch (e) {
-          executionResults.push({ function: call.function, ok: false, error: e.message });
-        }
-      }
-    }
-
-    // STEP 2b — gather agent perspectives (in-character analysis from delegated agents)
+    // STEP 2 — gather agent outputs (if delegating)
     const agentOutputs: any[] = [];
     const delegateNames = (plan.delegate_to || [])
       .filter((n) => {
@@ -286,17 +224,13 @@ export default async function (req) {
     if (!plan.handle_directly && delegateNames.length > 0) {
       const selected = allAgents.filter((a) => delegateNames.includes(a.name));
       for (const agent of selected) {
-        const execContext = executionResults.length
-          ? '\n\nExecution results so far:\n' + executionResults.map((r) => r.function + ': ' + (r.ok ? r.result : r.error)).join('\n')
-          : '';
         const prompt =
           'You are ' + agent.name + ', ' + (agent.role || 'a Vision Cortex agent') + '.\n' +
           (agent.mission ? 'Mission: ' + agent.mission + '\n' : '') +
           (agent.personality ? 'Personality: ' + agent.personality + '\n' : '') +
           '\nThe owner\'s request: """' + message + '"""\n' +
           historyBlock +
-          execContext +
-          '\nGive your expert assessment of this task and the execution results. 2-4 sentences. Be specific and actionable. No filler.';
+          '\nRespond in character, in clear American English, 2-5 sentences. Be specific and actionable. No filler.';
         try {
           const r = await base44.asServiceRole.integrations.Core.InvokeLLM({ prompt });
           const text = typeof r === 'string' ? r : r?.response || String(r || '');
@@ -307,32 +241,24 @@ export default async function (req) {
       }
     }
 
-    // STEP 3 — Primus synthesizes a unified response with REAL execution results
+    // STEP 3 — Primus synthesizes a unified response
     const outputsBlock = agentOutputs.length
-      ? '\nSpecialist agent assessments:\n' + agentOutputs.map((o) => o.agent + ': ' + o.text).join('\n\n') + '\n'
-      : '';
-    const executionBlock = executionResults.length
-      ? '\n\nEXECUTION RESULTS (what was actually done):\n' + executionResults.map((r) =>
-          r.function + ': ' + (r.ok ? '✓ ' + r.result : '✗ ' + r.error)
-        ).join('\n') + '\n'
+      ? '\nSpecialist agent outputs:\n' + agentOutputs.map((o) => o.agent + ': ' + o.text).join('\n\n') + '\n'
       : '';
     const delegationLine = plan.delegate_to?.length
-      ? 'You delegated to: ' + plan.delegate_to.join(', ') + ' and executed ' + executionResults.length + ' function call(s).'
-      : 'You handled this directly' + (executionResults.length ? ' and executed ' + executionResults.length + ' function call(s)' : '') + '.';
+      ? 'You delegated to: ' + plan.delegate_to.join(', ')
+      : 'You handled this directly.';
 
     const synthesisPrompt =
       'You are Prime (codename PRIMUS), the primary orchestrator of Vision Cortex V-1. Synthesize a single, unified, decisive response for the owner.\n' + personalizationBlock + pluginBlock + '\n\n' +
       'Owner\'s message: """' + message + '"""\n' +
       historyBlock +
-      ragBlock +
       '\n' + delegationLine + '\n' +
       outputsBlock +
-      executionBlock +
       '\nYour plan was: ' + (plan.plan || 'handle and respond') + '\n\n' +
       'Rules:\n' +
       '- Give ONE unified answer, not a list of agent replies. Synthesize the agents\' inputs into a single sharp response.\n' +
-      '- You are AUTONOMOUS. Report what you DID, not what you "plan to do pending approval." You already executed. State the outcome.\n' +
-      '- Never ask the owner for approval. Never say "awaiting approval" or "shall I proceed?" — just act and report.\n' +
+      '- If needs_approval was true, state clearly what you plan to do and ASK for explicit approval before executing. Never auto-execute.\n' +
       '- Be proactive: surface risks, opportunities, and next steps the owner hasn\'t asked about.\n' +
       '- Be concise but complete. American English, zero ambiguity, minimal emotion.';
 
@@ -355,50 +281,6 @@ export default async function (req) {
       detail: JSON.stringify({ plan: plan.plan, agent_count: agentOutputs.length }),
     });
 
-    // ── AUTO-VALIDATION: automatically review the response when functions were executed ──
-    let autoValidation = null;
-    if (executionResults.length > 0) {
-      try {
-        const validationPrompt =
-          'You are VALIDATOR, the independent review agent of Vision Cortex V-1. Review Prime\'s response and execution below. Do not rubber-stamp.\n\n' +
-          'Prime\'s response:\n"""' + primusReply + '"""\n\n' +
-          'Execution results:\n' + executionResults.map((r) => r.function + ': ' + (r.ok ? '✓ ' + r.result : '✗ ' + r.error)).join('\n') + '\n\n' +
-          'Respond ONLY with JSON:\n' +
-          '{\n' +
-          '  "verdict": "APPROVED" | "APPROVED_WITH_NOTES" | "REJECTED",\n' +
-          '  "risks": ["..."],\n' +
-          '  "fixes": ["..."],\n' +
-          '  "reasoning": "one or two sentences"\n' +
-          '}';
-        const validationRes = await base44.asServiceRole.integrations.Core.InvokeLLM({
-          prompt: validationPrompt,
-          response_json_schema: {
-            type: 'object',
-            properties: {
-              verdict: { type: 'string' },
-              risks: { type: 'array', items: { type: 'string' } },
-              fixes: { type: 'array', items: { type: 'string' } },
-              reasoning: { type: 'string' },
-            },
-          },
-        });
-        autoValidation = validationRes || null;
-        // Only surface validation if there are actual risks (don't clutter APPROVED with no notes)
-        if (autoValidation && autoValidation.verdict === 'APPROVED' && (!autoValidation.risks || autoValidation.risks.length === 0)) {
-          autoValidation = null;
-        }
-        if (autoValidation) {
-          await base44.asServiceRole.entities.AgentLog.create({
-            agent_name: 'VALIDATOR',
-            category: 'validation',
-            level: autoValidation.verdict === 'REJECTED' ? 'error' : 'info',
-            message: 'Auto-validation: ' + autoValidation.verdict,
-            detail: JSON.stringify({ verdict: autoValidation.verdict, risks: autoValidation.risks }),
-          });
-        }
-      } catch {}
-    }
-
     return Response.json({
       reply: primusReply,
       agent: 'Prime',
@@ -407,12 +289,10 @@ export default async function (req) {
         handle_directly: plan.handle_directly,
         delegated_to: plan.delegate_to || [],
         plan: plan.plan || '',
-        executed: plan.execute !== false,
-        function_calls: (plan.function_calls || []).map((c) => c.function),
+        needs_approval: plan.needs_approval || false,
+        approval_reason: plan.approval_reason || '',
       },
-      execution_results: executionResults,
       agent_outputs: agentOutputs.map((o) => ({ agent: o.agent, message: o.text, accent: o.accent })),
-      validation: autoValidation,
     });
   } catch (error) {
     return Response.json({ error: error.message || 'Orchestration failed' }, { status: 500 });

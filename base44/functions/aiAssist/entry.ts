@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // aiAssist — lightweight LLM helper for the guided flow.
 // mode "expand": turns a few words into a complete sentence.

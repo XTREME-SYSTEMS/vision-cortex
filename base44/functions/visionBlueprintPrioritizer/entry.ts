@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import {createClientFromRequest, secrets} from '../../runtime/index';
 
 // ============================================================================
 // VISION BLUEPRINT PRIORITIZER — Reads the MasterPlan (vision) and all
@@ -110,14 +110,14 @@ Response format (JSON only, no markdown):
 
       let prioritizedTasks = [];
       try {
-        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const groqRes = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+            'Authorization': `Bearer ${(secrets.get('AI_GATEWAY_API_KEY') || '')}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
+            model: 'google/gemini-3-flash',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.3,
             max_tokens: 4000,

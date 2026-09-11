@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // runPerfectionCycle — runs the full audit → fix → heal → optimize → enhance
 // sequence on a single monitored site (or all sites when site_id='all').

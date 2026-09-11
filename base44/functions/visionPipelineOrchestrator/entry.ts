@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // visionPipelineOrchestrator — the end-to-end Vision Cortex pipeline.
 // Runs ONE stage per call (to respect the 120s timeout). The UI or a workflow

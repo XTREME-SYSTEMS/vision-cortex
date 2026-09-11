@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 import { browseStealth, str } from '../../shared/cloudBrowser.ts';
 
 // Stealth covert browse — anti-detection hardened (reverse-engineered from Decodo's

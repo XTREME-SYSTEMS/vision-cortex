@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
-import { enhancedInvoke } from '../../shared/aiEnhancement.ts';
+import { createClientFromRequest } from '../../runtime/index';
 
 export default async function(req) {
   try {
@@ -59,11 +58,9 @@ Return JSON:
   ]
 }`;
 
-    const contentResult = await enhancedInvoke(base44, {
+    const contentResult = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt: contentPrompt,
-      category: 'content_generation',
-      self_critique: true,
-      schema: {
+      response_json_schema: {
         type: 'object',
         properties: {
           posts: {

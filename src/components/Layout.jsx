@@ -17,8 +17,10 @@ import ThemeToggle from '@/components/ThemeToggle';
 import InstallButton from '@/components/InstallButton';
 import OwnerBell from '@/components/OwnerBell';
 import StatusCenter from '@/components/StatusCenter';
+import AgentRow from '@/components/AgentRow';
 import SidebarActions from '@/components/sidebar/SidebarActions';
 import NavGroup from '@/components/sidebar/NavGroup';
+import AgentsCard from '@/components/sidebar/AgentsCard';
 import UniversalChat from '@/components/chat/UniversalChat';
 import ProjectFolders from '@/components/sidebar/ProjectFolders';
 import { base44 } from '@/api/base44Client';
@@ -35,8 +37,6 @@ const navGroups = [
       { to: '/company', label: 'The Company', icon: Building2 },
       { to: '/sim', label: 'Ops Floor', icon: Activity },
       { to: '/swarms', label: 'Swarms', icon: Network },
-      { to: '/swarm-performance', label: 'Swarm Performance', icon: Gauge },
-      { to: '/swarm-matrix', label: 'Swarm Matrix', icon: Target },
       { to: '/preflight', label: 'Pre-Flight', icon: Activity },
       { to: '/registry', label: 'System Registry', icon: ListChecks },
       { to: '/vision', label: 'Vision', icon: Radar },
@@ -139,23 +139,39 @@ export default function Layout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showAgentsCard, setShowAgentsCard] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeAgents, setActiveAgents] = useState(['Prime']);
 
   useEffect(() => {
     base44.auth.me().then((u) => setIsAdmin(u?.role === 'admin')).catch(() => {});
   }, []);
 
-  // Close mobile menu when navigating
+  // Close agents card and mobile menu when navigating
   useEffect(() => {
+    setShowAgentsCard(false);
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  const toggleAgent = (name) =>
+    setActiveAgents((a) => (a.includes(name) ? a.filter((n) => n !== name) : [...a, name]));
+
+  // Auto-activate agent from query param (e.g. ?agent=Alpha-Inquisitor)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const agent = params.get('agent');
+    if (agent && !activeAgents.includes(agent)) {
+      setActiveAgents((a) => [...a, agent]);
+    }
+  }, [pathname]);
+
   const goHome = () => {
+    setShowAgentsCard(false);
     setMobileMenuOpen(false);
     navigate('/');
   };
 
-  const isHome = pathname === '/';
+  const isHome = pathname === '/' && !showAgentsCard;
   const pageTitle = pathname.startsWith('/folder/') ? 'Project Folder' : pathname.replace('/', '').replace(/-/g, ' ');
 
   return (
@@ -168,6 +184,25 @@ export default function Layout() {
             <span className="font-display text-[13px] tracking-[0.15em] uppercase">Vision Cortex</span>
             <span className="text-[9px] font-mono text-muted-foreground/60 tracking-wider">V-1</span>
           </Link>
+        </div>
+
+        {/* Chat Agents button */}
+        <div className="px-2 pt-2 pb-2 border-b border-border/60">
+          <button
+            onClick={() => setShowAgentsCard(true)}
+            className={cn(
+              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
+              showAgentsCard ? 'bg-foreground text-background' : 'hover:bg-muted text-foreground'
+            )}
+          >
+            <Bot className="w-4 h-4" />
+            <span className="flex-1 text-left">Chat Agents</span>
+            {activeAgents.length > 0 && (
+              <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', showAgentsCard ? 'bg-background/20' : 'bg-foreground text-background')}>
+                {activeAgents.length}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Nav groups */}
@@ -211,41 +246,34 @@ export default function Layout() {
           <ThemeToggle />
         </div>
         <div className="hidden md:block"><StatusCenter /></div>
+        <div className="hidden md:block"><AgentRow activeAgents={activeAgents} onToggleAgent={toggleAgent} /></div>
 
         <div className="flex-1 min-h-0 overflow-hidden relative">
           {/* Base layer: always chat */}
-          <div className={cn('absolute inset-0', !isHome && 'md:hidden')}>
-            <UniversalChat activeAgents={[]} />
+          <div className={cn('absolute inset-0', (!isHome || showAgentsCard) && 'md:hidden')}>
+            <UniversalChat activeAgents={activeAgents} />
           </div>
 
-          {/* Floating chat quick-button — visible on all non-home pages */}
-          {!isHome && (
-            <button
-              onClick={goHome}
-              className="fixed bottom-5 right-5 z-[55] flex items-center gap-2 rounded-full bg-foreground text-background px-4 py-3 shadow-lg hover:scale-105 transition-transform"
-              title="Back to chat"
-            >
-              <MessageCircle className="w-5 h-5" />
-              <span className="text-sm font-medium pr-1">Chat</span>
-            </button>
-          )}
-
-          {/* Overlay: page — full-screen on mobile, in-flow on desktop */}
-          {!isHome && (
+          {/* Overlay: agents card or page — full-screen on mobile, in-flow on desktop */}
+          {(showAgentsCard || !isHome) && (
             <div className="fixed inset-0 z-50 bg-background flex flex-col md:absolute md:inset-0 md:z-auto">
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30 shrink-0">
                 <button onClick={goHome} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
                 <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium truncate px-2 capitalize">
-                  {pageTitle}
+                  {showAgentsCard ? 'Agent Selection' : pageTitle}
                 </span>
                 <button onClick={goHome} className="text-muted-foreground hover:text-foreground p-1 rounded-md hover:bg-muted transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex-1 overflow-y-auto">
-                <Outlet />
+                {showAgentsCard ? (
+                  <AgentsCard activeAgents={activeAgents} onToggleAgent={toggleAgent} onClose={goHome} />
+                ) : (
+                  <Outlet />
+                )}
               </div>
             </div>
           )}
@@ -278,6 +306,23 @@ export default function Layout() {
                 </Link>
                 <button onClick={() => setMobileMenuOpen(false)} className="p-1 rounded-md hover:bg-muted transition-colors">
                   <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="px-2 pt-2 pb-2 border-b border-border/60">
+                <button
+                  onClick={() => { setShowAgentsCard(true); setMobileMenuOpen(false); }}
+                  className={cn(
+                    'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm transition-colors',
+                    showAgentsCard ? 'bg-foreground text-background' : 'hover:bg-muted text-foreground'
+                  )}
+                >
+                  <Bot className="w-4 h-4" />
+                  <span className="flex-1 text-left">Chat Agents</span>
+                  {activeAgents.length > 0 && (
+                    <span className={cn('text-[10px] font-semibold px-1.5 py-0.5 rounded-full', showAgentsCard ? 'bg-background/20' : 'bg-foreground text-background')}>
+                      {activeAgents.length}
+                    </span>
+                  )}
                 </button>
               </div>
               <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5 no-scrollbar">

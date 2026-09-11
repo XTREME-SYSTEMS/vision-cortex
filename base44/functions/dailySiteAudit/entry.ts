@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // dailySiteAudit — autonomous daily crawler. Tests every agent, scores the
 // entire site, generates self-reflections, and awards bonus points for

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // shadowBuildStrategy — Shadow's full pipeline: takes every money-hunt finding,
 // evaluates which can be 100% strategized, built, validated, launched, and

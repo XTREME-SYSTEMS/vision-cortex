@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // syncLifePlanToCalendar — pushes the Life Plan's milestones into the user's own
 // Google Calendar as all-day events (APP_USER mode — each user connects their own

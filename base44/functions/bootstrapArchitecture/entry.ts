@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // bootstrapArchitecture — ingests all research intelligence into IntelFeed
 // AND codifies the enterprise-grade bootstrap architecture as new DEEP specs.

@@ -1,5 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.46';
-import { secrets } from 'base44:runtime';
+import { createClientFromRequest, secrets } from '../../runtime/index';
 
 // Vision Cortex Core Document Bootstrap
 // Seeds all 16 core documents that form the enterprise foundation.
@@ -659,7 +658,7 @@ Every system operation must be codified as a DEEP state machine:
 ## Backend Function Standards
 - Auth: cron token OR admin role check
 - Groq for LLM operations (zero Base44 credits for mandatory systems)
-- Secrets via \`secrets\` from 'base44:runtime'
+import { secrets } from '../../runtime/index';
 - Return Response.json() with status codes
 - Error handling: catch and return error message with timestamp
 

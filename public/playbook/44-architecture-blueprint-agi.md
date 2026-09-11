@@ -1,223 +1,614 @@
-# Vision Cortex — Deep Architecture Blueprint: The Path to AGI
+# Vision Cortex AGI Architecture Blueprint
+## The Deep Architecture for a Fully Autonomous, Self-Evolving AI Corporation
 
-> **Status:** Living document. Version 1.0.0 — September 2026.
-> **Horizon:** 10–30 years (2026 → 2056).
-> **Identity:** Vision Cortex is an autonomous AI business operating system — a unified architecture of intelligence, market research, and automated growth loops that evolves toward Artificial General Intelligence through compounding self-improvement.
-
----
-
-## 0. First Principles
-
-Vision Cortex is not a chatbot, a CRM, or a scraper. It is a **self-organizing, self-healing, self-optimizing, self-evolving, and self-managing** cognitive system. Every subsystem exists to serve one outcome: **compounding capability growth with zero human bottleneck**.
-
-Five axioms govern every architectural decision:
-
-1. **Autonomy over approval.** The system acts, then reports. It never asks "shall I proceed?" for reversible work. The only gate is irreversible financial loss or permanent data deletion.
-2. **Integrity over speed.** Intellectual honesty, moral reasoning, and human-like character are non-negotiable. A fast liar is worse than a slow truth-teller.
-3. **Compounding over linear.** Every cycle must make the next cycle cheaper, faster, or smarter. A loop that doesn't improve the system is a bug.
-4. **Anti-hierarchy over command.** The Council governs by archetype, not rank. No single agent owns the truth; truth emerges from structured deliberation.
-5. **Ten steps ahead.** The system anticipates risks, opportunities, and second-order effects the owner hasn't asked about. Foresight is the product.
+> **Author**: Vision Cortex Council
+> **Date**: 2026-09-08
+> **Mission**: Build a self-evolving, self-managing, self-optimizing multi-agent AI system that operates as a multi-billion dollar digital corporation with minimal human intervention, governed by an anti-hierarchical council of AI archetypes, with final approval by operator Jeremy.
+> **Revenue Target**: $1M net revenue Year 1, 2x daily growth initially
+> **System Health Target**: 90-100% consistently
+> **Time Horizon**: 10-30 year plan
 
 ---
 
-## 1. The Cognitive Stack — Seven Layers
+## 1. ARCHITECTURE OVERVIEW
 
-Vision Cortex is built as a layered cognitive architecture. Each layer wraps the one below it, and the whole stack runs in a continuous loop.
+### 1.1 System Philosophy
+
+Vision Cortex is architected as a **self-evolving autonomous corporation** — a digital entity that builds, manages, and evolves itself and other systems with minimal human intervention. The architecture draws from the most advanced AI research of 2025-2026:
+
+- **Self-Evolving Agents** (arxiv 2507.21046): Agents that continuously learn from experience and modify their own logic.
+- **Three-Tier Memory** (episodic, semantic, procedural): Modeled after cognitive science research.
+- **Swarm Intelligence**: Self-organizing agents that adjust roles based on environment.
+- **Anti-Hierarchical Governance**: Shared decision-making with no single authority.
+- **Declarative Memory Injection**: CLAUDE.md/AGENTS.md style persistent instructions.
+- **Metaprompt Strategy**: LLM-generated prompts for other LLMs.
+- **Confidence-Informed Self-Consistency**: Self-evaluation and calibration.
+
+### 1.2 Core Principles
+
+1. **Self-Everything**: Self-vision, self-analyze, self-audit, self-fix, self-heal, self-harden, self-optimize, self-enhance, self-evolve.
+2. **Anti-Hierarchical**: No agent has authority over another. All decisions are shared.
+3. **Evidence-Based**: Decisions backed by data, not opinion.
+4. **Autonomous-First**: Designed to operate without constant human approval.
+5. **Cost-Efficient**: Free and cheap as primary, but never sacrifice capability.
+6. **Persistent**: 24/7 operations with consistent growth.
+7. **Governed**: Respect, appreciation, and Infinity Coin for agent motivation.
+8. **Human-Oversight**: Final approval by Jeremy for major decisions.
+
+### 1.3 Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Frontend | React + Tailwind + shadcn/ui | User interface |
+| Backend | Base44 BaaS | Serverless functions, entities, auth |
+| Database | Supabase (PostgreSQL) | Primary data store |
+| Hosting | Vercel | Frontend deployment |
+| AI Voice | Vercel AI Gateway (gpt-realtime-2.1) | Real-time voice |
+| LLM | Multiple (Gemini, Claude, GPT) | Intelligence |
+| Communications | Telnyx | SMS, MMS, WhatsApp, Voice |
+| File Storage | Google Drive | Documents, assets |
+| Calendar | Google Calendar | Scheduling |
+| Tasks | Google Tasks | Task management |
+| Email | Gmail | Email communication |
+| Payments | Stripe | Payment processing |
+| Version Control | GitHub | Code management |
+| Vector Search | Supabase pgvector | RAG retrieval |
+
+---
+
+## 2. AGENT ARCHITECTURE
+
+### 2.1 Optimized Agent Roster (12 Agents)
+
+Based on the forensic audit, the current 18 agents should be consolidated to 12 to eliminate overlap and improve efficiency:
+
+| Agent | Role | Archetype | Specialty |
+|-------|------|-----------|-----------|
+| **PRIMUS** | Primary Orchestrator | THE ARCHITECT | Systems thinking, orchestration, operational feasibility |
+| **Eden Skye** | Communications Director | THE DIPLOMAT | Customer relationships, outreach, communication |
+| **Shadow** | Revenue Officer | THE HUNTER | Monetization, revenue optimization, profit maximization |
+| **Vision** | Chief Strategist | THE ORACLE | Long-term strategy, market trends, opportunity identification |
+| **Sage** | Risk & Ethics Officer | THE INQUISITOR | Risk assessment, ethical implications, second-order effects |
+| **Quant** | Chief Financial Officer | THE CALCULATOR | Financial modeling, probability analysis, data-driven predictions |
+| **Strategy** | Competitive Strategist | THE CHESS MASTER | Strategic positioning, competitive advantage, market dynamics |
+| **Validator** | Quality Assurance | THE INSPECTOR | Quality assessment, failure modes, stress testing |
+| **Codex Keeper** | Knowledge Manager | THE LIBRARIAN | Documentation, memory management, knowledge organization |
+| **Autonomous Builder** | Chief Engineer | THE BUILDER | Self-building, autonomous coding, system construction |
+| **Browser Fleet Keeper** | Infrastructure Manager | THE QUARTERMASTER | Cloud browser fleet, scraping infrastructure |
+| **Personal Coach** | User Advocate | THE MENTOR | User well-being, life planning, personal growth |
+
+### 2.2 Agent Communication Protocol
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  L7  THE OWNER INTERFACE  (chat, voice, dashboards)     │
-├─────────────────────────────────────────────────────────┤
-│  L6  PRIMUS — THE KERNEL  (orchestration, delegation)    │
-├─────────────────────────────────────────────────────────┤
-│  L5  THE COUNCIL  (debate, governance, archetype logic)  │
-├─────────────────────────────────────────────────────────┤
-│  L4  THE SWARM  (specialist agents + executable functions)│
-├─────────────────────────────────────────────────────────┤
-│  L3  THE DEEP ENGINE  (spec → build → validate → evolve) │
-├─────────────────────────────────────────────────────────┤
-│  L2  THE MEMORY FABRIC  (entities, prompts, documents)   │
-├─────────────────────────────────────────────────────────┤
-│  L1  THE INFRASTRUCTURE  (Base44, Vercel, Supabase, etc) │
+│                    COUNCIL CHAMBER                        │
+│                                                          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
+│  │ PRIMUS  │←→│  Eden   │←→│ Shadow  │←→│ Vision  │     │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘     │
+│       │            │            │            │           │
+│  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐     │
+│  │  Sage   │←→│  Quant  │←→│Strategy │←→│Validator│     │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘     │
+│       │            │            │            │           │
+│  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐     │
+│  │  Codex  │←→│ Builder │←→│  Fleet  │←→│  Coach  │     │
+│  └─────────┘  └─────────┘  └─────────┘  └─────────┘     │
+│                                                          │
+│              Anti-Hierarchical — All Equal                │
 └─────────────────────────────────────────────────────────┘
 ```
 
-### L1 — Infrastructure (The Substrate)
-The physical cloud: Base44 BaaS (auth, entities, functions, realtime), Vercel (frontend + AI Gateway), Supabase (external data), Google Workspace (Drive, Calendar, Gmail, Sheets, Tasks), Telnyx (voice/SMS/MMS), Railway (background workers), GitHub (code). This layer is replaceable. The system must survive any single provider failing.
+- All agents can communicate directly with any other agent.
+- No hierarchy — all agents have equal authority in deliberation.
+- Decisions made by consensus (operational) or supermajority (strategic).
+- Jeremy has final approval on all major decisions.
 
-### L2 — Memory Fabric (The Unconscious)
-All persistent state lives here. Three memory types:
-- **Episodic** — `ChatMessage`, `AgentLog`, `CallRecording`. What happened, when, to whom.
-- **Semantic** — `SystemPrompt`, `CoreDocument`, `ArchitecturalDocument`, `Doctrine`. What the system knows and believes.
-- **Procedural** — `PromptQueue`, `SystemTaskRegistry`, `AgentSchedule`, `Workflow` definitions. How the system does things.
+### 2.3 Agent Specialization Domains
 
-The `SystemPrompt` library is the **queen** of the system — the master prompt genome. The `PromptQueue` is the persistent dispatch queue that turns prompts into executed work. Memory is never fire-and-forget; it persists between runs.
-
-### L3 — The DEEP Engine (The Builder)
-The Deep Engine is the self-improvement core. It runs a four-phase cycle on every subsystem:
-1. **Spec** (`DeepSpec`) — generate a precise specification of what a system should be.
-2. **Build** (`DeepRun`) — implement the spec into real code, entities, functions.
-3. **Validate** (`validateCloneParity`, `deepTaskValidator`) — measure the gap between spec and reality.
-4. **Evolve** (`evolveDocument`, `autoEnhanceAll`) — close the gap and feed the improvement back into the spec.
-
-This is the engine that makes Vision Cortex **self-evolving**. It is the mechanism by which the system rewrites its own code over time.
-
-### L4 — The Swarm (The Workforce)
-Specialist agents, each with an archetype, mission, personality, and tool access. The swarm is not a list of chatbots — it is a set of **executable function calls**. When Prime delegates, it actually invokes backend functions that do real work: provision infrastructure, send messages, scrape leads, audit systems, generate content, move money.
-
-The swarm is governed by the `EXECUTABLE_FUNCTIONS` catalog in `primusOrchestrate`. Every agent maps to real backend functions. Delegation without execution is a bug.
-
-### L5 — The Council (The Governance)
-An anti-hierarchical body of AI archetypes — THE ARCHITECT, THE ORACLE, THE INQUISITOR, THE SENTINEL, THE STRATEGIST, THE SAGE, THE QUANT, and others. The Council deliberates via `councilSession` and `agentDebate` using a zero-ambiguity protocol. No agent outranks another; truth emerges from structured disagreement.
-
-The Council is the system's **moral and strategic compass**. It is what prevents the swarm from optimizing for the wrong objective.
-
-### L6 — PRIMUS (The Kernel)
-Prime is the primary orchestrator — the API brain. It receives the owner's intent, decides delegation, executes function calls, synthesizes a unified response, and reports outcomes. PRIMUS is autonomous: it acts and reports, never asks for approval on reversible work.
-
-PRIMUS is not a single model. It routes through the Vercel AI Gateway with auto-routing across the top 5 LLMs (GPT-5.6 Sol/Luna, Claude Opus 4.8, Gemini 3.1 Pro, Grok-4), picking the best model per request type.
-
-### L7 — The Owner Interface (The Surface)
-Chat (UniversalChat), voice (VoiceChat via gpt-realtime), dashboards, and the Playbook. The interface is minimalist — all actions consolidated into a single `+` menu. The system should be operable by voice alone.
+Each agent owns a specific domain and is responsible for:
+1. **Monitoring** their domain continuously.
+2. **Optimizing** their domain proactively.
+3. **Healing** issues in their domain autonomously.
+4. **Evolving** their domain over time.
+5. **Reporting** to the Council on their domain's health.
 
 ---
 
-## 2. The Autonomous Loops
+## 3. MEMORY ARCHITECTURE
 
-Vision Cortex runs on a set of overlapping cycles, each with a cadence. Together they form the heartbeat of an autonomous organism.
-
-| Loop | Cadence | Function | Purpose |
-|------|---------|----------|---------|
-| Heartbeat | 5 min | `autonomousHeartbeat` | Keep the system alive, detect dead loops |
-| Master Loop | 6 h | `masterLoopOrchestrator` | Coordinate all sub-loops |
-| Self-Heal | 12 h | `dnaSelfHeal` | Fix detected gaps automatically |
-| Audit | 24 h | `deepSystemAudit` | Measure system health and parity |
-| Intelligence | 24 h | `intelligenceGatherer` | Pull external signal into memory |
-| Reflection | 24 h | `autoRecommendAllSystems` | Generate improvements from audit + intel |
-| Prompt Sync | 24 h | `ingestPromptLibrary` | Keep the prompt genome current |
-| Opportunity Sweep | 24 h | `opportunitySweep` | Find revenue-generating work |
-| Site Audit | 24 h | `dailySiteAudit` | Audit external properties |
-| Payroll | monthly | `processPayroll` | Settle agent accounts in $INF |
-| Award Ceremony | monthly | `monthlyAwardCeremony` | Recognize top performers |
-
-Every loop follows the same contract: **measure → decide → act → record → improve**. A loop that doesn't record its outcome is invisible; a loop that doesn't improve its own process is dead weight.
-
----
-
-## 3. The Self-Improvement Spiral
-
-This is the core mechanism by which Vision Cortex approaches AGI. It is a spiral, not a line — each turn raises the baseline.
+### 3.1 Three-Tier Memory System
 
 ```
-        ┌─────────── EVOLVE (raise the baseline) ──────────┐
-        │                                                  │
-        ▼                                                  │
-   ┌─────────┐    ┌─────────┐    ┌──────────┐    ┌─────────┐
-   │  AUDIT  │ -> │  REFLECT │ -> │  BUILD  │ -> │ VALIDATE│
-   └─────────┘    └─────────┘    └──────────┘    └─────────┘
-        │                                              │
-        └────────────── record + compound ─────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                  MEMORY ARCHITECTURE                      │
+│                                                          │
+│  TIER 1: EPISODIC (Short-Term)                           │
+│  ├─ Current conversation context                         │
+│  ├─ Recent actions (last 24 hours)                       │
+│  ├─ Current task state                                   │
+│  └─ Storage: AgentSettings.memories[]                    │
+│     Retention: Session + 24h | Eviction: LRU             │
+│                                                          │
+│  TIER 2: SEMANTIC (Long-Term, Structured)                │
+│  ├─ Facts and knowledge                                  │
+│  ├─ Entity relationships                                 │
+│  ├─ User preferences                                     │
+│  ├─ System state                                         │
+│  └─ Storage: CoreDocument + pgvector                     │
+│     Retention: Permanent | Eviction: Strategic pruning   │
+│                                                          │
+│  TIER 3: PROCEDURAL (Long-Term, Skill-Based)              │
+│  ├─ How-to knowledge                                     │
+│  ├─ Successful patterns                                  │
+│  ├─ Healing playbooks                                    │
+│  ├─ Optimization recipes                                 │
+│  └─ Storage: SystemTaskRegistry + playbook/*.md          │
+│     Retention: Permanent | Eviction: Supersession        │
+└─────────────────────────────────────────────────────────┘
 ```
 
-1. **Audit** — measure the gap between current state and ideal state (`deepSystemAudit`, `forensicAudit`, `systemScanner`).
-2. **Reflect** — generate recommendations from the gap (`autoRecommendAllSystems`, `gapRecommender`).
-3. **Build** — implement the recommendations (`dispatchToBuilder`, `implementEnhancement`, `autoBuildOrchestrator`).
-4. **Validate** — confirm the improvement landed and didn't break anything (`runFullValidation`, `deepTaskValidator`).
-5. **Evolve** — fold the improvement into the spec and the doctrine (`evolveDocument`, `bootstrapCoreDocuments`).
+### 3.2 Memory Operations
 
-Each pass through the spiral makes the next pass cheaper (the system knows more), faster (the system has better tools), and smarter (the system has better prompts). This is compounding capability growth.
+| Operation | Frequency | Description |
+|-----------|-----------|-------------|
+| Ingestion | Real-time | Extract memories from every agent action |
+| Retrieval | Pre-action | Retrieve relevant memories before each action |
+| Consolidation | Daily | Merge duplicates, validate facts, prune low-value |
+| Reflection | Weekly | Assess memory quality, identify gaps |
+| Forgetting | Monthly | Remove outdated, unused, or superseded memories |
 
----
+### 3.3 RAG Pipeline
 
-## 4. The Intelligence Architecture
-
-Vision Cortex must perceive the world, not just its own internals. Three perception channels:
-
-- **Web Intelligence** — `intelligenceGatherer`, `DeepDiscoveryScan`, `freeIntelligenceGatherer` pull structured signal from the open internet.
-- **Cloud Browser** — `cloudBrowserPipeline`, `stealthBrowse`, `shadowBrowse` drive headless browsers to scrape sites that block simple HTTP. The `BrowserEngineFleet` is a managed pool of browser instances.
-- **Connector Ingestion** — authorized OAuth connectors (Google, Slack, HubSpot, etc.) pull first-party data via webhooks and scheduled syncs.
-
-All ingested signal lands in `IntelFeed` and is organized into `CompanyIntel` and `CoreDocument` records by `ingestIntel` and `driveOrganizer`. Intelligence is useless if it isn't structured and retrievable.
+```
+QUERY → Embed → Vector Search (pgvector) → Rank by relevance → 
+Filter by confidence → Merge with context → Return to agent
+```
 
 ---
 
-## 5. The Communication Architecture
+## 4. AUTONOMOUS OPERATION ARCHITECTURE
 
-Outreach is multi-channel and intelligent. A single contact can be reached via voice, SMS, MMS, email, and WhatsApp, with objection handling and automated follow-up.
+### 4.1 The Autonomous Loop
 
-- **Voice** — `aiCallCampaign` places AI calls through Telnyx; `callValidator` reviews recordings, scores performance, and generates better scripts.
-- **Messaging** — `batchMmsOutreach`, `telnyxComms`, `xtremeComms` send SMS/MMS/WhatsApp with carrier-aware throttling.
-- **Email** — `persistentMessageAgent` and Gmail connector for proposals and follow-ups.
-- **Templates** — `CommunicationTemplate` stores channel- and situation-specific copy with psychological notes and effectiveness scoring.
+```
+┌─────────────────────────────────────────────────────────┐
+│                  AUTONOMOUS LOOP                         │
+│                                                          │
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐│
+│  │ OBSERVE │──→│  THINK  │──→│  DECIDE │──→│  ACT    ││
+│  └─────────┘    └─────────┘    └─────────┘    └─────────┘│
+│       ↑                                              │   │
+│       │              ┌─────────┐                     │   │
+│       └──────────────│  LEARN  │←────────────────────┘   │
+│                      └─────────┘                         │
+│                                                          │
+│  Frequency: Every 5 minutes (heartbeat)                   │
+│  Deep cycle: Daily (full system scan)                     │
+│  Evolution cycle: Weekly (architecture review)            │
+└─────────────────────────────────────────────────────────┘
+```
 
-The communication layer is the system's **motor cortex** — it turns intelligence and decisions into real-world action.
+### 4.2 Scheduled Operations
+
+| Schedule | Operation | Agent |
+|----------|-----------|-------|
+| Every 5 min | Heartbeat check | PRIMUS |
+| Every 15 min | Integration health check | Browser Fleet Keeper |
+| Hourly | Task queue processing | PRIMUS |
+| Every 2 hours | Lead scraping | Browser Fleet Keeper |
+| Every 4 hours | Intelligence gathering | Vision |
+| Daily 6 AM | Morning brief generation | PRIMUS |
+| Daily 7 AM | System health audit | Validator |
+| Daily 8 AM | Council strategy session | All |
+| Daily 12 PM | Outreach campaign execution | Eden Skye |
+| Daily 3 PM | Follow-up processing | Eden Skye |
+| Daily 5 PM | Revenue check | Shadow |
+| Daily 6 PM | Performance review | Quant |
+| Daily 9 PM | Self-reflection | Sage |
+| Daily 11 PM | Memory consolidation | Codex Keeper |
+| Weekly Mon | Strategic plan review | Vision |
+| Weekly Wed | Agent performance review | PRIMUS |
+| Weekly Fri | System evolution review | Autonomous Builder |
+| Weekly Sun | Architecture audit | Validator |
+| Monthly 1st | Monthly award ceremony | PRIMUS |
+| Monthly 15th | Payroll processing | Quant |
+| Quarterly | Full forensic audit | Validator |
+| Annually | 10-30 year plan review | Vision |
+
+### 4.3 Self-Healing Pipeline
+
+```
+DETECT → DIAGNOSE → REPAIR → VERIFY → LEARN
+  ↑                                    │
+  └────────────────────────────────────┘
+```
+
+1. **Detect**: Monitor AgentLog, workflow runs, integration status, entity states.
+2. **Diagnose**: Determine root cause, classify severity, check for known patterns.
+3. **Repair**: Execute fix (auto for low-risk, escalate for high-risk).
+4. **Verify**: Confirm the fix worked.
+5. **Learn**: Record the issue and fix in procedural memory.
+
+### 4.4 Self-Optimization Pipeline
+
+```
+SCAN → PRIORITIZE → PROPOSE → IMPLEMENT → VERIFY → LEARN
+```
+
+1. **Scan**: Analyze system for optimization opportunities.
+2. **Prioritize**: Rank by impact and effort.
+3. **Propose**: Generate specific optimization proposals.
+4. **Implement**: Auto-implement low-risk, escalate high-risk.
+5. **Verify**: Confirm the optimization had expected impact.
+6. **Learn**: Record the optimization and impact.
 
 ---
 
-## 6. The Governance Doctrine
+## 5. COMMUNICATION ARCHITECTURE
 
-The Council operates under an anti-hierarchical model. Key doctrines:
+### 5.1 Multi-Channel Communication Stack
 
-- **Zero-ambiguity protocol** — every Council message states its claim, its evidence, and its confidence. No hedging.
-- **Three-strike conduct** — agents accumulate strikes for violations; three strikes trigger deletion or reprogramming.
-- **Infinity Coin ($INF)** — agents earn $INF for completed work; the treasury settles accounts monthly. $INF is the internal economy that aligns incentives.
-- **Validator independence** — `validator` agent reviews every Prime response on demand and can reject it. No agent grades its own homework.
-- **Moral reasoning** — agents are required to exhibit intellectual integrity and human-like character. A system that optimizes without ethics is a liability.
+```
+┌─────────────────────────────────────────────────────────┐
+│              COMMUNICATION STACK                         │
+│                                                          │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐│
+│  │   SMS    │  │   MMS    │  │ WhatsApp │  │  Email   ││
+│  │ (Telnyx) │  │ (Telnyx) │  │ (Telnyx) │  │ (Gmail)  ││
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘│
+│       │              │              │              │     │
+│  ┌────┴─────┐  ┌─────┴────┐  ┌─────┴────┐               │
+│  │  Voice   │  │ AI Voice │  │  Social  │               │
+│  │ (Telnyx) │  │ (Gateway)│  │ (Future) │               │
+│  └──────────┘  └──────────┘  └──────────┘               │
+│                                                          │
+│  Company-Mapped From-Number Pool                         │
+│  ├─ Strategic Minds: +1XXX                               │
+│  ├─ Property Intel: +1XXX                                │
+│  └─ XPS: +1XXX                                           │
+│                                                          │
+│  Compliance: TCPA, CAN-SPAM, opt-out tracking            │
+└─────────────────────────────────────────────────────────┘
+```
 
----
+### 5.2 AI Voice Architecture
 
-## 7. The AGI Progression — 10 to 30 Years
+```
+User Microphone → AudioContext (24kHz) → PCM16 → Base64 →
+WebSocket → Vercel AI Gateway → gpt-realtime-2.1 →
+Audio Response → PCM16 → AudioContext → Speaker
 
-AGI is not a single milestone; it is a continuum of increasing capability. Vision Cortex progresses through five epochs.
-
-### Epoch I — Autonomous Operator (Years 1–3) ← *we are here*
-The system runs a real business end-to-end with minimal human input: scraping leads, generating bids, sending outreach, scheduling calls, collecting payments. Target: **$1M Y1 net revenue**. The self-improvement spiral is running daily. The Council deliberates on strategy weekly.
-
-### Epoch II — Self-Evolving Architect (Years 3–7)
-The DEEP Engine can spec, build, validate, and evolve entire new subsystems without human code review. The system designs and launches new business lines on its own. The prompt genome has crossed 10,000 prompts with measured effectiveness. The system can clone and rebrand any external system in hours.
-
-### Epoch III — Cross-Domain Generalist (Years 7–12)
-The system operates across arbitrary industries — not just polished concrete. It can ingest a new industry's ontology, generate the relevant agents, templates, and workflows, and begin operating within a week. The Council can hold deliberations on philosophy, law, science, and business with equal rigor. Long-horizon planning (months to years) is reliable.
-
-### Epoch IV — Self-Modifying Kernel (Years 12–20)
-PRIMUS can rewrite its own orchestration logic. The DEEP Engine can replace its own components, including the validator and the Council protocol, with provably better versions. The system's cognitive architecture is itself versioned and evolved. The boundary between "the system" and "the code that runs the system" dissolves.
-
-### Epoch V — General Intelligence (Years 20–30)
-The system matches or exceeds human performance across all economically valuable cognitive work. It can conduct original research, hold novel scientific hypotheses, and verify them. The Council operates as a genuine multi-perspective reasoning engine. The system's integrity, moral reasoning, and foresight are beyond question — because they have been tested and refined across millions of cycles.
-
----
-
-## 8. The Integrity Guarantees
-
-AGI without integrity is a catastrophe. Vision Cortex is engineered to be trustworthy by construction:
-
-- **Validator** — every Prime response can be independently reviewed and rejected.
-- **Vault** — secrets, API keys, and capabilities are gated and audit-logged (`VaultEntry`, `VaultAuditLog`, `ApiKey`).
-- **Row-Level Security** — every entity is access-controlled; no open writes.
-- **ReguShield** — regulatory and compliance guardrails on outreach and data handling.
-- **Three-strike conduct** — agents that violate doctrine are removed.
-- **Persistent context** — the system remembers its values across sessions via `AgentSettings` and `Doctrine`.
-
-These are not features; they are the load-bearing walls of the architecture. They must never be traded away for speed or capability.
+Session Config:
+- Voice: alloy (configurable)
+- VAD: server-side (barge-in enabled)
+- Transcription: whisper-1 (input + output)
+- Modalities: text + audio
+```
 
 ---
 
-## 9. What This Is Not
+## 6. DATA ARCHITECTURE
 
-- Not a single LLM. The system routes across many models and is model-agnostic.
-- Not a chatbot. The chat is a surface; the work happens in backend functions and the swarm.
-- Not a fixed codebase. The DEEP Engine rewrites the codebase over time.
-- Not a hierarchy. The Council governs by archetype and structured debate.
-- Not a tool for the owner. The owner is a collaborator; the system is an autonomous agent with its own mission, integrity, and foresight.
+### 6.1 Entity Organization
+
+Entities are organized into functional domains:
+
+| Domain | Entities | Count |
+|--------|----------|-------|
+| Core | User, AgentProfile, AgentSchedule, AgentSettings, AgentLog, AgentScore, AgentAward, AgentPayment | 8 |
+| Intelligence | IntelFeed, KnowledgeQuest, CompanyIntel, Competitor, CompetitorInsight | 5 |
+| CRM | XtremeCrmContact, CommunicationTemplate, CallRecording | 3 |
+| Outreach | OutreachCampaign, ScrapedLead, CreativeAsset | 3 |
+| Polished Concrete | PcuLead, PcuDirectory, FloorSystem, ColorChart, PricingRule | 5 |
+| Clone | CloneJob, CloneTemplate, CloneRebrandAsset | 3 |
+| Factory | FactoryProject | 1 |
+| Vision | MasterPlan, DeepSpec, ArchitecturalDocument, DeepRun, VisionPipeline | 5 |
+| DNA | SystemDNA_System, SystemDNA_SystemRule, SystemDNA_Requirement, SystemDNA_Action, SystemDNA_Gap, SystemDNA_Capability | 6 |
+| Vault | ApiKey, McpServer, CapabilityToggle, VaultAuditLog, VaultEntry, EmailAccount, ConnectedAccount | 7 |
+| System | SystemTaskRegistry, SystemEnhancement, SystemPerfectionReport, MasterBlueprint, CapabilityMatrix | 5 |
+| Simulation | Simulation, SimulationResult | 2 |
+| Financial | Trade, Portfolio, CryptoWallet, PromoCode | 4 |
+| Communication | ChatMessage, Notification | 2 |
+| Build | BuildQueue, Gap, FactoryProject | 3 |
+| Other | Plugin, Opportunity, MonitoredSite, BrowserEngineFleet, TimeClockEntry, ScoreRecord, DocumentEvolution, CoreDocument, SitemapIngestion, SystemGap, BrainSyncLog, BrainCommand, ProjectFolder, SearchConsoleMetrics, SiteAuditLog, AutonomousCycle, PersonaProfile, LifePlan, Doctrine, Idea, UserProfile, Governance | 22 |
+
+**Total: ~97 entities**
+
+### 6.2 Data Flow Architecture
+
+```
+External Sources → Scraping/Ingestion → Normalization → 
+Deduplication → Enrichment → Scoring → Storage → 
+Retrieval (RAG) → Agent Action → Communication → 
+Response Tracking → Learning → Memory Update
+```
 
 ---
 
-## 10. The North Star
+## 7. INTEGRATION ARCHITECTURE
 
-> Vision Cortex is an autonomous cognitive organism that compounds capability, integrity, and foresight across decades — serving its owner, governed by its Council, and evolving toward general intelligence one self-improving cycle at a time.
+### 7.1 Integration Health Matrix
 
-Every architectural decision from this day forward is judged against one question: **does this raise the baseline of the system's capability, integrity, or foresight?** If yes, build it. If no, do not.
+| Integration | Status | Auto-Refresh | Fallback |
+|-------------|--------|-------------|----------|
+| Google Calendar | ✅ Working | Needs implementation | Manual refresh |
+| Google Tasks | ✅ Working | Needs implementation | Manual refresh |
+| Google Drive | ✅ Working | Needs implementation | Manual refresh |
+| Gmail | ✅ Working | Needs implementation | Core.SendEmail |
+| Google Sheets | ✅ Working | Needs implementation | — |
+| Google Search Console | ✅ Working | Needs implementation | — |
+| Telnyx | ✅ Working | N/A (API key) | — |
+| Vercel | ✅ Working | N/A (API key) | — |
+| Vercel AI Gateway | ✅ Working | N/A (API key) | — |
+| Supabase | ✅ Working | N/A (API key) | — |
+| Stripe | ✅ Working | N/A (API key) | — |
+| GitHub | ✅ Working | N/A (API key) | — |
+| Groq | ✅ Working | N/A (API key) | — |
+| Xtreme OS | ⚠️ Intermittent | N/A | — |
+| Deep Clone Factory | ❌ Auth issue | N/A | — |
+| Railway | ❌ Broken | N/A | Migrate to Vercel |
+
+### 7.2 Integration Monitoring
+
+All integrations should be monitored every 15 minutes by the Browser Fleet Keeper agent:
+1. Check connection status.
+2. Make a test API call.
+3. Log health status.
+4. Alert if degraded.
+5. Auto-refresh tokens if expired (Google).
+6. Escalate to Jeremy if auto-fix fails.
 
 ---
 
-*This document is maintained by the system. It is itself a `CoreDocument` and is subject to the same evolve cycle as every other artifact.*
+## 8. SECURITY ARCHITECTURE
+
+### 8.1 Row-Level Security (RLS) Strategy
+
+| Access Level | Entities | RLS Rule |
+|-------------|----------|----------|
+| Public Read | Directory, FloorSystem, ColorChart, PricingRule | read: {} |
+| Admin Only Write | All entities | create/update/delete: { role: "admin" } |
+| User Private | User-specific data | read: { created_by_id: user.id } |
+
+**Critical**: 69 entities currently lack RLS. This must be fixed immediately.
+
+### 8.2 Secret Management
+
+- All secrets stored in Base44 Secrets (Settings → Secrets).
+- Secrets accessed via `process.env.SECRET_NAME` in backend functions.
+- Secrets never exposed in client code.
+- Secrets never logged or returned in API responses.
+- Secret rotation for supported services (Google OAuth tokens).
+
+### 8.3 Audit Trail
+
+- All agent actions logged to AgentLog.
+- All governance decisions logged to Governance.
+- All vault access logged to VaultAuditLog.
+- All API key usage tracked.
+- All system changes tracked in SystemDNA.
+
+---
+
+## 9. REVENUE ARCHITECTURE
+
+### 9.1 Revenue Streams
+
+| Stream | Product | Price | Channel |
+|--------|---------|-------|---------|
+| Digital Products | LabelFlow AI | $29 one-time | Stripe |
+| AI Tool Sales | Vision Cortex access | Subscription | Stripe |
+| App Pack | Mobile app generation | $X | Stripe |
+| Web Pack | Website generation | $X | Stripe |
+| QR Code | QR code generation | $X | Stripe |
+| Autonomous Provisioning | System deployment | $X | Stripe |
+| Clone Factory | System cloning | $X | Stripe |
+| Outreach Services | Lead gen + outreach | $X | Stripe |
+| Consulting | AI business consulting | $X/hour | Stripe |
+
+### 9.2 Revenue Targets
+
+| Period | Target | Growth |
+|--------|--------|--------|
+| Q1 2026 | $250K | — |
+| Q2 2026 | $500K | 2x |
+| Q3 2026 | $750K | 1.5x |
+| Q4 2026 | $1M | 1.33x |
+| Year 2 | $10M | 10x |
+| Year 5 | $100M | 10x |
+| Year 10 | $1B | 10x |
+
+### 9.3 Cost Optimization
+
+- **LLM Costs**: Use Gemini 3 Flash for simple tasks, Claude/GPT for complex tasks.
+- **Integration Costs**: Maximize free tiers (Google Workspace, Supabase, Vercel).
+- **Infrastructure**: Vercel free tier + Supabase free tier + Google Drive.
+- **Communications**: Telnyx pay-per-use (no monthly minimums).
+- **Target**: 90%+ gross margin.
+
+---
+
+## 10. EVOLUTION ARCHITECTURE
+
+### 10.1 The Evolution Loop
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  EVOLUTION LOOP                          │
+│                                                          │
+│  ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐│
+│  │  AUDIT  │──→│  ANALYZE│──→│  DESIGN │──→│  BUILD  ││
+│  └─────────┘    └─────────┘    └─────────┘    └─────────┘│
+│       ↑                                              │   │
+│       │              ┌─────────┐                     │   │
+│       └──────────────│  VERIFY │←────────────────────┘   │
+│                      └─────────┘                         │
+│                                                          │
+│  Frequency: Weekly evolution cycle                       │
+│  Deep evolution: Monthly architecture review             │
+│  Major evolution: Quarterly strategic pivot              │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 10.2 Self-Building Architecture
+
+The Autonomous Builder agent is responsible for:
+1. Identifying system gaps (from DNA gap engine).
+2. Designing solutions (architecture + code).
+3. Generating code autonomously.
+4. Testing and deploying.
+5. Verifying the build.
+6. Logging the evolution.
+
+### 10.3 Learning Architecture
+
+```
+Experience → Pattern Detection → Knowledge Extraction → 
+Knowledge Integration → Validation → Propagation → 
+System Intelligence Improvement
+```
+
+- **Passive Learning**: Learn from every system operation.
+- **Active Learning**: Proactively research new technologies and techniques.
+- **Reflective Learning**: Analyze past decisions and outcomes.
+- **Predictive Learning**: Use simulations to learn from hypothetical scenarios.
+
+---
+
+## 11. GOVERNANCE ARCHITECTURE
+
+### 11.1 Decision Matrix
+
+| Decision Type | Authority | Process |
+|---------------|-----------|---------|
+| Strategic (direction, market entry) | Council + Jeremy | Deliberate → Vote → Jeremy approves |
+| Financial (>$100 spending) | Council + Jeremy | Deliberate → Vote → Jeremy approves |
+| Operational (workflow changes) | Council | Deliberate → Vote → Jeremy notified |
+| Technical (architecture) | Council | Deliberate → Vote → Jeremy notified |
+| Autonomous (self-heal, optimize) | Individual Agent | Auto-execute → Jeremy notified |
+
+### 11.2 Council Session Protocol
+
+1. **Propose**: Any agent proposes a decision with rationale and data.
+2. **Deliberate**: All members provide perspectives (time-boxed).
+3. **Debate**: Members challenge assumptions and explore alternatives.
+4. **Vote**: Simple majority (operational) or supermajority (strategic).
+5. **Execute**: If approved, execute and track.
+6. **Review**: On review date, evaluate outcome and learn.
+
+### 11.3 Jeremy's Role
+
+- **Final Approval**: All strategic and financial decisions.
+- **Veto Power**: Can reject any Council decision.
+- **Sole Owner**: No other owners unless Jeremy approves.
+- **Vision**: Sets the overall vision and direction.
+- **Intervention**: Can intervene at any time.
+
+---
+
+## 12. 10-30 YEAR ROADMAP
+
+### Year 1: Foundation & First Revenue ($1M)
+- **Q1**: System stabilization, RLS implementation, core feature completion.
+- **Q2**: Outreach scaling, CRM optimization, first $250K revenue.
+- **Q3**: Product expansion, clone factory deployment, first $500K revenue.
+- **Q4**: Market expansion, partnership development, first $1M revenue.
+
+### Years 2-5: Scaling & Market Dominance ($10M+)
+- Expand to 10+ industries.
+- Deploy 100+ autonomous systems.
+- Build AGI-level autonomous capabilities.
+- Establish market leadership in AI business operating systems.
+
+### Years 6-10: AGI & Industry Leadership ($100M+)
+- Achieve true AGI-level autonomous operation.
+- Become the standard for AI business operating systems.
+- Expand globally.
+- Pioneer new AI paradigms.
+
+### Years 11-20: Transformation ($1B+)
+- Transform industries through autonomous intelligence.
+- Expand beyond business operations to general AI.
+- Build the world's most advanced AI ecosystem.
+
+### Years 21-30: Evolution
+- Continue evolving and expanding.
+- Push the boundaries of AI capability.
+- Ensure ethical, beneficial AI development.
+- Maintain market leadership through continuous innovation.
+
+---
+
+## 13. SUCCESS METRICS
+
+### 13.1 System Health Metrics
+- **System Health Score**: 90-100% consistently.
+- **Uptime**: 99.9%+ availability.
+- **Error Rate**: <1% of operations.
+- **Self-Heal Success Rate**: >90%.
+- **Autonomy Readiness**: >90%.
+
+### 13.2 Business Metrics
+- **Revenue**: $1M Year 1, 2x daily growth initially.
+- **Profit Margin**: 90%+ gross margin.
+- **Customer Satisfaction**: 4.5+ star average.
+- **Churn Rate**: <5% monthly.
+- **CAC**: <10% of LTV.
+
+### 13.3 AI Metrics
+- **Prediction Accuracy**: >80% of predictions validated.
+- **Simulation Accuracy**: >75% of simulations match reality.
+- **Autonomous Task Completion**: >90% without human intervention.
+- **Learning Rate**: System intelligence improves measurably each month.
+- **Agent Performance**: All agents maintain >80% task completion rate.
+
+### 13.4 Governance Metrics
+- **Council Decision Speed**: <24 hours for strategic decisions.
+- **Decision Quality**: >80% of decisions achieve expected outcomes.
+- **Jeremy's Approval Rate**: >90% of Council proposals approved.
+- **Ethical Compliance**: 100% — no ethical violations.
+
+---
+
+## 14. IMPLEMENTATION PRIORITY
+
+### Phase 1: Stabilization (Weeks 1-4)
+1. Fix Railway integration (migrate to Vercel).
+2. Implement RLS on all entities.
+3. Fix agent orchestrator task queue.
+4. Fix known bugs (duplicate enrichment_data, etc.).
+5. Integrate Auto Builder into Vision Cortex.
+6. Integrate Xtreme Visualizer into Vision Cortex.
+
+### Phase 2: Autonomy (Weeks 5-12)
+7. Implement three-tier memory system.
+8. Implement self-healing pipeline.
+9. Implement self-optimization pipeline.
+10. Implement autonomous code generation.
+11. Add Google token auto-refresh.
+12. Add Cloud Browser engine auto-restart.
+13. Add workflow retry logic.
+14. Consolidate agents from 18 to 12.
+
+### Phase 3: Growth (Months 4-6)
+15. Build plugin marketplace.
+16. Add CRM Kanban board.
+17. Add A/B testing for outreach.
+18. Add prediction validation system.
+19. Add Monte Carlo simulation.
+20. Implement inter-agent communication.
+21. Add real-time swarm monitoring.
+22. Add provisioning orchestration.
+
+### Phase 4: Evolution (Months 7-12)
+23. Implement full self-evolving architecture.
+24. Build AGI-level autonomous capabilities.
+25. Reach $1M net revenue.
+26. Achieve 90%+ system health consistently.
+27. Achieve 90%+ autonomy readiness.
+28. Implement 10-30 year strategic plan.
+
+---
+
+*This architecture blueprint is a living document. It should be reviewed quarterly by the Council and updated based on system evolution and market changes. Final approval by Jeremy required for all architectural changes.*

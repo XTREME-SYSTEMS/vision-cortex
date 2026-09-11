@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Generates a secure random API key or token.
 // Supports: api_key (sk-xxx), token (tok_xxx), secret (sec_xxx), custom prefix.

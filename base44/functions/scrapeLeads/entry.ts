@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Scrapes business leads by industry, location, keyword, and radius using LLM web search.
 // Returns structured business listings and persists them as ScrapedLead records.

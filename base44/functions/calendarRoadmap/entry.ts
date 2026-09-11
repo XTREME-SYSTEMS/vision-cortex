@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // calendarRoadmap — fetches the app user's upcoming Google Calendar events
 // (their daily routine) so the roadmap view can show milestones alongside

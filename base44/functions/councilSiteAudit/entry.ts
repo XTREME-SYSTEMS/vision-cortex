@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // councilSiteAudit — the Xtreme Vision Council reviews ALL monitored sites
 // and produces a synthesized launch-readiness verdict + prioritized recommendations.

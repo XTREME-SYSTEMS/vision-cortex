@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // autoEnhanceAll — the autonomous implementation engine.
 // Picks top N pending SystemEnhancement records, generates implementation code,

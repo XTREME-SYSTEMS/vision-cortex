@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.44';
+import { createClientFromRequest } from '../../runtime/index';
 
 // Parity evaluation engine — the 1.00 gate of the Deep Clone Factory.
 // Scores visual + functional compliance, persists a ScoreRecord, and returns
