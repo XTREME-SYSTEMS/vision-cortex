@@ -1,4 +1,4 @@
-import { createClientFromRequest } from '../../runtime/index';
+import { createClientFromRequest, requireAdminOrWebhook } from '../../runtime/index';
 
 // ============================================================================
 // PERSISTENT AUDIT CYCLE — The internal self-reflection and audit system.
@@ -24,9 +24,8 @@ export default async function(req) {
     const base44 = createClientFromRequest(req);
 
     // Auth: admin user OR workflow context
-    let user = null;
-    try { user = await base44.auth.me(); } catch {}
-    if (user && user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
+    const authorizationError = await requireAdminOrWebhook(req);
+    if (authorizationError) return authorizationError;
 
     const sr = base44.asServiceRole.entities;
     const issues = [];

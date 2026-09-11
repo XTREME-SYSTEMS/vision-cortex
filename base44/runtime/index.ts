@@ -19,6 +19,18 @@ export const secrets = {
   }
 };
 
+
+/** Allow privileged automation only from an admin session or a configured webhook. */
+export async function requireAdminOrWebhook(req: Request): Promise<Response | null> {
+  const expected = secrets.get('VISION_CORTEX_WEBHOOK_KEY');
+  const supplied = req.headers.get('x-cron-token') || '';
+  if (expected && supplied && supplied === expected) return null;
+
+  const user = await createClientFromRequest(req).auth.me();
+  if (user?.role === 'admin') return null;
+  return Response.json({ error: 'Unauthorized' }, { status: 401 });
+}
+
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
 /* ------------------------------------------------------------------ */

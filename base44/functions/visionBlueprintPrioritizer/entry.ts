@@ -1,4 +1,4 @@
-import {createClientFromRequest, secrets} from '../../runtime/index';
+import {createClientFromRequest, requireAdminOrWebhook, secrets} from '../../runtime/index';
 
 // ============================================================================
 // VISION BLUEPRINT PRIORITIZER — Reads the MasterPlan (vision) and all
@@ -28,9 +28,8 @@ const CATEGORY_TO_AGENT = {
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    let user = null;
-    try { user = await base44.auth.me(); } catch {}
-    if (user && user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
+    const authorizationError = await requireAdminOrWebhook(req);
+    if (authorizationError) return authorizationError;
 
     const sr = base44.asServiceRole.entities;
     const body = await req.json().catch(() => ({}));
