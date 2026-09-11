@@ -1,4 +1,4 @@
-import { createClientFromRequest } from '../../runtime/index';
+import { createClientFromRequest, requireAdminOrWebhook } from '../../runtime/index';
 
 // ============================================================================
 // PREFLIGHT SENSORY — Reads from all Supabase tables to provide the live
@@ -8,9 +8,8 @@ import { createClientFromRequest } from '../../runtime/index';
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
-    let user = null;
-    try { user = await base44.auth.me(); } catch {}
-    if (user && user.role !== 'admin') return Response.json({ error: 'Admin required' }, { status: 403 });
+    const authorizationError = await requireAdminOrWebhook(req);
+    if (authorizationError) return authorizationError;
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
